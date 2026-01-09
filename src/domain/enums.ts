@@ -1,0 +1,35 @@
+export const OpportunityStage = [
+    "LISTEN_AND_LEARN",
+    "CREATE_CURIOSITY",
+    "BUILD_EVERYTHING_TOGETHER",
+    "GAIN_APPROVAL",
+    "RETAIN_AND_EXPAND",
+] as const;
+export type OpportunityStage = (typeof OpportunityStage)[number];
+
+export const ThinkingPreference = ["ANALYTICAL", "PRACTICAL", "RELATIONAL", "EXPERIMENTAL"] as const;
+export type ThinkingPreference = (typeof ThinkingPreference)[number];
+
+export const ProtemoiType = ["CLIENT_OR_PROSPECT", "STRONG_INFLUENCER", "STRATEGIC_PARTNER", "INTERESTING_PERSON"] as const;
+export type ProtemoiType = (typeof ProtemoiType)[number];
+
+export const RelationshipStage = [
+    "TARGET", "ACQUAINTANCE", "CURIOUS_SKEPTIC", "NEW_CLIENT",
+    "SOLID_WORKING_RELATIONSHIP", "TRUSTED_ADVISEE", "RAVING_FAN",
+] as const;
+export type RelationshipStage = (typeof RelationshipStage)[number];
+
+export const BuyInPriority = ["ROI", "SAFETY", "CONNECTIVITY", "STRATEGIC_FIT"] as const;
+export type BuyInPriority = (typeof BuyInPriority)[number];
+
+export const RoleType = ["DECISION_MAKER", "INFLUENCER"] as const;
+export type RoleType = (typeof RoleType)[number];
+
+export const TaskStatus = ["TODO", "IN_PROGRESS", "DONE", "CANCELED"] as const;
+export type TaskStatus = (typeof TaskStatus)[number];
+
+export const TaskType = ["NEXT_STEP", "MIT", "ADMIN"] as const;
+export type TaskType = (typeof TaskType)[number];
+
+export const EntityType = ["OPPORTUNITY", "RELATIONSHIP", "MEETING", "CONTACT", "ORGANIZATION", "NONE"] as const;
+export type EntityType = (typeof EntityType)[number];
