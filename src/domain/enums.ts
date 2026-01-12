@@ -10,12 +10,30 @@ export type OpportunityStage = (typeof OpportunityStage)[number];
 export const ThinkingPreference = ["ANALYTICAL", "PRACTICAL", "RELATIONAL", "EXPERIMENTAL"] as const;
 export type ThinkingPreference = (typeof ThinkingPreference)[number];
 
-export const ProtemoiType = ["CLIENT_OR_PROSPECT", "STRONG_INFLUENCER", "STRATEGIC_PARTNER", "INTERESTING_PERSON"] as const;
+export const ProtemoiType = [
+    // External
+    "CLIENT_OR_PROSPECT",
+    "STRONG_INFLUENCER",
+    "STRATEGIC_PARTNER",
+    "INTERESTING_PERSON",
+    // Internal
+    "SPONSOR_ADVOCATE",
+    "CO_SELL_ACCOUNT_ACCESS",
+    "PRACTICE_TOPIC_LEADER",
+    "CONNECTOR",
+    "MENTOR_COACH"
+] as const;
 export type ProtemoiType = (typeof ProtemoiType)[number];
 
 export const RelationshipStage = [
-    "TARGET", "ACQUAINTANCE", "CURIOUS_SKEPTIC", "NEW_CLIENT",
-    "SOLID_WORKING_RELATIONSHIP", "TRUSTED_ADVISEE", "RAVING_FAN",
+    "TARGET",
+    "ACQUAINTANCE",
+    "CURIOUS_SKEPTIC",
+    "NEW_CLIENT",       // External specific
+    "NEW_COLLABORATOR", // Internal specific
+    "SOLID_WORKING_RELATIONSHIP",
+    "TRUSTED_ADVISEE",
+    "RAVING_FAN",
 ] as const;
 export type RelationshipStage = (typeof RelationshipStage)[number];
 

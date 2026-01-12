@@ -1,9 +1,9 @@
 import {
     OrganizationRepository, ContactRepository, OpportunityRepository,
-    MeetingRepository, Repository, ProtemoiRepository
+    MeetingRepository, Repository, ProtemoiRepository, TaskRepository
 } from "../application/interfaces";
 import {
-    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry
+    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task
 } from "../domain/entities";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
@@ -36,73 +36,132 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
     async save(entity: Organization): Promise<void> {
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO organizations (id, name, industry, notes_md, created_at, updated_at) 
-         VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO organizations (id, name, industry, logo_url, notes_md, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT(id) DO UPDATE SET 
             name=excluded.name, 
             industry=excluded.industry,
+            logo_url=excluded.logo_url,
             notes_md=excluded.notes_md,
             updated_at=excluded.updated_at`,
-            [entity.id, entity.name, entity.industry, entity.notesMd, entity.createdAt, entity.updatedAt]
+            [entity.id, entity.name, entity.industry, entity.logoUrl, entity.notesMd, entity.createdAt, entity.updatedAt]
         );
+    }
+
+    private mapRow(row: any): Organization {
+        return {
+            id: row.id,
+            name: row.name,
+            industry: row.industry,
+            logoUrl: row.logo_url,
+            notesMd: row.notes_md,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
     }
 
     async findAll(): Promise<Organization[]> {
         const db = await this.getDb();
-        return db.select<Organization[]>("SELECT * FROM organizations ORDER BY updated_at DESC");
+        const rows = await db.select<any[]>("SELECT * FROM organizations ORDER BY updated_at DESC");
+        return rows.map(r => this.mapRow(r));
     }
 
     async search(query: string): Promise<Organization[]> {
         const db = await this.getDb();
-        return db.select<Organization[]>(
+        const rows = await db.select<any[]>(
             "SELECT * FROM organizations WHERE name LIKE $1 ORDER BY updated_at DESC",
             [`%${query}%`]
         );
+        return rows.map(r => this.mapRow(r));
     }
 }
 
 export class SqliteContactRepository extends SqliteRepository<Contact> implements ContactRepository {
     protected tableName = "contacts";
 
+    private mapRow(row: any): Contact {
+        return {
+            id: row.id,
+            organizationId: row.organization_id,
+            firstName: row.first_name,
+            lastName: row.last_name,
+            displayName: row.display_name,
+            title: row.title,
+            email: row.email,
+            phone: row.phone,
+            notesMd: row.notes_md,
+            thinkingPreference: row.thinking_preference,
+            primaryBuyInPriority: row.primary_buy_in_priority,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
     async findAll(): Promise<Contact[]> {
         const db = await this.getDb();
-        return db.select<Contact[]>("SELECT * FROM contacts ORDER BY updated_at DESC");
+        const rows = await db.select<any[]>("SELECT * FROM contacts ORDER BY updated_at DESC");
+        return rows.map(r => this.mapRow(r));
     }
 
     async save(entity: Contact): Promise<void> {
         const db = await this.getDb();
-        await db.execute(
-            `INSERT INTO contacts (id, organization_id, first_name, last_name, display_name, title, email, phone, notes_md, thinking_preference, primary_buy_in_priority, created_at, updated_at) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-         ON CONFLICT(id) DO UPDATE SET 
-            display_name=excluded.display_name,
-            title=excluded.title,
-            email=excluded.email,
-            updated_at=excluded.updated_at`,
-            [entity.id, entity.organizationId, entity.firstName, entity.lastName, entity.displayName, entity.title, entity.email, entity.phone, entity.notesMd, entity.thinkingPreference, entity.primaryBuyInPriority, entity.createdAt, entity.updatedAt]
-        );
+        console.log("Saving contact:", entity);
+        try {
+            await db.execute(
+                `INSERT INTO contacts (id, organization_id, first_name, last_name, display_name, title, email, phone, notes_md, thinking_preference, primary_buy_in_priority, created_at, updated_at) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                 ON CONFLICT(id) DO UPDATE SET 
+                 display_name=excluded.display_name,
+                 title=excluded.title,
+                 email=excluded.email,
+                 updated_at=excluded.updated_at`,
+                [entity.id, entity.organizationId, entity.firstName, entity.lastName, entity.displayName, entity.title, entity.email, entity.phone, entity.notesMd, entity.thinkingPreference, entity.primaryBuyInPriority, entity.createdAt, entity.updatedAt]
+            );
+        } catch (e) {
+            console.error("Critical Error saving Contact:", e, entity);
+            throw e;
+        }
     }
 
     async findByOrganizationId(orgId: UUID): Promise<Contact[]> {
         const db = await this.getDb();
-        return db.select<Contact[]>("SELECT * FROM contacts WHERE organization_id = $1", [orgId]);
+        const rows = await db.select<any[]>("SELECT * FROM contacts WHERE organization_id = $1", [orgId]);
+        return rows.map(r => this.mapRow(r));
     }
 
     async search(query: string): Promise<Contact[]> {
         const db = await this.getDb();
-        return db.select<Contact[]>(
+        const rows = await db.select<any[]>(
             "SELECT * FROM contacts WHERE display_name LIKE $1 OR email LIKE $1",
             [`%${query}%`]
         );
+        return rows.map(r => this.mapRow(r));
     }
 }
 
 export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> implements OpportunityRepository {
     protected tableName = "opportunities";
 
+    private mapRow(row: any): Opportunity {
+        return {
+            id: row.id,
+            name: row.name,
+            organizationId: row.organization_id,
+            descriptionMd: row.description_md,
+            stage: row.stage,
+            status: row.status,
+            nextStepText: row.next_step_text,
+            valueEstimate: row.value_estimate,
+            probability: row.probability,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
     async findAll(): Promise<Opportunity[]> {
         const db = await this.getDb();
-        return db.select<Opportunity[]>("SELECT * FROM opportunities ORDER BY updated_at DESC");
+        const rows = await db.select<any[]>("SELECT * FROM opportunities ORDER BY updated_at DESC");
+        return rows.map(r => this.mapRow(r));
     }
 
     async save(entity: Opportunity): Promise<void> {
@@ -110,19 +169,30 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         await db.execute(
             `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, created_at, updated_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-             ON CONFLICT(id) DO UPDATE SET name=excluded.name, stage=excluded.stage, status=excluded.status, updated_at=excluded.updated_at`,
+             ON CONFLICT(id) DO UPDATE SET 
+                name=excluded.name, 
+                organization_id=excluded.organization_id,
+                description_md=excluded.description_md,
+                stage=excluded.stage, 
+                status=excluded.status, 
+                next_step_text=excluded.next_step_text,
+                value_estimate=excluded.value_estimate,
+                probability=excluded.probability,
+                updated_at=excluded.updated_at`,
             [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.createdAt, entity.updatedAt]
         );
     }
 
     async findByOrganizationId(orgId: UUID): Promise<Opportunity[]> {
         const db = await this.getDb();
-        return db.select<Opportunity[]>("SELECT * FROM opportunities WHERE organization_id = $1", [orgId]);
+        const rows = await db.select<any[]>("SELECT * FROM opportunities WHERE organization_id = $1", [orgId]);
+        return rows.map(r => this.mapRow(r));
     }
 
     async findAllByStage(stage: string): Promise<Opportunity[]> {
         const db = await this.getDb();
-        return db.select<Opportunity[]>("SELECT * FROM opportunities WHERE stage = $1", [stage]);
+        const rows = await db.select<any[]>("SELECT * FROM opportunities WHERE stage = $1", [stage]);
+        return rows.map(r => this.mapRow(r));
     }
 }
 
@@ -134,7 +204,14 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         await db.execute(
             `INSERT INTO meetings (id, title, start_at, end_at, location, organization_id, notes_md, created_at, updated_at)
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-              ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at`,
+              ON CONFLICT(id) DO UPDATE SET 
+                title=excluded.title,
+                start_at=excluded.start_at,
+                end_at=excluded.end_at,
+                location=excluded.location,
+                organization_id=excluded.organization_id,
+                notes_md=excluded.notes_md,
+                updated_at=excluded.updated_at`,
             [entity.id, entity.title, entity.startAt, entity.endAt, entity.location, entity.organizationId, entity.notesMd, entity.createdAt, entity.updatedAt]
         );
     }
@@ -156,12 +233,32 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
 export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> implements ProtemoiRepository {
     protected tableName = "protemoi_entries";
 
+    private mapRow(row: any): ProtemoiEntry {
+        return {
+            id: row.id,
+            contactId: row.contact_id,
+            organizationId: row.organization_id,
+            protemoiType: row.protemoi_type,
+            relationshipStage: row.relationship_stage,
+            nextStepText: row.next_step_text,
+            nextStepDueDate: row.next_step_due_date,
+            lastTouchDate: row.last_touch_date,
+            nextTouchDate: row.next_touch_date,
+            importanceScore: row.importance_score,
+            isInternal: row.is_internal === 1,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
     async save(entity: ProtemoiEntry): Promise<void> {
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO protemoi_entries (id, contact_id, organization_id, protemoi_type, relationship_stage, next_step_text, next_step_due_date, last_touch_date, next_touch_date, importance_score, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `INSERT INTO protemoi_entries (id, contact_id, organization_id, protemoi_type, relationship_stage, next_step_text, next_step_due_date, last_touch_date, next_touch_date, importance_score, is_internal, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
              ON CONFLICT(id) DO UPDATE SET 
+                contact_id=excluded.contact_id,
+                organization_id=excluded.organization_id,
                 protemoi_type=excluded.protemoi_type, 
                 relationship_stage=excluded.relationship_stage,
                 next_step_text=excluded.next_step_text,
@@ -169,20 +266,142 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
                 last_touch_date=excluded.last_touch_date,
                 next_touch_date=excluded.next_touch_date,
                 importance_score=excluded.importance_score,
+                is_internal=excluded.is_internal,
                 updated_at=excluded.updated_at`,
-            [entity.id, entity.contactId, entity.organizationId, entity.protemoiType, entity.relationshipStage, entity.nextStepText, entity.nextStepDueDate, entity.lastTouchDate, entity.nextTouchDate, entity.importanceScore, entity.createdAt, entity.updatedAt]
+            [entity.id, entity.contactId, entity.organizationId, entity.protemoiType, entity.relationshipStage, entity.nextStepText, entity.nextStepDueDate, entity.lastTouchDate, entity.nextTouchDate, entity.importanceScore, entity.isInternal ? 1 : 0, entity.createdAt, entity.updatedAt]
         );
     }
 
     async findByContactId(contactId: UUID): Promise<ProtemoiEntry | null> {
         const db = await this.getDb();
-        const res = await db.select<ProtemoiEntry[]>("SELECT * FROM protemoi_entries WHERE contact_id = $1", [contactId]);
-        return res[0] || null;
+        const res = await db.select<any[]>("SELECT * FROM protemoi_entries WHERE contact_id = $1", [contactId]);
+        return res[0] ? this.mapRow(res[0]) : null;
     }
 
     async findAll(): Promise<ProtemoiEntry[]> {
         const db = await this.getDb();
-        return db.select<ProtemoiEntry[]>("SELECT * FROM protemoi_entries ORDER BY updated_at DESC");
+        const rows = await db.select<any[]>("SELECT * FROM protemoi_entries ORDER BY updated_at DESC");
+        return rows.map(r => this.mapRow(r));
+    }
+}
+
+export class SqliteTaskRepository extends SqliteRepository<Task> implements TaskRepository {
+    protected tableName = "tasks";
+
+    private mapRow(row: any): Task {
+        return {
+            id: row.id,
+            title: row.title,
+            descriptionMd: row.description_md,
+            status: row.status,
+            type: row.type,
+            dueDate: row.due_date,
+            linkedEntityType: row.linked_entity_type,
+            linkedEntityId: row.linked_entity_id,
+            weekReviewId: row.week_review_id,
+            bigImpactDescription: row.big_impact_description,
+            inControlDescription: row.in_control_description,
+            growthOrientedDescription: row.growth_oriented_description,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
+    private async populateLinks(tasks: Task[]): Promise<Task[]> {
+        if (tasks.length === 0) return [];
+        const db = await this.getDb();
+        const taskIds = tasks.map(t => `'${t.id}'`).join(",");
+
+        try {
+            const links = await db.select<any[]>(`SELECT * FROM task_links WHERE task_id IN (${taskIds})`);
+
+            const linkMap = new Map<string, any[]>();
+            links.forEach(l => {
+                if (!linkMap.has(l.task_id)) linkMap.set(l.task_id, []);
+                linkMap.get(l.task_id)!.push({
+                    id: l.id,
+                    taskId: l.task_id,
+                    entityType: l.entity_type,
+                    entityId: l.entity_id,
+                    createdAt: l.created_at
+                });
+            });
+
+            return tasks.map(t => ({
+                ...t,
+                links: linkMap.get(t.id) || []
+            }));
+        } catch (e) {
+            console.error("Failed to populate links:", e);
+            return tasks;
+        }
+    }
+
+    async save(entity: Task): Promise<void> {
+        const db = await this.getDb();
+        await db.execute(
+            `INSERT INTO tasks (
+                id, title, description_md, status, type, due_date, 
+                linked_entity_type, linked_entity_id, week_review_id,
+                big_impact_description, in_control_description, growth_oriented_description,
+                created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            ON CONFLICT(id) DO UPDATE SET
+                title=excluded.title,
+                description_md=excluded.description_md,
+                status=excluded.status,
+                type=excluded.type,
+                due_date=excluded.due_date,
+                linked_entity_type=excluded.linked_entity_type,
+                linked_entity_id=excluded.linked_entity_id,
+                week_review_id=excluded.week_review_id,
+                big_impact_description=excluded.big_impact_description,
+                in_control_description=excluded.in_control_description,
+                growth_oriented_description=excluded.growth_oriented_description,
+                updated_at=excluded.updated_at`,
+            [
+                entity.id, entity.title, entity.descriptionMd, entity.status, entity.type, entity.dueDate,
+                entity.linkedEntityType, entity.linkedEntityId, entity.weekReviewId,
+                entity.bigImpactDescription, entity.inControlDescription, entity.growthOrientedDescription,
+                entity.createdAt, entity.updatedAt
+            ]
+        );
+
+        // Save Links
+        // 1. Delete existing links for this task (simple replacement strategy)
+        await db.execute("DELETE FROM task_links WHERE task_id = $1", [entity.id]);
+
+        // 2. Insert new links
+        if (entity.links && entity.links.length > 0) {
+            for (const link of entity.links) {
+                await db.execute(
+                    "INSERT INTO task_links (id, task_id, entity_type, entity_id, created_at) VALUES ($1, $2, $3, $4, $5)",
+                    [link.id || crypto.randomUUID(), entity.id, link.entityType, link.entityId, new Date().toISOString()]
+                );
+            }
+        }
+    }
+
+    async findPending(): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM tasks WHERE status != 'DONE' AND status != 'CANCELED' ORDER BY due_date ASC");
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
+    }
+
+    async findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]> {
+        const db = await this.getDb();
+        // Check both legacy columns AND new table
+        const rows = await db.select<any[]>(
+            `SELECT DISTINCT t.* FROM tasks t 
+             LEFT JOIN task_links tl ON t.id = tl.task_id
+             WHERE (t.linked_entity_type = $1 AND t.linked_entity_id = $2)
+             OR (tl.entity_type = $1 AND tl.entity_id = $2)
+             ORDER BY t.created_at DESC`,
+            [entityType, entityId]
+        );
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
     }
 }
 
@@ -191,3 +410,4 @@ export const contactRepository = new SqliteContactRepository();
 export const opportunityRepository = new SqliteOpportunityRepository();
 export const meetingRepository = new SqliteMeetingRepository();
 export const protemoiRepository = new SqliteProtemoiRepository();
+export const taskRepository = new SqliteTaskRepository();

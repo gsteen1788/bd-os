@@ -9,6 +9,7 @@ export interface Organization {
     id: UUID;
     name: string;
     industry?: string | null;
+    logoUrl?: string | null;
     notesMd?: string | null;
     createdAt: string;  // ISO
     updatedAt: string;  // ISO
@@ -41,6 +42,7 @@ export interface ProtemoiEntry {
     lastTouchDate?: string | null;   // date
     nextTouchDate?: string | null;   // date
     importanceScore?: number | null;
+    isInternal?: boolean; // New field for separation
     createdAt: string;
     updatedAt: string;
 }
@@ -104,9 +106,16 @@ export interface Task {
     status: TaskStatus;
     type: TaskType;
     dueDate?: string | null; // date
-    linkedEntityType: EntityType;
-    linkedEntityId?: UUID | null;
+    linkedEntityType: EntityType; // Deprecated: Use links[0]
+    linkedEntityId?: UUID | null; // Deprecated: Use links[0]
+    links?: TaskLink[];
     weekReviewId?: UUID | null;
+
+    // MIT Specific
+    bigImpactDescription?: string | null;
+    inControlDescription?: string | null;
+    growthOrientedDescription?: string | null;
+
     createdAt: string;
     updatedAt: string;
 }
@@ -118,4 +127,12 @@ export interface WeekReview {
     reflectionMd?: string | null;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface TaskLink {
+    id: UUID;
+    taskId: UUID;
+    entityType: EntityType;
+    entityId: UUID;
+    createdAt: string;
 }

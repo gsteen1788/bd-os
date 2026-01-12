@@ -16,6 +16,15 @@
             "shell": {
                 "all": false,
                 "open": true
+            },
+            "dialog": {
+                "open": true
+            },
+            "protocol": {
+                "asset": true,
+                "assetScope": [
+                    "**"
+                ]
             }
         },
         "bundle": {

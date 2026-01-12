@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { initDb } from './infrastructure/db';
 import { Layout } from './ui/Layout';
 import { Dashboard } from './ui/screens/Dashboard';
 import { OpportunityBoard } from './ui/screens/OpportunityBoard';
@@ -7,6 +8,10 @@ import { ProtemoiBoard } from './ui/screens/ProtemoiBoard';
 
 function App() {
     const [activeTab, setActiveTab] = useState("dashboard");
+
+    useEffect(() => {
+        initDb().catch(console.error);
+    }, []);
 
     const renderContent = () => {
         switch (activeTab) {
