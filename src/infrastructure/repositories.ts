@@ -89,6 +89,16 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
             title: row.title,
             email: row.email,
             phone: row.phone,
+            location: row.location,
+            maritalStatus: row.marital_status,
+            children: row.children,
+            hobbiesInterests: row.hobbies_interests,
+            currentFocus: row.current_focus,
+            storiesAnecdotes: row.stories_anecdotes,
+            careerHistory: row.career_history,
+            education: row.education,
+            linkedinUrl: row.linkedin_url,
+            other: row.other,
             notesMd: row.notes_md,
             thinkingPreference: row.thinking_preference,
             primaryBuyInPriority: row.primary_buy_in_priority,
@@ -108,14 +118,36 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         console.log("Saving contact:", entity);
         try {
             await db.execute(
-                `INSERT INTO contacts (id, organization_id, first_name, last_name, display_name, title, email, phone, notes_md, thinking_preference, primary_buy_in_priority, created_at, updated_at) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                `INSERT INTO contacts (
+                    id, organization_id, first_name, last_name, display_name, title, email, phone, 
+                    location, marital_status, children, hobbies_interests, current_focus, stories_anecdotes, other,
+                    career_history, education, linkedin_url,
+                    notes_md, thinking_preference, primary_buy_in_priority, created_at, updated_at
+                ) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
                  ON CONFLICT(id) DO UPDATE SET 
                  display_name=excluded.display_name,
                  title=excluded.title,
                  email=excluded.email,
+                 phone=excluded.phone,
+                 location=excluded.location,
+                 marital_status=excluded.marital_status,
+                 children=excluded.children,
+                 hobbies_interests=excluded.hobbies_interests,
+                 current_focus=excluded.current_focus,
+                 stories_anecdotes=excluded.stories_anecdotes,
+                 career_history=excluded.career_history,
+                 education=excluded.education,
+                 linkedin_url=excluded.linkedin_url,
+                 other=excluded.other,
                  updated_at=excluded.updated_at`,
-                [entity.id, entity.organizationId, entity.firstName, entity.lastName, entity.displayName, entity.title, entity.email, entity.phone, entity.notesMd, entity.thinkingPreference, entity.primaryBuyInPriority, entity.createdAt, entity.updatedAt]
+                [
+                    entity.id, entity.organizationId, entity.firstName, entity.lastName, entity.displayName,
+                    entity.title, entity.email, entity.phone,
+                    entity.location, entity.maritalStatus, entity.children, entity.hobbiesInterests, entity.currentFocus, entity.storiesAnecdotes, entity.other,
+                    entity.careerHistory, entity.education, entity.linkedinUrl,
+                    entity.notesMd, entity.thinkingPreference, entity.primaryBuyInPriority, entity.createdAt, entity.updatedAt
+                ]
             );
         } catch (e) {
             console.error("Critical Error saving Contact:", e, entity);
@@ -152,6 +184,7 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
             status: row.status,
             nextStepText: row.next_step_text,
             valueEstimate: row.value_estimate,
+            currency: row.currency,
             probability: row.probability,
             createdAt: row.created_at,
             updatedAt: row.updated_at
@@ -167,8 +200,8 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     async save(entity: Opportunity): Promise<void> {
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
              ON CONFLICT(id) DO UPDATE SET 
                 name=excluded.name, 
                 organization_id=excluded.organization_id,
@@ -178,8 +211,9 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
                 next_step_text=excluded.next_step_text,
                 value_estimate=excluded.value_estimate,
                 probability=excluded.probability,
+                currency=excluded.currency,
                 updated_at=excluded.updated_at`,
-            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.createdAt, entity.updatedAt]
+            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.currency, entity.createdAt, entity.updatedAt]
         );
     }
 
@@ -192,6 +226,15 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     async findAllByStage(stage: string): Promise<Opportunity[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM opportunities WHERE stage = $1", [stage]);
+        return rows.map(r => this.mapRow(r));
+    }
+
+    async search(query: string): Promise<Opportunity[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            "SELECT * FROM opportunities WHERE name LIKE $1 OR description_md LIKE $1 OR next_step_text LIKE $1 ORDER BY updated_at DESC",
+            [`%${query}%`]
+        );
         return rows.map(r => this.mapRow(r));
     }
 }
@@ -221,12 +264,37 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         return db.select<Meeting[]>("SELECT * FROM meetings WHERE related_opportunity_id = $1", [oppId]);
     }
 
+    private mapRow(row: any): Meeting {
+        return {
+            id: row.id,
+            title: row.title,
+            startAt: row.start_at,
+            endAt: row.end_at,
+            location: row.location,
+            organizationId: row.organization_id,
+            relatedOpportunityId: row.related_opportunity_id,
+            notesMd: row.notes_md,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
     async findUpcoming(limit: number): Promise<Meeting[]> {
         const db = await this.getDb();
         // SQLite date comparison string based
-        return db.select<Meeting[]>(
+        const rows = await db.select<any[]>(
             `SELECT * FROM meetings WHERE start_at > date('now') ORDER BY start_at ASC LIMIT ${limit}`
         );
+        return rows.map(r => this.mapRow(r));
+    }
+
+    async search(query: string): Promise<Meeting[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            "SELECT * FROM meetings WHERE title LIKE $1 OR notes_md LIKE $1 OR location LIKE $1 ORDER BY start_at DESC",
+            [`%${query}%`]
+        );
+        return rows.map(r => this.mapRow(r));
     }
 }
 
@@ -405,9 +473,18 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 }
 
-export const organizationRepository = new SqliteOrganizationRepository();
-export const contactRepository = new SqliteContactRepository();
-export const opportunityRepository = new SqliteOpportunityRepository();
-export const meetingRepository = new SqliteMeetingRepository();
-export const protemoiRepository = new SqliteProtemoiRepository();
-export const taskRepository = new SqliteTaskRepository();
+// ... imports
+import * as mockRepos from "./mock/repositories";
+
+// Helper to detect Tauri environment
+const isTauri = typeof window !== 'undefined' && '__TAURI_IPC__' in window;
+
+console.log(`[Repository Factory] Environment: ${isTauri ? "Tauri (SQL)" : "Browser (Mock)"}`);
+
+export const organizationRepository = isTauri ? new SqliteOrganizationRepository() : mockRepos.organizationRepository;
+export const contactRepository = isTauri ? new SqliteContactRepository() : mockRepos.contactRepository;
+export const opportunityRepository = isTauri ? new SqliteOpportunityRepository() : mockRepos.opportunityRepository;
+export const meetingRepository = isTauri ? new SqliteMeetingRepository() : mockRepos.meetingRepository;
+export const protemoiRepository = isTauri ? new SqliteProtemoiRepository() : mockRepos.protemoiRepository;
+export const taskRepository = isTauri ? new SqliteTaskRepository() : (mockRepos as any).taskRepository || new SqliteTaskRepository(); // Fallback if mock task repo missing
+

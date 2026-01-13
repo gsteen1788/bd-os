@@ -31,6 +31,7 @@ const INTERNAL_TYPES = [
 ] as const;
 
 import { MITModal } from "../components/MITModal";
+import { LinkedInIcon } from "../icons/Icons";
 
 function getPreferenceColor(preference?: ThinkingPreference | null): string {
     switch (preference) {
@@ -322,7 +323,7 @@ export function ProtemoiBoard() {
     };
 
     return (
-        <div className="flex flex-col gap-6 h-full">
+        <div className="flex flex-col gap-6">
             <div className="flex justify-between items-center bg-base py-2 sticky top-0 z-10">
                 <div className="flex items-center gap-4">
                     <h2>Relationship Board</h2>
@@ -339,7 +340,7 @@ export function ProtemoiBoard() {
                 <button className="btn" onClick={createNew}>+ New Relationship</button>
             </div>
 
-            <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "16px", flex: 1 }}>
+            <div style={{ display: "flex", gap: "16px", paddingBottom: "16px" }}>
                 {activeStages.map(stage => {
                     const stageEntries = filteredEntries.filter(e => e.relationshipStage === stage);
 
@@ -352,7 +353,7 @@ export function ProtemoiBoard() {
                                 <span className="bg-base rounded-full px-2 py-0.5 text-xs text-muted">{stageEntries.length}</span>
                             </div>
 
-                            <div className="flex flex-col gap-3 overflow-y-auto flex-1 custom-scrollbar">
+                            <div className="flex flex-col gap-3">
                                 {stageEntries.map(entry => (
                                     <div
                                         key={entry.id}
@@ -381,7 +382,6 @@ export function ProtemoiBoard() {
                                                 />
                                             </div>
                                         )}
-
                                         <div style={{ fontWeight: "600", fontSize: "15px", marginBottom: "4px" }}>
                                             {entry.contact?.displayName || "Unknown Contact"}
                                         </div>
@@ -391,6 +391,19 @@ export function ProtemoiBoard() {
                                             ) : null}
                                             <div className="opacity-75">{entry.protemoiType?.replace(/_/g, " ")}</div>
                                         </div>
+
+                                        {entry.contact?.linkedinUrl && (
+                                            <div
+                                                className="absolute bottom-3 right-3 w-6 h-6 p-1 rounded-full hover:bg-black/10 transition-colors z-20 cursor-pointer text-blue-600 hover:text-blue-700 bg-white/80"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    window.open(entry.contact!.linkedinUrl!, "_blank");
+                                                }}
+                                                title="Open LinkedIn Profile"
+                                            >
+                                                <LinkedInIcon />
+                                            </div>
+                                        )}
 
                                         {entry.nextStepText && (
                                             <div style={{
@@ -464,7 +477,7 @@ export function ProtemoiBoard() {
                             )}
 
                             <div className="p-4 bg-base-200 rounded-lg border border-white/5">
-                                <h4 className="mb-3 font-bold text-white text-sm uppercase tracking-wide opacity-70">Company Details</h4>
+                                <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Company Details</h4>
                                 <div className="flex flex-col gap-3">
                                     {!showNewOrgInput ? (
                                         <div className="flex items-end gap-2">
@@ -562,7 +575,7 @@ export function ProtemoiBoard() {
                             </div>
 
                             <div className="p-4 bg-base-200 rounded-lg border border-white/5">
-                                <h4 className="mb-3 font-bold text-white text-sm uppercase tracking-wide opacity-70">Contact Details</h4>
+                                <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Contact Details</h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <label className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Full Name</span>
@@ -575,6 +588,20 @@ export function ProtemoiBoard() {
                                             })}
                                             placeholder="e.g. Jane Doe"
                                         />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Thinking Style</span>
+                                        <select
+                                            className="input"
+                                            value={editingEntry.contact?.thinkingPreference || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, thinkingPreference: e.target.value ? e.target.value as ThinkingPreference : null }
+                                            })}
+                                        >
+                                            <option value="">None</option>
+                                            {ThinkingPreference.map(p => <option key={p} value={p}>{p}</option>)}
+                                        </select>
                                     </label>
                                     <label className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Email</span>
@@ -589,6 +616,30 @@ export function ProtemoiBoard() {
                                         />
                                     </label>
                                     <label className="flex flex-col gap-1">
+                                        <span className="text-xs font-medium text-muted">Phone</span>
+                                        <input
+                                            className="input"
+                                            value={editingEntry.contact?.phone || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, phone: e.target.value }
+                                            })}
+                                            placeholder="+1 234 567 890"
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-xs font-medium text-muted">LinkedIn URL</span>
+                                        <input
+                                            className="input"
+                                            value={editingEntry.contact?.linkedinUrl || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, linkedinUrl: e.target.value }
+                                            })}
+                                            placeholder="https://linkedin.com/in/..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Title</span>
                                         <input
                                             className="input"
@@ -600,25 +651,134 @@ export function ProtemoiBoard() {
                                             placeholder="CEO"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
-                                        <span className="text-xs font-medium text-muted">Thinking Style</span>
-                                        <select
-                                            className="input"
-                                            value={editingEntry.contact?.thinkingPreference || ""}
-                                            onChange={e => setEditingEntry({
-                                                ...editingEntry,
-                                                contact: { ...editingEntry.contact!, thinkingPreference: e.target.value ? e.target.value as ThinkingPreference : null }
-                                            })}
-                                        >
-                                            <option value="">None</option>
-                                            {ThinkingPreference.map(p => <option key={p} value={p}>{p}</option>)}
-                                        </select>
-                                    </label>
                                 </div>
                             </div>
 
+                            <details className="bg-base-200 rounded-lg border border-white/5 group">
+                                <summary className="p-4 font-bold text-base-content text-sm uppercase tracking-wide opacity-70 cursor-pointer list-none flex justify-between items-center bg-base-300 rounded-lg hover:bg-base-100 transition-colors">
+                                    Personal Details
+                                    <span className="opacity-50 text-xs">▼</span>
+                                </summary>
+                                <div className="p-4 grid grid-cols-2 gap-4 border-t border-white/5">
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-xs font-medium text-muted">Location</span>
+                                        <input
+                                            className="input"
+                                            value={editingEntry.contact?.location || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, location: e.target.value }
+                                            })}
+                                            placeholder="City, Country"
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-xs font-medium text-muted">Marital Status</span>
+                                        <input
+                                            className="input"
+                                            value={editingEntry.contact?.maritalStatus || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, maritalStatus: e.target.value }
+                                            })}
+                                            placeholder="Married, Single..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Children</span>
+                                        <input
+                                            className="input"
+                                            value={editingEntry.contact?.children || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, children: e.target.value }
+                                            })}
+                                            placeholder="Names, ages..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Hobbies</span>
+                                        <textarea
+                                            className="input"
+                                            rows={2}
+                                            value={editingEntry.contact?.hobbiesInterests || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, hobbiesInterests: e.target.value }
+                                            })}
+                                            placeholder="Golf, Reading, Cooking..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Career & Professional Background</span>
+                                        <textarea
+                                            className="input"
+                                            rows={3}
+                                            value={editingEntry.contact?.careerHistory || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, careerHistory: e.target.value }
+                                            })}
+                                            placeholder="Past roles, key achievements..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Education</span>
+                                        <textarea
+                                            className="input"
+                                            rows={2}
+                                            value={editingEntry.contact?.education || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, education: e.target.value }
+                                            })}
+                                            placeholder="University, degrees..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">What's on their mind right now?</span>
+                                        <textarea
+                                            className="input"
+                                            rows={2}
+                                            value={editingEntry.contact?.currentFocus || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, currentFocus: e.target.value }
+                                            })}
+                                            placeholder="Current focus, concerns, or interests..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Stories & Anecdotes</span>
+                                        <textarea
+                                            className="input"
+                                            rows={3}
+                                            value={editingEntry.contact?.storiesAnecdotes || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, storiesAnecdotes: e.target.value }
+                                            })}
+                                            placeholder="Interesting stories or memorable moments..."
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 col-span-2">
+                                        <span className="text-xs font-medium text-muted">Other</span>
+                                        <textarea
+                                            className="input"
+                                            rows={2}
+                                            value={editingEntry.contact?.other || ""}
+                                            onChange={e => setEditingEntry({
+                                                ...editingEntry,
+                                                contact: { ...editingEntry.contact!, other: e.target.value }
+                                            })}
+                                            placeholder="Any other details..."
+                                        />
+                                    </label>
+                                </div>
+                            </details>
+
                             <div className="p-4 bg-base-200 rounded-lg border border-white/5">
-                                <h4 className="mb-3 font-bold text-white text-sm uppercase tracking-wide opacity-70">Relationship Status</h4>
+                                <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Relationship Status</h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <label className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Stage</span>

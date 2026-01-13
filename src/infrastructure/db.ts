@@ -53,6 +53,27 @@ export async function initDb() {
         }
     }
 
+    // Lazy Migrations for Contact fields
+    const contactColumns = [
+        "location", "marital_status", "children", "hobbies_interests",
+        "current_focus", "stories_anecdotes", "other",
+        "career_history", "education", "linkedin_url"
+    ];
+    for (const col of contactColumns) {
+        try {
+            await db.execute(`ALTER TABLE contacts ADD COLUMN ${col} TEXT;`);
+        } catch (e) {
+            // Ignore if exists
+        }
+    }
+
+    // Lazy Migration for Opportunity Currency
+    try {
+        await db.execute("ALTER TABLE opportunities ADD COLUMN currency TEXT;");
+    } catch (e) {
+        // Ignore if exists
+    }
+
     // Lazy Migration: Create task_links if not exists
     try {
         await db.execute(`

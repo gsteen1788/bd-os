@@ -55,6 +55,12 @@ export class MockOpportunityRepository extends MockRepository<Opportunity> imple
     async findAllByStage(stage: string): Promise<Opportunity[]> {
         return this.items.filter(o => o.stage === stage);
     }
+    async search(query: string): Promise<Opportunity[]> {
+        return this.items.filter(o =>
+            o.name.toLowerCase().includes(query.toLowerCase()) ||
+            (o.descriptionMd && o.descriptionMd.toLowerCase().includes(query.toLowerCase()))
+        );
+    }
 }
 
 export class MockMeetingRepository extends MockRepository<Meeting> implements MeetingRepository {
@@ -66,6 +72,13 @@ export class MockMeetingRepository extends MockRepository<Meeting> implements Me
             .filter(m => m.startAt && new Date(m.startAt) > new Date())
             .sort((a, b) => new Date(a.startAt!).getTime() - new Date(b.startAt!).getTime())
             .slice(0, limit);
+    }
+    async search(query: string): Promise<Meeting[]> {
+        return this.items.filter(m =>
+            m.title.toLowerCase().includes(query.toLowerCase()) ||
+            (m.notesMd && m.notesMd.toLowerCase().includes(query.toLowerCase())) ||
+            (m.location && m.location.toLowerCase().includes(query.toLowerCase()))
+        );
     }
 }
 
@@ -85,6 +98,10 @@ export class MockProtemoiRepository implements ProtemoiRepository {
     }
     async findAll(): Promise<ProtemoiEntry[]> {
         return [...this.items];
+    }
+    async delete(id: UUID): Promise<void> {
+        const index = this.items.findIndex(p => p.id === id);
+        if (index >= 0) this.items.splice(index, 1);
     }
 }
 

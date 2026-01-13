@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Opportunity } from "../../domain/entities";
-import { OpportunityStage } from "../../domain/enums";
+import { OpportunityStage, Currency } from "../../domain/enums";
 import { opportunityRepository } from "../../infrastructure/repositories";
 import { Modal } from "../components/Modal";
 import { MITModal } from "../components/MITModal";
@@ -51,6 +51,7 @@ export function OpportunityBoard() {
             status: "OPEN",
             probability: 10,
             valueEstimate: 0,
+            currency: "ZAR",
             nextStepText: "",
             organizationId: null,
             createdAt: new Date().toISOString(),
@@ -92,7 +93,11 @@ export function OpportunityBoard() {
                                     >
                                         <div style={{ fontWeight: "600" }}>{opp.name}</div>
                                         <div className="flex justify-between items-center" style={{ marginTop: "8px", fontSize: "12px" }}>
-                                            <span className="text-muted">{opp.valueEstimate ? `$${opp.valueEstimate.toLocaleString()}` : "-"}</span>
+                                            <span className="text-muted">
+                                                {opp.valueEstimate
+                                                    ? `${opp.currency === "USD" ? "$" : opp.currency === "GBP" ? "£" : "R"}${opp.valueEstimate.toLocaleString()}`
+                                                    : "Not sized"}
+                                            </span>
                                             <span style={{
                                                 padding: "2px 6px",
                                                 borderRadius: "4px",
@@ -150,8 +155,18 @@ export function OpportunityBoard() {
                                 />
                             </label>
                             <div className="flex gap-4">
+                                <label className="flex flex-col gap-1 w-24">
+                                    <span className="text-xs text-muted">Currency</span>
+                                    <select
+                                        className="input w-full"
+                                        value={editingOpp.currency || "ZAR"}
+                                        onChange={e => setEditingOpp({ ...editingOpp, currency: e.target.value as Currency })}
+                                    >
+                                        {Currency.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </label>
                                 <label className="flex flex-col gap-1 flex-1">
-                                    <span className="text-xs text-muted">Value Estimate ($)</span>
+                                    <span className="text-xs text-muted">Value Estimate</span>
                                     <input
                                         type="text"
                                         className="input w-full"

@@ -21,16 +21,19 @@ export interface OpportunityRepository extends Repository<Opportunity> {
     findAll(): Promise<Opportunity[]>;
     findByOrganizationId(orgId: UUID): Promise<Opportunity[]>;
     findAllByStage(stage: string): Promise<Opportunity[]>;
+    search(query: string): Promise<Opportunity[]>;
 }
 
 export interface MeetingRepository extends Repository<Meeting> {
     findByOpportunityId(oppId: UUID): Promise<Meeting[]>;
     findUpcoming(limit: number): Promise<Meeting[]>;
+    search(query: string): Promise<Meeting[]>;
 }
 
 export interface ProtemoiRepository {
     findByContactId(contactId: UUID): Promise<ProtemoiEntry | null>;
     save(entry: ProtemoiEntry): Promise<void>;
+    delete(id: UUID): Promise<void>;
     findAll(): Promise<ProtemoiEntry[]>;
 }
 

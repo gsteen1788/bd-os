@@ -10,6 +10,9 @@ export type OpportunityStage = (typeof OpportunityStage)[number];
 export const ThinkingPreference = ["ANALYTICAL", "PRACTICAL", "RELATIONAL", "EXPERIMENTAL"] as const;
 export type ThinkingPreference = (typeof ThinkingPreference)[number];
 
+export const Currency = ["USD", "GBP", "ZAR"] as const;
+export type Currency = (typeof Currency)[number];
+
 export const ProtemoiType = [
     // External
     "CLIENT_OR_PROSPECT",

@@ -2,6 +2,8 @@ import { ReactNode, useState } from "react";
 import { SettingsModal } from "./components/SettingsModal";
 import { AppIcons } from "./icons/Icons";
 import { useTheme } from "../application/ThemeContext";
+import { useGlobalSearch } from "./hooks/useGlobalSearch";
+import { useEffect, useRef } from "react";
 
 interface LayoutProps {
     children: ReactNode;
@@ -12,6 +14,24 @@ interface LayoutProps {
 export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { theme } = useTheme();
+    const { query, setQuery, results, isSearching } = useGlobalSearch();
+    const searchRef = useRef<HTMLDivElement>(null);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+    useEffect(() => {
+        setIsSearchOpen(query.length > 0);
+    }, [query]);
+
+    // Close search on click outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsSearchOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const tabs = [
         { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
@@ -100,8 +120,8 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main style={{ flex: 1, overflow: "auto", position: "relative" }}>
+            {/* Main Content Wrapper */}
+            <div className="flex flex-col flex-1 h-full overflow-hidden relative">
                 <header className="glass" style={{
                     height: "70px",
                     borderBottom: "1px solid rgba(255,255,255,0.03)",
@@ -109,20 +129,96 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     alignItems: "center",
                     padding: "0 var(--space-6)",
                     justifyContent: "space-between",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 5
+                    zIndex: 20
                 }}>
                     <h1 style={{ fontSize: "20px", fontWeight: "600", margin: 0, letterSpacing: "-0.01em" }}>
                         {tabs.find(t => t.id === activeTab)?.label}
                     </h1>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4" style={{ position: "relative" }} ref={searchRef}>
                         <input
                             className="input"
                             type="text"
                             placeholder="Type to search..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onFocus={() => { if (query) setIsSearchOpen(true); }}
                             style={{ width: "240px", backgroundColor: "rgba(0,0,0,0.2)" }}
                         />
+                        {isSearchOpen && (
+                            <div className="glass" style={{
+                                position: "absolute",
+                                top: "100%",
+                                right: 0, // Align to right or left as needed, container is flex row
+                                left: "auto", // Ensure it doesn't stretch weirdly
+                                width: "320px",
+                                maxHeight: "400px",
+                                overflowY: "auto",
+                                backgroundColor: "var(--color-base-100)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                borderRadius: "8px",
+                                padding: "8px",
+                                zIndex: 100,
+                                boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                                marginTop: "8px"
+                            }}>
+                                {isSearching ? (
+                                    <div className="p-4 text-center text-muted">Searching...</div>
+                                ) : (
+                                    <>
+                                        {results.organizations.length > 0 && (
+                                            <div className="mb-2">
+                                                <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Organizations</div>
+                                                {results.organizations.map(org => (
+                                                    <div key={org.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                        <div className="font-medium">{org.name}</div>
+                                                        <div className="text-xs text-muted">{org.industry}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {results.contacts.length > 0 && (
+                                            <div className="mb-2">
+                                                <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Contacts</div>
+                                                {results.contacts.map(c => (
+                                                    <div key={c.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                        <div className="font-medium">{c.displayName}</div>
+                                                        <div className="text-xs text-muted">{c.title}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {results.opportunities.length > 0 && (
+                                            <div className="mb-2">
+                                                <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Opportunities</div>
+                                                {results.opportunities.map(o => (
+                                                    <div key={o.id} onClick={() => { onTabChange("opportunities"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                        <div className="font-medium">{o.name}</div>
+                                                        <div className="text-xs text-muted">{o.stage} • {o.status}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {results.meetings.length > 0 && (
+                                            <div className="mb-2">
+                                                <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Meetings</div>
+                                                {results.meetings.map(m => (
+                                                    <div key={m.id} onClick={() => { onTabChange("meetings"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                        <div className="font-medium">{m.title}</div>
+                                                        <div className="text-xs text-muted">{m.startAt ? new Date(m.startAt).toLocaleDateString() : 'Unscheduled'}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {results.organizations.length === 0 &&
+                                            results.contacts.length === 0 &&
+                                            results.opportunities.length === 0 &&
+                                            results.meetings.length === 0 && (
+                                                <div className="p-4 text-center text-muted">No results found.</div>
+                                            )}
+                                    </>
+                                )}
+                            </div>
+                        )}
                         <div style={{
                             width: "36px",
                             height: "36px",
@@ -133,10 +229,12 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     </div>
                 </header>
 
-                <div style={{ padding: "var(--space-6)", maxWidth: "1200px", margin: "0 auto" }}>
-                    {children}
-                </div>
-            </main>
+                <main className="flex-1 overflow-y-auto relative custom-scrollbar">
+                    <div style={{ padding: "var(--space-6)", maxWidth: "1200px", margin: "0 auto" }}>
+                        {children}
+                    </div>
+                </main>
+            </div>
         </div >
     );
 }

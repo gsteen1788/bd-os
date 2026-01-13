@@ -1,6 +1,6 @@
 import type {
     OpportunityStage, ThinkingPreference, ProtemoiType, RelationshipStage, BuyInPriority,
-    TaskStatus, TaskType, EntityType, RoleType,
+    TaskStatus, TaskType, EntityType, RoleType, Currency
 } from "./enums";
 
 export type UUID = string;
@@ -24,6 +24,16 @@ export interface Contact {
     title?: string | null;
     email?: string | null;
     phone?: string | null;
+    location?: string | null;
+    maritalStatus?: string | null;
+    children?: string | null;
+    hobbiesInterests?: string | null;
+    currentFocus?: string | null;
+    storiesAnecdotes?: string | null;
+    careerHistory?: string | null;
+    education?: string | null;
+    linkedinUrl?: string | null;
+    other?: string | null;
     notesMd?: string | null;
     thinkingPreference?: ThinkingPreference | null;
     primaryBuyInPriority?: BuyInPriority | null;
@@ -57,6 +67,7 @@ export interface Opportunity {
     nextStepText: string;
     nextStepDueDate?: string | null; // date
     valueEstimate?: number | null;
+    currency?: Currency; // Added currency support
     probability?: number | null;      // 0-100
     expectedCloseDate?: string | null; // date
     createdAt: string;
