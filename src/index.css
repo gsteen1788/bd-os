@@ -51,14 +51,68 @@
     --color-danger: 0 85% 65%;
     --color-success: 150 80% 50%;
     --color-warning: 35 85% 60%;
+  }
 
+  /* Solarised Light Theme */
+  .theme-solar {
+    --hue-base: 44;
+    --hue-primary: 192;
+
+    --color-bg-base: 44 87% 94%;
+    --color-bg-surface: 44 87% 96%;
+    --color-bg-surface-hover: 44 87% 90%;
+    --color-bg-glass: 44 87% 94% / 0.8;
+
+    --color-primary: 192 100% 30%;
+    --color-primary-hover: 192 100% 35%;
+    --color-primary-glow: 192 100% 30% / 0.2;
+
+    --color-text-main: 192 15% 35%;
+    --color-text-muted: 192 10% 55%;
+    --color-text-dim: 192 10% 75%;
+
+    --color-border: 44 15% 85%;
+    --color-border-hover: 44 15% 75%;
+
+    --color-danger: 350 70% 50%;
+    --color-success: 85 65% 45%;
+    --color-warning: 45 100% 40%;
+  }
+
+  /* King's Quest Theme */
+  .theme-kings-quest {
+    --hue-base: 25;
+    --hue-primary: 45;
+
+    --color-bg-base: 25 25% 15%;
+    --color-bg-surface: 25 25% 20%;
+    --color-bg-surface-hover: 25 25% 25%;
+    --color-bg-glass: 25 25% 15% / 0.85;
+
+    --color-primary: 45 90% 55%;
+    --color-primary-hover: 45 90% 65%;
+    --color-primary-glow: 45 90% 55% / 0.4;
+
+    --color-text-main: 40 50% 90%;
+    --color-text-muted: 40 30% 60%;
+    --color-text-dim: 40 20% 40%;
+
+    --color-border: 25 30% 30%;
+    --color-border-hover: 45 90% 55%;
+
+    --color-danger: 0 70% 50%;
+    --color-success: 120 50% 40%;
+    --color-warning: 30 90% 50%;
+  }
+
+  /* Common Variables (Radius, Spacing, Shadows) */
+  :root {
     /* Radius vars used in @theme */
     --radius-xl: 24px;
     --radius-lg: 16px;
     --radius-md: 12px;
     --radius-sm: 6px;
     --radius-full: 9999px;
-    /* Ensure this is available if needed */
 
     /* Spacing */
     --space-1: 4px;

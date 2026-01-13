@@ -94,7 +94,7 @@ export function Dashboard() {
 
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold text-white m-0">🔥 Most Important Tasks</h2>
+                    <h2 className="text-2xl font-bold text-main m-0">🔥 Most Important Tasks</h2>
                     <p className="text-muted text-sm mt-1">Focus on the things that really matter today.</p>
                 </div>
                 <button className="btn btn-primary gap-2" onClick={handleCreate}>

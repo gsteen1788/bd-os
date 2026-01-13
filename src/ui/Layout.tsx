@@ -1,4 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import { SettingsModal } from "./components/SettingsModal";
+import { AppIcons } from "./icons/Icons";
+import { useTheme } from "../application/ThemeContext";
 
 interface LayoutProps {
     children: ReactNode;
@@ -7,15 +10,18 @@ interface LayoutProps {
 }
 
 export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const { theme } = useTheme();
+
     const tabs = [
-        { id: "dashboard", label: "Dashboard", icon: "📊" },
-        { id: "contacts", label: "Relationships", icon: "👥" },
-        { id: "opportunities", label: "Opportunities", icon: "💎" },
-        { id: "meetings", label: "Meetings", icon: "📅" },
+        { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
+        { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
+        { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
+        { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
     ];
 
     return (
-        <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", background: "linear-gradient(to bottom right, hsl(222, 15%, 8%), hsl(222, 15%, 12%))" }}>
+        <div className="flex h-screen w-screen overflow-hidden bg-base-100 text-main transition-colors duration-300">
             {/* Sidebar with Glassmorphism */}
             <aside className="glass" style={{
                 width: "260px",
@@ -31,9 +37,11 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                         fontSize: "24px",
                         fontWeight: "800",
                         letterSpacing: "-0.03em",
-                        background: "linear-gradient(to right, hsl(var(--color-primary)), #a78bfa)",
+                        background: "linear-gradient(to right, hsl(var(--color-primary)), hsl(var(--color-primary-hover)))",
+                        backgroundClip: "text",
                         WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent"
+                        WebkitTextFillColor: "transparent",
+                        width: "fit-content"
                     }}>
                         BD OS
                     </h2>
@@ -43,6 +51,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                 <nav className="flex flex-col gap-2">
                     {tabs.map(tab => {
                         const isActive = activeTab === tab.id;
+                        const IconComponent = tab.Icon;
                         return (
                             <button
                                 key={tab.id}
@@ -59,12 +68,36 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                     boxShadow: isActive ? "0 4px 12px var(--color-primary-glow)" : "none"
                                 }}
                             >
-                                <span style={{ fontSize: "1.2em", opacity: isActive ? 1 : 0.7 }}>{tab.icon}</span>
+                                <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>
+                                    <IconComponent theme={theme} />
+                                </span>
                                 {tab.label}
                             </button>
                         );
                     })}
                 </nav>
+                <div className="mt-auto">
+                    <button
+                        onClick={() => setIsSettingsOpen(true)}
+                        className="btn-ghost"
+                        style={{
+                            width: "100%",
+                            justifyContent: "flex-start",
+                            textAlign: "left",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            padding: "12px 16px",
+                            marginTop: "auto"
+                        }}
+                    >
+                        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center" style={{ opacity: 0.7 }}>
+                            <AppIcons.settings theme={theme} />
+                        </span>
+                        Settings
+                    </button>
+                    <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+                </div>
             </aside>
 
             {/* Main Content */}
@@ -104,6 +137,6 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     {children}
                 </div>
             </main>
-        </div>
+        </div >
     );
 }

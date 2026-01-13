@@ -5,6 +5,7 @@ import { Dashboard } from './ui/screens/Dashboard';
 import { OpportunityBoard } from './ui/screens/OpportunityBoard';
 import { MeetingPrep } from './ui/screens/MeetingPrep';
 import { ProtemoiBoard } from './ui/screens/ProtemoiBoard';
+import { ThemeProvider } from './application/ThemeContext';
 
 function App() {
     const [activeTab, setActiveTab] = useState("dashboard");
@@ -24,9 +25,11 @@ function App() {
     };
 
     return (
-        <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-            {renderContent()}
-        </Layout>
+        <ThemeProvider>
+            <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+                {renderContent()}
+            </Layout>
+        </ThemeProvider>
     );
 }
 
