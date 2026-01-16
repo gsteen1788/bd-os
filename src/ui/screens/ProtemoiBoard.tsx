@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { ProtemoiType, RelationshipStage, ThinkingPreference } from "../../domain/enums";
-import { ProtemoiEntry, Contact, Organization } from "../../domain/entities";
-import { protemoiRepository, contactRepository, organizationRepository } from "../../infrastructure/repositories";
+import { ThinkingPreference } from "../../domain/enums";
+import { ProtemoiEntry, Contact, Organization, Meeting } from "../../domain/entities";
+import { protemoiRepository, contactRepository, organizationRepository, meetingRepository } from "../../infrastructure/repositories";
 
 
 type ProtemoiWithDetails = ProtemoiEntry & {
@@ -60,6 +60,25 @@ export function ProtemoiBoard() {
     const [newOrgName, setNewOrgName] = useState("");
     const [newOrgLogo, setNewOrgLogo] = useState("");
     const [showMITModal, setShowMITModal] = useState(false);
+    const [linkedMeetings, setLinkedMeetings] = useState<Meeting[]>([]);
+    const [isAnonymized, setIsAnonymized] = useState(() => {
+        return localStorage.getItem("bdos_anonymize_enabled") === "true";
+    });
+
+    const toggleAnonymized = (value: boolean) => {
+        setIsAnonymized(value);
+        localStorage.setItem("bdos_anonymize_enabled", String(value));
+    };
+
+    useEffect(() => {
+        if (editingEntry?.id) {
+            meetingRepository.findByProtemoiId(editingEntry.id)
+                .then(setLinkedMeetings)
+                .catch(err => console.error("Failed to load linked meetings", err));
+        } else {
+            setLinkedMeetings([]);
+        }
+    }, [editingEntry?.id]);
 
     // Dynamic definitions
     const activeStages = viewMode === "INTERNAL" ? INTERNAL_STAGES : EXTERNAL_STAGES;
@@ -323,10 +342,10 @@ export function ProtemoiBoard() {
     };
 
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex justify-between items-center bg-base py-2 sticky top-0 z-10">
+        <div className="flex flex-col h-full">
+            <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
                 <div className="flex items-center gap-4">
-                    <h2>Relationship Board</h2>
+                    <h2 className="text-xl font-semibold m-0 tracking-tight">Relationship Board</h2>
                     <select
                         className="input"
                         value={viewMode}
@@ -337,27 +356,38 @@ export function ProtemoiBoard() {
                         <option value="INTERNAL">Internal</option>
                     </select>
                 </div>
-                <button className="btn" onClick={createNew}>+ New Relationship</button>
+                <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <span className="text-sm font-medium text-muted">Anonymise</span>
+                        <input
+                            type="checkbox"
+                            className="toggle toggle-primary toggle-sm"
+                            checked={isAnonymized}
+                            onChange={(e) => toggleAnonymized(e.target.checked)}
+                        />
+                    </label>
+                    <button className="btn btn-primary" onClick={createNew}>New Relationship</button>
+                </div>
             </div>
 
-            <div style={{ display: "flex", gap: "16px", paddingBottom: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto" }}>
                 {activeStages.map(stage => {
                     const stageEntries = filteredEntries.filter(e => e.relationshipStage === stage);
 
                     return (
-                        <div key={stage} style={{ minWidth: "320px", backgroundColor: "rgba(255,255,255,0.03)", borderRadius: "12px", padding: "16px", display: "flex", flexDirection: "column" }}>
-                            <div className="flex justify-between items-center mb-4">
+                        <div key={stage} style={{ minWidth: "320px", backgroundColor: "rgba(255,255,255,0.03)", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+                            <div className="flex justify-between items-center p-4 border-b border-white/5">
                                 <h4 style={{ margin: 0, color: "hsl(var(--color-text-muted))", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
                                     {stage.replace(/_/g, " ")}
                                 </h4>
                                 <span className="bg-base rounded-full px-2 py-0.5 text-xs text-muted">{stageEntries.length}</span>
                             </div>
 
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 p-4 custom-scrollbar" style={{ overflowY: "auto", flex: 1 }}>
                                 {stageEntries.map(entry => (
                                     <div
                                         key={entry.id}
-                                        className="card hover:border-primary-hover cursor-pointer group relative overflow-hidden"
+                                        className="card hover:border-primary-hover cursor-pointer group relative overflow-hidden flex-shrink-0"
                                         style={{
                                             padding: "16px",
                                             minHeight: "120px", // Ensure minimum height for logo
@@ -367,7 +397,7 @@ export function ProtemoiBoard() {
                                         onClick={() => setEditingEntry(entry)}
                                     >
                                         {/* Company Logo in Top Right */}
-                                        {entry.organization?.logoUrl && (
+                                        {entry.organization?.logoUrl && !isAnonymized && (
                                             <div
                                                 className="mb-8 rounded p-0 overflow-hidden flex items-start justify-start z-10 transition-transform hover:scale-105"
                                                 style={{ width: '128px', height: 'auto', marginBottom: '10px' }}
@@ -383,11 +413,13 @@ export function ProtemoiBoard() {
                                             </div>
                                         )}
                                         <div style={{ fontWeight: "600", fontSize: "15px", marginBottom: "4px" }}>
-                                            {entry.contact?.displayName || "Unknown Contact"}
+                                            {isAnonymized ? `Person ${entries.indexOf(entry) + 1}` : (entry.contact?.displayName || "Unknown Contact")}
                                         </div>
                                         <div className="text-xs uppercase tracking-wide mb-2 opacity-80" style={{ paddingRight: "40px" }}>
                                             {entry.organization?.name ? (
-                                                <div className="font-semibold truncate mb-0.5" title={entry.organization.name}>{entry.organization.name}</div>
+                                                <div className="font-semibold truncate mb-0.5" title={isAnonymized ? "Anonymized Organization" : entry.organization.name}>
+                                                    {isAnonymized ? `Organization ${entries.indexOf(entry) + 1}` : entry.organization.name}
+                                                </div>
                                             ) : null}
                                             <div className="opacity-75">{entry.protemoiType?.replace(/_/g, " ")}</div>
                                         </div>
@@ -471,7 +503,7 @@ export function ProtemoiBoard() {
                             {editingEntry.id && (
                                 <div className="flex justify-end -mt-2 mb-2">
                                     <button className="btn btn-xs btn-outline" onClick={() => setShowMITModal(true)}>
-                                        + Create MIT for this
+                                        Create MIT for this
                                     </button>
                                 </div>
                             )}
@@ -812,6 +844,30 @@ export function ProtemoiBoard() {
                                     </label>
                                 </div>
                             </div>
+
+                            {/* Connected Meetings Section */}
+                            <details className="bg-base-200 rounded-lg border border-white/5 group mt-4">
+                                <summary className="p-4 font-bold text-base-content text-sm uppercase tracking-wide opacity-70 cursor-pointer list-none flex justify-between items-center bg-base-300 rounded-lg hover:bg-base-100 transition-colors">
+                                    Connected Meetings ({linkedMeetings.length})
+                                    <span className="opacity-50 text-xs">▼</span>
+                                </summary>
+                                <div className="p-4 border-t border-white/5">
+                                    <div className="flex flex-col gap-2">
+                                        {linkedMeetings.map(m => (
+                                            <div key={m.id} className="text-xs p-2 bg-base-100 rounded flex justify-between items-center bg-opacity-50">
+                                                <div>
+                                                    <div className="font-bold">{m.title}</div>
+                                                    <div className="text-muted">{new Date(m.startAt!).toLocaleDateString()}</div>
+                                                </div>
+                                                <span className={`badge badge-xs ${m.status === "COMPLETED" ? "badge-success" : "badge-ghost"}`}>{m.status}</span>
+                                            </div>
+                                        ))}
+                                        {linkedMeetings.length === 0 && (
+                                            <div className="text-xs text-muted text-center py-2">No linked meetings</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </details>
                         </div>
                     </Modal>
 
@@ -820,10 +876,11 @@ export function ProtemoiBoard() {
                         isOpen={showMITModal}
                         onClose={() => setShowMITModal(false)}
                         linkedEntityType="RELATIONSHIP"
-                        linkedEntityId={editingEntry.id}
+                        linkedEntityId={editingEntry!.id}
                     />
                 </>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

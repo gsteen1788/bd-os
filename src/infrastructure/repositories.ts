@@ -245,23 +245,32 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     async save(entity: Meeting): Promise<void> {
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO meetings (id, title, start_at, end_at, location, organization_id, notes_md, created_at, updated_at)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-              ON CONFLICT(id) DO UPDATE SET 
-                title=excluded.title,
-                start_at=excluded.start_at,
-                end_at=excluded.end_at,
-                location=excluded.location,
-                organization_id=excluded.organization_id,
-                notes_md=excluded.notes_md,
-                updated_at=excluded.updated_at`,
-            [entity.id, entity.title, entity.startAt, entity.endAt, entity.location, entity.organizationId, entity.notesMd, entity.createdAt, entity.updatedAt]
+            `INSERT INTO meetings (id, title, start_at, end_at, location, status, organization_id, related_opportunity_id, related_protemoi_id, notes_md, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+         ON CONFLICT(id) DO UPDATE SET 
+            title=excluded.title,
+            start_at=excluded.start_at,
+            end_at=excluded.end_at,
+            location=excluded.location,
+            status=excluded.status,
+            organization_id=excluded.organization_id,
+            related_opportunity_id=excluded.related_opportunity_id,
+            related_protemoi_id=excluded.related_protemoi_id,
+            notes_md=excluded.notes_md,
+            updated_at=excluded.updated_at`,
+            [entity.id, entity.title, entity.startAt, entity.endAt, entity.location, entity.status || "SCHEDULED", entity.organizationId, entity.relatedOpportunityId, entity.relatedProtemoiId, entity.notesMd, entity.createdAt, entity.updatedAt]
         );
     }
 
     async findByOpportunityId(oppId: UUID): Promise<Meeting[]> {
         const db = await this.getDb();
         return db.select<Meeting[]>("SELECT * FROM meetings WHERE related_opportunity_id = $1", [oppId]);
+    }
+
+    async findByProtemoiId(protemoiId: UUID): Promise<Meeting[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM meetings WHERE related_protemoi_id = $1", [protemoiId]);
+        return rows.map(r => this.mapRow(r));
     }
 
     private mapRow(row: any): Meeting {
@@ -271,8 +280,10 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
             startAt: row.start_at,
             endAt: row.end_at,
             location: row.location,
+            status: row.status || "SCHEDULED",
             organizationId: row.organization_id,
             relatedOpportunityId: row.related_opportunity_id,
+            relatedProtemoiId: row.related_protemoi_id,
             notesMd: row.notes_md,
             createdAt: row.created_at,
             updatedAt: row.updated_at
@@ -281,9 +292,17 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
 
     async findUpcoming(limit: number): Promise<Meeting[]> {
         const db = await this.getDb();
-        // SQLite date comparison string based
+        // Show all non-completed meetings, ordered by date (oldest first - i.e. catch up on what you missed)
         const rows = await db.select<any[]>(
-            `SELECT * FROM meetings WHERE start_at > date('now') ORDER BY start_at ASC LIMIT ${limit}`
+            `SELECT * FROM meetings WHERE status != 'COMPLETED' ORDER BY start_at ASC LIMIT ${limit}`
+        );
+        return rows.map(r => this.mapRow(r));
+    }
+
+    async findHistory(limit: number): Promise<Meeting[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT * FROM meetings WHERE status = 'COMPLETED' ORDER BY start_at DESC LIMIT ${limit}`
         );
         return rows.map(r => this.mapRow(r));
     }
@@ -453,6 +472,15 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     async findPending(): Promise<Task[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM tasks WHERE status != 'DONE' AND status != 'CANCELED' ORDER BY due_date ASC");
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
+    }
+
+    async findHistory(limit: number): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC LIMIT ${limit}`
+        );
         const tasks = rows.map(r => this.mapRow(r));
         return this.populateLinks(tasks);
     }

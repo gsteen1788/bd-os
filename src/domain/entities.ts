@@ -1,4 +1,4 @@
-import type {
+import {
     OpportunityStage, ThinkingPreference, ProtemoiType, RelationshipStage, BuyInPriority,
     TaskStatus, TaskType, EntityType, RoleType, Currency
 } from "./enums";
@@ -80,8 +80,10 @@ export interface Meeting {
     startAt?: string | null; // datetime
     endAt?: string | null;   // datetime
     location?: string | null;
+    status: "SCHEDULED" | "COMPLETED"; // Added status
     organizationId?: UUID | null;
     relatedOpportunityId?: UUID | null;
+    relatedProtemoiId?: UUID | null; // For linking to specific relationship
     notesMd?: string | null;
     createdAt: string;
     updatedAt: string;
@@ -147,3 +149,23 @@ export interface TaskLink {
     entityId: UUID;
     createdAt: string;
 }
+
+// Sub-models for MeetingPrep JSON structures
+export interface Risk {
+    id: UUID;
+    description: string;
+    mitigation: string;
+}
+
+export interface Question {
+    id: UUID;
+    text: string;
+}
+
+export interface QA {
+    id: UUID;
+    question: string;
+    answer: string;
+}
+
+export { ThinkingPreference };

@@ -67,10 +67,19 @@ export class MockMeetingRepository extends MockRepository<Meeting> implements Me
     async findByOpportunityId(oppId: UUID): Promise<Meeting[]> {
         return this.items.filter(m => m.relatedOpportunityId === oppId);
     }
+    async findByProtemoiId(protemoiId: UUID): Promise<Meeting[]> {
+        return this.items.filter(m => m.relatedProtemoiId === protemoiId);
+    }
     async findUpcoming(limit: number): Promise<Meeting[]> {
         return this.items
-            .filter(m => m.startAt && new Date(m.startAt) > new Date())
+            .filter(m => m.status !== "COMPLETED")
             .sort((a, b) => new Date(a.startAt!).getTime() - new Date(b.startAt!).getTime())
+            .slice(0, limit);
+    }
+    async findHistory(limit: number): Promise<Meeting[]> {
+        return this.items
+            .filter(m => m.status === "COMPLETED")
+            .sort((a, b) => new Date(b.startAt!).getTime() - new Date(a.startAt!).getTime())
             .slice(0, limit);
     }
     async search(query: string): Promise<Meeting[]> {

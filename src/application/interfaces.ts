@@ -26,7 +26,9 @@ export interface OpportunityRepository extends Repository<Opportunity> {
 
 export interface MeetingRepository extends Repository<Meeting> {
     findByOpportunityId(oppId: UUID): Promise<Meeting[]>;
+    findByProtemoiId(protemoiId: UUID): Promise<Meeting[]>;
     findUpcoming(limit: number): Promise<Meeting[]>;
+    findHistory(limit: number): Promise<Meeting[]>;
     search(query: string): Promise<Meeting[]>;
 }
 
@@ -39,6 +41,7 @@ export interface ProtemoiRepository {
 
 export interface TaskRepository extends Repository<Task> {
     findPending(): Promise<Task[]>;
+    findHistory(limit: number): Promise<Task[]>;
     findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]>;
 }
 

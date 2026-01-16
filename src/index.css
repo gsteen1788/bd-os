@@ -29,6 +29,7 @@
 @layer base {
   :root {
     /* HSL Color Palette - "Cosmic Glass" Theme */
+    color-scheme: dark;
     --hue-base: 222;
     --hue-primary: 250;
 
@@ -55,6 +56,7 @@
 
   /* Solarised Light Theme */
   .theme-solar {
+    color-scheme: light;
     --hue-base: 44;
     --hue-primary: 192;
 
@@ -81,6 +83,7 @@
 
   /* King's Quest Theme */
   .theme-kings-quest {
+    color-scheme: dark;
     --hue-base: 25;
     --hue-primary: 45;
 
@@ -133,21 +136,19 @@
   body {
     @apply bg-base-100 text-main font-sans antialiased leading-normal m-0;
     color: hsl(var(--color-text-main));
-    color-scheme: dark;
-    /* Force native controls to dark mode */
+    /* Force native controls to dark mode removed - let color-scheme handle it */
   }
 
-  /* Ensure calendar picker icon is white on dark backgrounds */
-  ::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    opacity: 0.6;
-    cursor: pointer;
-  }
+  /* Calendar picker invert removed */
 
-  ::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
+  /* Select Options - Fix visibility in dark mode */
+  select option {
+    background-color: hsl(var(--color-bg-base));
+    color: hsl(var(--color-text-main));
   }
 }
+
+
 
 @layer components {
 

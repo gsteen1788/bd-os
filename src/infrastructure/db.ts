@@ -74,6 +74,20 @@ export async function initDb() {
         // Ignore if exists
     }
 
+    // Lazy Migration for Meeting Status
+    try {
+        await db.execute("ALTER TABLE meetings ADD COLUMN status TEXT DEFAULT 'SCHEDULED';");
+    } catch (e) {
+        // Ignore if exists
+    }
+
+    // Lazy Migration for Meeting Protemoi Link
+    try {
+        await db.execute("ALTER TABLE meetings ADD COLUMN related_protemoi_id TEXT;");
+    } catch (e) {
+        // Ignore if exists
+    }
+
     // Lazy Migration: Create task_links if not exists
     try {
         await db.execute(`

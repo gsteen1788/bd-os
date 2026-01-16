@@ -229,10 +229,8 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto relative custom-scrollbar">
-                    <div style={{ padding: "var(--space-6)", maxWidth: "1200px", margin: "0 auto" }}>
-                        {children}
-                    </div>
+                <main className="flex-1 flex flex-col overflow-hidden relative">
+                    {children}
                 </main>
             </div>
         </div >

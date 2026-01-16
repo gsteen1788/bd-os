@@ -1,54 +1,42 @@
 import { useState, useEffect } from "react";
-import { Meeting, Contact, Organization } from "../../domain/entities";
-import { meetingRepository, contactRepository, organizationRepository } from "../../infrastructure/repositories";
+import { meetingRepository, contactRepository, protemoiRepository, opportunityRepository } from '../../infrastructure/repositories';
+import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
+import { groupItemsByWeek } from "../../utils/dateUtils";
 import { Modal } from "../components/Modal";
-import { ThinkingPreference } from "../../domain/enums";
 
 type TemplateType = "QUICK" | "DETAILED";
-
-// --- New Structured Interfaces ---
-interface MeetingAttendeeLocal {
-    id: string;
-    contactId?: string; // If linked to minimal contact
-    name: string;
-    thinkingPreference?: ThinkingPreference | null;
-    role?: string;
-}
-
-interface Risk {
-    id: string;
-    description: string;
-    mitigation: string;
-}
-
-interface QA {
-    id: string;
-    question: string;
-    answer: string;
-}
-
-interface Question {
-    id: string;
-    text: string;
-}
 
 export function MeetingPrep() {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
-    const [template, setTemplate] = useState<TemplateType>("QUICK");
+    const [template] = useState<TemplateType>("QUICK");
+    const [viewMode, setViewMode] = useState<"UPCOMING" | "HISTORY">("UPCOMING");
 
     // UI States
     const [isNewMeetingOpen, setIsNewMeetingOpen] = useState(false);
     const [newMeetingTitle, setNewMeetingTitle] = useState("");
     const [newMeetingDate, setNewMeetingDate] = useState("");
     const [newMeetingTime, setNewMeetingTime] = useState("");
+    const [newMeetingLocation, setNewMeetingLocation] = useState("");
+    const [saveStatus, setSaveStatus] = useState<"IDLE" | "SAVING" | "SAVED" | "ERROR">("IDLE");
+
+    // Edit Modal State
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editTitle, setEditTitle] = useState("");
+    const [editDate, setEditDate] = useState("");
+    const [editTime, setEditTime] = useState("");
+    const [editLocation, setEditLocation] = useState("");
+
+    // Complete Modal State
+    const [meetingToComplete, setMeetingToComplete] = useState<Meeting | null>(null);
+    // const [nextSteps, setNextSteps] = useState(""); // Removed unused
 
     // Prep Form State
     const [formData, setFormData] = useState({
         // Common / Quick
         goal: "",
         frameGoal: "",
-        attendees: [] as MeetingAttendeeLocal[], // Changed from text
+        attendees: [] as MeetingAttendee[], // Changed from text
         risks: [] as Risk[], // Changed from object
         toughQuestions: [] as QA[], // Changed from string
         myQuestions: [] as Question[], // Changed from string
@@ -70,10 +58,33 @@ export function MeetingPrep() {
         otherNotes: ""
     });
 
-    // Load meetings list on mount
+    // Data for linking lookup
+    const [allOpps, setAllOpps] = useState<Opportunity[]>([]);
+    const [allRels, setAllRels] = useState<ProtemoiEntry[]>([]);
+    const [allContacts, setAllContacts] = useState<Contact[]>([]);
+
     useEffect(() => {
         loadMeetings();
-    }, []);
+        opportunityRepository.findAll().then(setAllOpps);
+        protemoiRepository.findAll().then(setAllRels);
+        contactRepository.findAll().then(setAllContacts);
+    }, [viewMode]);
+
+    // Helper to get name
+    const getLinkName = (m: Meeting) => {
+        if (m.relatedOpportunityId) {
+            const op = allOpps.find(o => o.id === m.relatedOpportunityId);
+            return op ? `Op: ${op.name}` : "Unknown Op";
+        }
+        if (m.relatedProtemoiId) {
+            const rel = allRels.find(r => r.id === m.relatedProtemoiId);
+            if (rel) {
+                const c = allContacts.find(c => c.id === rel.contactId);
+                return c ? `Rel: ${c.displayName}` : "Unknown Rel";
+            }
+        }
+        return null;
+    };
 
     // When a meeting is selected, load its prep data
     useEffect(() => {
@@ -128,12 +139,55 @@ export function MeetingPrep() {
             thinkingStyles: "",
             otherNotes: ""
         });
-    }
+    };
+
+    const renderMeetingCard = (m: Meeting) => {
+        const linkName = getLinkName(m);
+        return (
+            <div key={m.id} className={`card cursor-pointer hover:border-primary relative group ${m.status === "COMPLETED" ? "bg-base-200" : ""}`} onClick={() => setSelectedMeeting(m)}>
+                <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-2">
+                        {m.status === "COMPLETED" && <span className="text-success text-lg font-bold">✓</span>}
+                        <h3 className={`font-bold text-lg ${m.status === "COMPLETED" ? "text-muted text-opacity-80" : ""}`}>{m.title}</h3>
+                    </div>
+                    {m.status !== "COMPLETED" && (
+                        <button
+                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity text-success"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setMeetingToComplete(m);
+                            }}
+                            title="Mark as Complete"
+                        >
+                            ✓
+                        </button>
+                    )}
+                </div>
+                <div className="text-muted text-sm mt-1">
+                    {new Date(m.startAt!).toLocaleDateString()} at {new Date(m.startAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div className="mt-4 flex justify-between items-center text-xs text-dim">
+                    <span>{m.location || "No location"}</span>
+                    <div className="flex gap-2">
+                        {linkName && <span className="badge badge-outline text-2xs">{linkName}</span>}
+                        <span>{m.notesMd ? "📝 Prep Started" : "No Prep"}</span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const loadMeetings = async () => {
-        const list = await meetingRepository.findUpcoming(20);
-        setMeetings(list);
+        if (viewMode === "UPCOMING") {
+            const list = await meetingRepository.findUpcoming(20);
+            setMeetings(list);
+        } else {
+            const list = await meetingRepository.findHistory(20);
+            setMeetings(list);
+        }
     };
+
 
     const handleCreateNew = async () => {
         if (!newMeetingTitle) return alert("Title required");
@@ -157,7 +211,8 @@ export function MeetingPrep() {
                 title: newMeetingTitle,
                 startAt,
                 endAt: null,
-                location: "",
+                location: newMeetingLocation,
+                status: "SCHEDULED",
                 organizationId: null,
                 notesMd: "",
                 createdAt: new Date().toISOString(),
@@ -171,9 +226,146 @@ export function MeetingPrep() {
             setNewMeetingTitle("");
             setNewMeetingDate("");
             setNewMeetingTime("");
+            setNewMeetingLocation("");
         } catch (e) {
             console.error("Failed to create meeting", e);
             alert("Failed to create meeting: " + String(e));
+        }
+    };
+
+    const openEditModal = () => {
+        if (!selectedMeeting) return;
+        setEditTitle(selectedMeeting.title);
+        if (selectedMeeting.startAt) {
+            const date = new Date(selectedMeeting.startAt);
+            setEditDate(date.toISOString().split('T')[0]);
+            setEditTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+        }
+        setEditLocation(selectedMeeting.location || "");
+        setIsEditOpen(true);
+    };
+
+    const handleUpdateDetails = async () => {
+        if (!selectedMeeting) return;
+        try {
+            let startAt = selectedMeeting.startAt;
+            if (editDate) {
+                const timeStr = editTime || "09:00";
+                const combined = new Date(`${editDate}T${timeStr}`);
+                if (!isNaN(combined.getTime())) startAt = combined.toISOString();
+            }
+
+            const updated = {
+                ...selectedMeeting,
+                title: editTitle,
+                startAt,
+                location: editLocation,
+                updatedAt: new Date().toISOString()
+            };
+
+            await meetingRepository.save(updated);
+            setSelectedMeeting(updated);
+            await loadMeetings();
+            setIsEditOpen(false);
+        } catch (e) {
+            alert("Failed to update: " + String(e));
+        }
+    };
+
+    const handleCompleteMeeting = async (steps: string, linkType: "NONE" | "OPPORTUNITY" | "RELATIONSHIP", linkId: string) => {
+        if (!meetingToComplete) return;
+
+        try {
+            const target = meetingToComplete;
+            let currentData = { ...formData }; // Fallback to current form state? No, need to parse existing if not selected
+
+            if (target.notesMd) {
+                try {
+                    currentData = JSON.parse(target.notesMd);
+                } catch {
+                    // ignore
+                }
+            }
+
+            // If we are currently editing this meeting, use the latest form data
+            if (selectedMeeting && selectedMeeting.id === target.id) {
+                currentData = { ...formData };
+            }
+
+            const updatedData = { ...currentData, nextStep: steps };
+
+            const updatedMeeting: Meeting = {
+                ...target,
+                status: "COMPLETED",
+                relatedOpportunityId: linkType === "OPPORTUNITY" ? linkId : target.relatedOpportunityId,
+                relatedProtemoiId: linkType === "RELATIONSHIP" ? linkId : undefined,
+                notesMd: JSON.stringify(updatedData, null, 2),
+                updatedAt: new Date().toISOString()
+            };
+
+            await meetingRepository.save(updatedMeeting);
+
+            // Sync Next Steps to Linked Entity if provided
+            if (steps) {
+                // Determine the target entity ID
+                const targetOppId = linkType === "OPPORTUNITY" ? linkId : target.relatedOpportunityId;
+                const targetRelId = linkType === "RELATIONSHIP" ? linkId : target.relatedProtemoiId;
+
+                if (targetOppId) {
+                    try {
+                        const opps = await opportunityRepository.findAll();
+                        const opp = opps.find(o => o.id === targetOppId);
+                        if (opp) {
+                            await opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
+                        }
+                    } catch (err) {
+                        console.error("Failed to sync next step to Opportunity", err);
+                    }
+                } else if (targetRelId) {
+                    try {
+                        const rels = await protemoiRepository.findAll();
+                        const rel = rels.find(r => r.id === targetRelId);
+                        if (rel) {
+                            await protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
+                        }
+                    } catch (err) {
+                        console.error("Failed to sync next step to Relationship", err);
+                    }
+                }
+            }
+
+            // If this was the selected meeting, update UI state
+            if (selectedMeeting && selectedMeeting.id === target.id) {
+                setSelectedMeeting(updatedMeeting);
+                setFormData(updatedData as any);
+            }
+
+            await loadMeetings();
+            setMeetingToComplete(null);
+        } catch (e) {
+            alert("Failed to complete meeting: " + String(e));
+        }
+    };
+
+    const handleUncompleteMeeting = async () => {
+        if (!selectedMeeting) return;
+        if (selectedMeeting.status !== "COMPLETED") return;
+
+        if (!confirm("Are you sure you want to revert this meeting to SCHEDULED status?")) return;
+
+        try {
+            const updated = {
+                ...selectedMeeting,
+                status: "SCHEDULED" as const,
+                updatedAt: new Date().toISOString()
+            };
+
+            await meetingRepository.save(updated);
+            setSelectedMeeting(updated);
+            await loadMeetings();
+        } catch (e) {
+            console.error("Failed to uncomplete", e);
+            alert("Failed to revert status.");
         }
     };
 
@@ -181,6 +373,7 @@ export function MeetingPrep() {
         if (!selectedMeeting) return;
 
         try {
+            setSaveStatus("SAVING");
             console.log("Saving meeting prep:", formData);
             const updatedMeeting = {
                 ...selectedMeeting,
@@ -191,9 +384,11 @@ export function MeetingPrep() {
             await meetingRepository.save(updatedMeeting);
             setSelectedMeeting(updatedMeeting);
             await loadMeetings();
-            // alert("Prep saved successfully!"); // Removed annoying alert
+            setSaveStatus("SAVED");
+            setTimeout(() => setSaveStatus("IDLE"), 2000);
         } catch (e) {
             console.error("Save failed:", e);
+            setSaveStatus("ERROR");
             alert("Error saving: " + String(e));
         }
     };
@@ -240,77 +435,121 @@ export function MeetingPrep() {
     // If no meeting selected, show list
     if (!selectedMeeting) {
         return (
-            <div className="flex flex-col gap-6">
-                <div className="flex justify-between items-center">
-                    <h2>Meeting Prep</h2>
-                    <button className="btn" onClick={() => setIsNewMeetingOpen(true)}>+ New Meeting</button>
+            <div className="flex flex-col h-full">
+                <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
+                    <div className="flex items-center gap-2">
+                        <select
+                            className="input"
+                            value={viewMode}
+                            onChange={(e) => setViewMode(e.target.value as "UPCOMING" | "HISTORY")}
+                            style={{ minWidth: "150px", fontWeight: "bold", cursor: "pointer" }}
+                        >
+                            <option value="UPCOMING">Upcoming / Active</option>
+                            <option value="HISTORY">Meeting History</option>
+                        </select>
+                    </div>
+                    <button className="btn btn-primary" onClick={() => setIsNewMeetingOpen(true)}>New Meeting</button>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {meetings.map(m => (
-                        <div key={m.id} className="card cursor-pointer hover:border-primary" onClick={() => setSelectedMeeting(m)}>
-                            <h3 className="font-bold text-lg">{m.title}</h3>
-                            <div className="text-muted text-sm mt-1">
-                                {new Date(m.startAt!).toLocaleDateString()} at {new Date(m.startAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                            <div className="mt-4 flex justify-between items-center text-xs text-dim">
-                                <span>{m.location || "No location"}</span>
-                                <span>{m.notesMd ? "📝 Prep Started" : "No Prep"}</span>
-                            </div>
-                        </div>
-                    ))}
-                    {meetings.length === 0 && (
-                        <div className="col-span-full py-12 text-center text-muted">
-                            No upcoming meetings found. Create one to get started.
-                        </div>
-                    )}
-                </div>
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {viewMode === "HISTORY" ? (
+                            (() => {
+                                const groups = groupItemsByWeek(meetings, 'startAt');
+                                return Object.keys(groups).map(weekLabel => (
+                                    <div key={weekLabel} className="col-span-full">
+                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-white/5 pb-1">
+                                            {weekLabel}
+                                        </h3>
+                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                            {groups[weekLabel].map(m => renderMeetingCard(m))}
+                                        </div>
+                                    </div>
+                                ));
+                            })()
+                        ) : (
+                            meetings.map(m => renderMeetingCard(m))
+                        )}
 
-                {isNewMeetingOpen && (
-                    <Modal
-                        isOpen={isNewMeetingOpen}
-                        onClose={() => setIsNewMeetingOpen(false)}
-                        title="New Meeting"
-                        footer={
-                            <div className="flex justify-end gap-2">
-                                <button className="btn-ghost" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
-                                <button className="btn" onClick={handleCreateNew}>Create</button>
+                        {meetings.length === 0 && (
+                            <div className="col-span-full py-12 text-center text-muted">
+                                {viewMode === "UPCOMING"
+                                    ? "No upcoming meetings found. Create one to get started."
+                                    : "No completed meetings in history."}
                             </div>
-                        }
-                    >
-                        <div className="flex flex-col gap-4">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm font-medium">Meeting Name</span>
-                                <input
-                                    className="input"
-                                    autoFocus
-                                    value={newMeetingTitle}
-                                    onChange={e => setNewMeetingTitle(e.target.value)}
-                                    placeholder="e.g. Q1 Business Review"
+                        )}
+                    </div>
+
+                    {
+                        isNewMeetingOpen && (
+                            <Modal
+                                isOpen={isNewMeetingOpen}
+                                onClose={() => setIsNewMeetingOpen(false)}
+                                title="New Meeting"
+                                footer={
+                                    <div className="flex justify-end gap-2">
+                                        <button className="btn-ghost" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
+                                        <button className="btn" onClick={handleCreateNew}>Create</button>
+                                    </div>
+                                }
+                            >
+                                <div className="flex flex-col gap-4">
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">Meeting Name</span>
+                                        <input
+                                            className="input"
+                                            autoFocus
+                                            value={newMeetingTitle}
+                                            onChange={e => setNewMeetingTitle(e.target.value)}
+                                            placeholder="e.g. Q1 Business Review"
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">Date</span>
+                                        <input
+                                            type="date"
+                                            className="input"
+                                            value={newMeetingDate}
+                                            onChange={e => setNewMeetingDate(e.target.value)}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">Time</span>
+                                        <input
+                                            type="time"
+                                            className="input"
+                                            value={newMeetingTime}
+                                            onChange={e => setNewMeetingTime(e.target.value)}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">Location</span>
+                                        <input
+                                            className="input"
+                                            value={newMeetingLocation}
+                                            onChange={e => setNewMeetingLocation(e.target.value)}
+                                            placeholder="e.g. Zoom or Office"
+                                        />
+                                    </label>
+                                </div>
+                            </Modal>
+                        )
+                    }
+
+                    {/* Complete Modal - Condition on meetingToComplete */}
+                    {
+                        !!meetingToComplete && (
+                            <Modal isOpen={!!meetingToComplete} onClose={() => setMeetingToComplete(null)} title={`Complete "${meetingToComplete.title}"`}>
+                                <CompleteMeetingForm
+                                    meeting={meetingToComplete}
+                                    onCancel={() => setMeetingToComplete(null)}
+                                    onComplete={handleCompleteMeeting}
                                 />
-                            </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm font-medium">Date</span>
-                                <input
-                                    type="date"
-                                    className="input"
-                                    value={newMeetingDate}
-                                    onChange={e => setNewMeetingDate(e.target.value)}
-                                />
-                            </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm font-medium">Time</span>
-                                <input
-                                    type="time"
-                                    className="input"
-                                    value={newMeetingTime}
-                                    onChange={e => setNewMeetingTime(e.target.value)}
-                                />
-                            </label>
-                        </div>
-                    </Modal>
-                )}
-            </div>
+                            </Modal>
+                        )
+                    }
+                </div>
+            </div >
         );
     }
 
@@ -320,22 +559,33 @@ export function MeetingPrep() {
             <div className="flex justify-between items-center sticky top-0 bg-base py-4 z-10 glass px-4 rounded-lg">
                 <div className="flex items-center gap-4">
                     <button className="btn-ghost" onClick={handleBack}>← Back</button>
-                    <div>
-                        <h2 className="m-0 text-lg">{selectedMeeting.title}</h2>
-                        <div className="text-xs text-muted">{new Date(selectedMeeting.startAt!).toLocaleString()}</div>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
+                            <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
+                            <span className="opacity-0 group-hover:opacity-100 text-xs text-muted">✎</span>
+                            {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
+                        </div>
+                        <div className="text-xs text-muted flex gap-2">
+                            <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
+                            {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
+                        </div>
                     </div>
-                    <select
-                        className="input text-sm py-1 px-2 mt-1 ml-4"
-                        value={template}
-                        onChange={e => setTemplate(e.target.value as TemplateType)}
-                    >
-                        <option value="QUICK">Quick Prep (W3)</option>
-                        <option value="DETAILED">Detailed Prep (W4)</option>
-                    </select>
                 </div>
                 <div className="flex gap-2">
+                    {selectedMeeting.status !== "COMPLETED" && (
+                        <button className="btn btn-outline btn-success btn-sm" onClick={() => {
+                            setMeetingToComplete(selectedMeeting);
+                        }}>✓ Complete</button>
+                    )}
+                    {selectedMeeting.status === "COMPLETED" && (
+                        <button className="btn btn-outline btn-warning btn-sm" onClick={handleUncompleteMeeting}>
+                            ↩ Revert to Scheduled
+                        </button>
+                    )}
                     <button className="btn-ghost text-error" onClick={handleDelete}>Delete</button>
-                    <button className="btn" onClick={handleSave}>Save Prep</button>
+                    <button className="btn" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
+                        {saveStatus === "SAVING" ? "Saving..." : saveStatus === "SAVED" ? "Saved!" : "Save Prep"}
+                    </button>
                 </div>
             </div>
 
@@ -343,6 +593,47 @@ export function MeetingPrep() {
                 <QuickPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
             ) : (
                 <DetailedPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
+            )}
+
+            {/* Edit Modal */}
+            {isEditOpen && (
+                <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Details">
+                    <div className="flex flex-col gap-4">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs text-muted">Title</span>
+                            <input className="input" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                        </label>
+                        <div className="flex gap-4">
+                            <label className="flex flex-col gap-1 flex-1">
+                                <span className="text-xs text-muted">Date</span>
+                                <input type="date" className="input" value={editDate} onChange={e => setEditDate(e.target.value)} />
+                            </label>
+                            <label className="flex flex-col gap-1 flex-1">
+                                <span className="text-xs text-muted">Time</span>
+                                <input type="time" className="input" value={editTime} onChange={e => setEditTime(e.target.value)} />
+                            </label>
+                        </div>
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs text-muted">Location</span>
+                            <input className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
+                        </label>
+                        <div className="flex justify-end gap-2 mt-4">
+                            <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
+                            <button className="btn" onClick={handleUpdateDetails}>Update</button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
+            {/* Complete Modal - Condition on meetingToComplete */}
+            {!!meetingToComplete && (
+                <Modal isOpen={!!meetingToComplete} onClose={() => setMeetingToComplete(null)} title={`Complete "${meetingToComplete.title}"`}>
+                    <CompleteMeetingForm
+                        meeting={meetingToComplete}
+                        onCancel={() => setMeetingToComplete(null)}
+                        onComplete={handleCompleteMeeting}
+                    />
+                </Modal>
             )}
         </div>
     );
@@ -363,9 +654,89 @@ function Section({ title, children, helpText, action }: { title: string, childre
     );
 }
 
+// --- Specific Component for Completion ---
+function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meeting: Meeting, onCancel: () => void, onComplete: (nextSteps: string, linkType: "NONE" | "OPPORTUNITY" | "RELATIONSHIP", linkId: string) => void }) {
+    const [nextSteps, setNextSteps] = useState("");
+    const [linkType, setLinkType] = useState<"NONE" | "OPPORTUNITY" | "RELATIONSHIP">("NONE");
+    const [linkId, setLinkId] = useState("");
+    const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+    const [relationships, setRelationships] = useState<ProtemoiEntry[]>([]);
+    const [contacts, setContacts] = useState<Contact[]>([]);
+
+    useEffect(() => {
+        // Load data for linking
+        opportunityRepository.findAll().then(setOpportunities);
+        protemoiRepository.findAll().then(setRelationships);
+        contactRepository.findAll().then(setContacts);
+    }, []);
+
+    // Helper to get name for relationship
+    const getRelName = (pid: string) => {
+        const rel = relationships.find(r => r.id === pid);
+        if (!rel) return "Unknown";
+        const c = contacts.find(co => co.id === rel.contactId);
+        return c ? c.displayName : "Unknown Person";
+    };
+
+    return (
+        <div className="flex flex-col gap-4">
+            <p className="text-sm text-muted">Great job! Capture the next steps and link to a bigger goal.</p>
+            <label className="flex flex-col gap-1">
+                <span className="font-bold text-sm">Next Steps (Required)</span>
+                <textarea
+                    className="input w-full"
+                    rows={3}
+                    placeholder="e.g. Send proposal by Friday..."
+                    value={nextSteps}
+                    onChange={e => setNextSteps(e.target.value)}
+                    autoFocus
+                />
+            </label>
+
+            <div className="flex flex-col gap-2">
+                <span className="font-bold text-sm">Link to Outcome (Optional)</span>
+                <div className="tabs tabs-boxed bg-base-200">
+                    <a className={`tab ${linkType === "NONE" ? "tab-active" : ""}`} onClick={() => { setLinkType("NONE"); setLinkId(""); }}>None</a>
+                    <a className={`tab ${linkType === "OPPORTUNITY" ? "tab-active" : ""}`} onClick={() => { setLinkType("OPPORTUNITY"); setLinkId(""); }}>Opportunity</a>
+                    <a className={`tab ${linkType === "RELATIONSHIP" ? "tab-active" : ""}`} onClick={() => { setLinkType("RELATIONSHIP"); setLinkId(""); }}>Relationship</a>
+                </div>
+
+                {linkType === "OPPORTUNITY" && (
+                    <select className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
+                        <option value="">Select Opportunity...</option>
+                        {opportunities.map(o => (
+                            <option key={o.id} value={o.id}>{o.name} ({o.stage})</option>
+                        ))}
+                    </select>
+                )}
+
+                {linkType === "RELATIONSHIP" && (
+                    <select className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
+                        <option value="">Select Relationship...</option>
+                        {relationships.map(r => (
+                            <option key={r.id} value={r.id}>{getRelName(r.id)} ({r.relationshipStage})</option>
+                        ))}
+                    </select>
+                )}
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+                <button className="btn-ghost" onClick={onCancel}>Cancel</button>
+                <button
+                    className="btn btn-success"
+                    disabled={!nextSteps}
+                    onClick={() => onComplete(nextSteps, linkType, linkId)}
+                >
+                    Mark Completed
+                </button>
+            </div>
+        </div>
+    );
+}
+
 // --- Component Implementations ---
 
-function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendeeLocal[], onChange: (a: MeetingAttendeeLocal[]) => void }) {
+function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[], onChange: (a: MeetingAttendee[]) => void }) {
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [tab, setTab] = useState<"EXISTING" | "NEW">("EXISTING");
 
@@ -390,7 +761,10 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendeeL
             id: crypto.randomUUID(),
             contactId: contact.id,
             name: contact.displayName,
-            thinkingPreference: contact.thinkingPreference || null
+            thinkingPreference: contact.thinkingPreference || null,
+            meetingId: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         }]);
         setIsAddOpen(false);
     };
@@ -400,7 +774,10 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendeeL
         onChange([...attendees, {
             id: crypto.randomUUID(),
             name: newName,
-            thinkingPreference: newPref as ThinkingPreference || null
+            thinkingPreference: newPref as ThinkingPreference || null,
+            meetingId: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         }]);
         setIsAddOpen(false);
         setNewName("");

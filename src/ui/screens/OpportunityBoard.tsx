@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Opportunity } from "../../domain/entities";
 import { OpportunityStage, Currency } from "../../domain/enums";
-import { opportunityRepository } from "../../infrastructure/repositories";
+import { opportunityRepository, meetingRepository } from "../../infrastructure/repositories";
+import { Opportunity, Meeting } from "../../domain/entities";
 import { Modal } from "../components/Modal";
 import { MITModal } from "../components/MITModal";
 
@@ -9,6 +9,25 @@ export function OpportunityBoard() {
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const [editingOpp, setEditingOpp] = useState<Opportunity | null>(null);
     const [showMITModal, setShowMITModal] = useState(false);
+    const [linkedMeetings, setLinkedMeetings] = useState<Meeting[]>([]);
+    const [isAnonymized, setIsAnonymized] = useState(() => {
+        return localStorage.getItem("bdos_anonymize_enabled") === "true";
+    });
+
+    const toggleAnonymized = (value: boolean) => {
+        setIsAnonymized(value);
+        localStorage.setItem("bdos_anonymize_enabled", String(value));
+    };
+
+    useEffect(() => {
+        if (editingOpp?.id) {
+            meetingRepository.findByOpportunityId(editingOpp.id)
+                .then(setLinkedMeetings)
+                .catch(err => console.error("Failed to load linked meetings", err));
+        } else {
+            setLinkedMeetings([]);
+        }
+    }, [editingOpp?.id]);
 
     const load = () => {
         opportunityRepository.findAll().then(setOpportunities);
@@ -60,13 +79,24 @@ export function OpportunityBoard() {
     };
 
     return (
-        <div className="flex flex-col gap-4" style={{ height: "calc(100vh - 100px)" }}>
-            <div className="flex justify-between items-center">
-                <h2>Pipeline (Opportunities)</h2>
-                <button className="btn" onClick={createNew}>New Opportunity</button>
+        <div className="flex flex-col h-full">
+            <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
+                <h2 className="text-xl font-semibold m-0 tracking-tight">Pipeline (Opportunities)</h2>
+                <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <span className="text-sm font-medium text-muted">Anonymise</span>
+                        <input
+                            type="checkbox"
+                            className="toggle toggle-primary toggle-sm"
+                            checked={isAnonymized}
+                            onChange={(e) => toggleAnonymized(e.target.checked)}
+                        />
+                    </label>
+                    <button className="btn btn-primary" onClick={createNew}>New Opportunity</button>
+                </div>
             </div>
 
-            <div style={{ display: "flex", gap: "16px", overflowX: "auto", height: "100%", paddingBottom: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", overflowX: "auto", flex: 1, padding: "24px" }}>
                 {OpportunityStage.map(stage => {
                     const stageOpps = opportunities.filter(o => o.stage === stage);
 
@@ -91,7 +121,9 @@ export function OpportunityBoard() {
                                         style={{ padding: "12px", border: "1px solid hsl(var(--color-border))", backgroundColor: "hsl(var(--color-bg-base))", cursor: "pointer" }}
                                         onClick={() => setEditingOpp(opp)}
                                     >
-                                        <div style={{ fontWeight: "600" }}>{opp.name}</div>
+                                        <div style={{ fontWeight: "600" }}>
+                                            {isAnonymized ? `Opportunity ${opportunities.indexOf(opp) + 1}` : opp.name}
+                                        </div>
                                         <div className="flex justify-between items-center" style={{ marginTop: "8px", fontSize: "12px" }}>
                                             <span className="text-muted">
                                                 {opp.valueEstimate
@@ -217,6 +249,29 @@ export function OpportunityBoard() {
                                     placeholder="Call John on Monday..."
                                 />
                             </label>
+
+                            {/* Connected Meetings Section */}
+                            <div className="border-t border-base-200 pt-4 mt-2">
+                                <details className="collapse collapse-arrow bg-base-200">
+                                    <summary className="collapse-title text-sm font-medium">Connected Meetings ({linkedMeetings.length})</summary>
+                                    <div className="collapse-content">
+                                        <div className="flex flex-col gap-2 pt-2">
+                                            {linkedMeetings.map(m => (
+                                                <div key={m.id} className="text-xs p-2 bg-base-100 rounded flex justify-between items-center bg-opacity-50">
+                                                    <div>
+                                                        <div className="font-bold">{m.title}</div>
+                                                        <div className="text-muted">{new Date(m.startAt!).toLocaleDateString()}</div>
+                                                    </div>
+                                                    <span className={`badge badge-xs ${m.status === "COMPLETED" ? "badge-success" : "badge-ghost"}`}>{m.status}</span>
+                                                </div>
+                                            ))}
+                                            {linkedMeetings.length === 0 && (
+                                                <div className="text-xs text-muted text-center py-2">No linked meetings</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
                         </div>
                     </Modal>
 
