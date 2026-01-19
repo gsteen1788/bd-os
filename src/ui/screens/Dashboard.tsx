@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
 import { MITModal } from "../components/MITModal";
+import { AdminTaskBar } from "../components/AdminTaskBar";
+import { EntityType } from "../../domain/enums";
 import { useTheme } from "../../application/ThemeContext";
 
 import { groupItemsByWeek } from "../../utils/dateUtils";
@@ -9,6 +11,8 @@ import { groupItemsByWeek } from "../../utils/dateUtils";
 export function Dashboard() {
     const { theme } = useTheme();
     const [mits, setMits] = useState<Task[]>([]);
+    const [adminTasks, setAdminTasks] = useState<Task[]>([]);
+    const [adminHistory, setAdminHistory] = useState<Task[]>([]);
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const [relationships, setRelationships] = useState<{ entry: ProtemoiEntry, contact: Contact }[]>([]);
     const [viewMode, setViewMode] = useState<"PENDING" | "HISTORY">("PENDING");
@@ -22,14 +26,21 @@ export function Dashboard() {
 
     const loadData = async () => {
         try {
-            const [tasks, opps, protemoi, contacts] = await Promise.all([
+            const [tasks, history, opps, protemoi, contacts] = await Promise.all([
                 viewMode === "PENDING" ? taskRepository.findPending() : taskRepository.findHistory(50),
+                taskRepository.findHistory(50), // Always fetch recent history for Admin Bar regardless of view mode? Or only if needed. Let's fetch it always for now to simplify.
                 opportunityRepository.findAll(),
                 protemoiRepository.findAll(),
                 contactRepository.findAll()
-            ]);
+            ]) as [Task[], Task[], Opportunity[], ProtemoiEntry[], Contact[]];
 
-            setMits(tasks);
+            setMits(tasks.filter(t => t.type !== 'ADMIN'));
+            setAdminTasks(tasks.filter(t => t.type === 'ADMIN'));
+
+            // For admin history, we want tasks that are type ADMIN and status DONE/CANCELED
+            // The findHistory returns mixed types.
+            setAdminHistory(history.filter(t => t.type === 'ADMIN'));
+
             setOpportunities(opps);
 
             const rels = protemoi.map(p => {
@@ -83,6 +94,75 @@ export function Dashboard() {
         }
     };
 
+    const handleCreateAdminTask = async (title: string, dueDate: string, links: { type: EntityType, id: string }[]) => {
+        try {
+            const taskId = crypto.randomUUID();
+            await taskRepository.save({
+                id: taskId,
+                title,
+                status: 'TODO',
+                type: 'ADMIN',
+                dueDate,
+                linkedEntityType: links.length > 0 ? links[0].type : "NONE", // DEPRECATED: Keep sync for now
+                linkedEntityId: links.length > 0 ? links[0].id : null,       // DEPRECATED
+                links: links.map(l => ({
+                    id: crypto.randomUUID(),
+                    taskId,
+                    entityType: l.type,
+                    entityId: l.id,
+                    createdAt: new Date().toISOString()
+                })),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            loadData();
+        } catch (e) {
+            console.error("Failed to create Admin Task", e);
+            alert("Failed to create task");
+        }
+    };
+
+    const handleUpdateAdminTask = async (task: Task) => {
+        try {
+            await taskRepository.save({
+                ...task,
+                updatedAt: new Date().toISOString()
+            });
+            loadData();
+        } catch (e) {
+            console.error("Failed to update Admin Task", e);
+            alert("Failed to update task");
+        }
+    };
+
+    const handleCompleteAdminTask = async (task: Task) => {
+        try {
+            await taskRepository.save({
+                ...task,
+                status: 'DONE',
+                updatedAt: new Date().toISOString()
+            });
+            loadData();
+        } catch (e) {
+            console.error("Failed to complete Admin Task", e);
+        }
+    };
+
+    const handleDeleteAdminTask = async (task: Task) => {
+        if (!confirm("Delete this task?")) return;
+        try {
+            await taskRepository.save({
+                ...task,
+                status: 'CANCELED',
+                updatedAt: new Date().toISOString()
+            });
+            loadData();
+        } catch (e) {
+            console.error("Failed to delete Admin Task", e);
+            alert("Failed to delete task");
+        }
+    };
+
     const handleModalClose = () => {
         setShowMITModal(false);
         setEditingMIT(undefined);
@@ -123,7 +203,7 @@ export function Dashboard() {
     const renderMitCard = (mit: Task) => (
         <div
             key={mit.id}
-            className={`card border border-white/5 hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
+            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
             onClick={() => handleEdit(mit)}
         >
             {/* Card Header */}
@@ -206,7 +286,7 @@ export function Dashboard() {
             </div>
 
             {/* Footer / Links */}
-            <div className="mt-auto p-3 bg-black/20 border-t border-white/5 flex flex-wrap gap-2">
+            <div className="mt-auto p-3 bg-black/20 border-t border-[hsl(var(--color-border))] flex flex-wrap gap-2">
                 {mit.links && mit.links.length > 0 ? (
                     mit.links.map((link, i) => (
                         <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-base-100 rounded border border-white/5 max-w-full">
@@ -218,7 +298,7 @@ export function Dashboard() {
                         </div>
                     ))
                 ) : mit.linkedEntityType !== "NONE" && (
-                    <div className="flex items-center gap-1.5 px-2 py-1 bg-base-100 rounded border border-white/5 max-w-full">
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-base-100 rounded border border-[hsl(var(--color-border))] max-w-full">
                         <span className="text-[10px] opacity-60 uppercase font-bold">{mit.linkedEntityType[0]}</span>
                         <span className="truncate text-[10px] opacity-80">{getLegacyLinkDisplay(mit.linkedEntityType, mit.linkedEntityId || null)}</span>
                     </div>
@@ -241,7 +321,7 @@ export function Dashboard() {
                 initialTask={editingMIT}
             />
 
-            <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
+            <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
                 <div>
                     <h2 className="text-xl font-semibold m-0 tracking-tight flex items-center gap-2">
                         <img src={getMitIcon()} alt="MIT" className="w-8 h-8 object-contain" />
@@ -275,7 +355,7 @@ export function Dashboard() {
                         // But let's verify via Object.keys.
                         return Object.keys(groups).map(weekLabel => (
                             <div key={weekLabel} className="col-span-full mb-2">
-                                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-white/5 pb-1">
+                                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
                                     {weekLabel}
                                 </h3>
                                 <div className="grid-mit-cards">
@@ -301,6 +381,20 @@ export function Dashboard() {
                         </>
                     )}
                 </div>
+            )}
+
+            {/* Admin Task Bar (Only in Pending View) */}
+            {viewMode === 'PENDING' && (
+                <AdminTaskBar
+                    tasks={adminTasks}
+                    history={adminHistory}
+                    opportunities={opportunities}
+                    relationships={relationships}
+                    onCreate={handleCreateAdminTask}
+                    onComplete={handleCompleteAdminTask}
+                    onUpdate={handleUpdateAdminTask}
+                    onDelete={handleDeleteAdminTask}
+                />
             )}
         </div>
     );

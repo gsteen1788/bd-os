@@ -446,7 +446,7 @@ export function ProtemoiBoard() {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
+            <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
                 <div className="flex items-center gap-4">
                     <h2 className="text-xl font-semibold m-0 tracking-tight">Relationship Board</h2>
                     <select
@@ -479,8 +479,8 @@ export function ProtemoiBoard() {
                     const info = RELATIONSHIP_STAGE_INFO[stage];
 
                     return (
-                        <div key={stage} style={{ minWidth: "320px", backgroundColor: "rgba(255,255,255,0.03)", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
-                            <div className="flex justify-between items-center p-4 border-b border-white/5">
+                        <div key={stage} style={{ minWidth: "320px", backgroundColor: "hsl(var(--color-bg-surface))", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+                            <div className="flex justify-between items-center p-4 border-b border-[hsl(var(--color-border))]">
                                 <div className="flex items-center gap-2">
                                     <h4 style={{ margin: 0, color: "hsl(var(--color-text-muted))", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
                                         {stage.replace(/_/g, " ")}
@@ -602,7 +602,8 @@ export function ProtemoiBoard() {
                             {/* Scope Toggle */}
                             <div className="flex justify-center bg-base-200 p-1 rounded-lg self-center">
                                 <button
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!editingEntry.isInternal ? 'bg-primary text-white shadow' : 'text-muted hover:text-white'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!editingEntry.isInternal ? 'text-white shadow' : 'text-muted hover:text-main'}`}
+                                    style={!editingEntry.isInternal ? { backgroundColor: 'hsl(var(--color-primary))' } : {}}
                                     onClick={() => setEditingEntry({
                                         ...editingEntry,
                                         isInternal: false,
@@ -613,7 +614,8 @@ export function ProtemoiBoard() {
                                     External
                                 </button>
                                 <button
-                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${editingEntry.isInternal ? 'bg-primary text-white shadow' : 'text-muted hover:text-white'}`}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${editingEntry.isInternal ? 'text-white shadow' : 'text-muted hover:text-main'}`}
+                                    style={editingEntry.isInternal ? { backgroundColor: 'hsl(var(--color-primary))' } : {}}
                                     onClick={() => setEditingEntry({
                                         ...editingEntry,
                                         isInternal: true,
@@ -634,7 +636,7 @@ export function ProtemoiBoard() {
                                 </div>
                             )}
 
-                            <div className="p-4 bg-base-200 rounded-lg border border-white/5">
+                            <div className="p-4 bg-base-200 rounded-lg border border-[hsl(var(--color-border))]">
                                 <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Company Details</h4>
                                 <div className="flex flex-col gap-3">
                                     {!showNewOrgInput ? (
@@ -732,7 +734,7 @@ export function ProtemoiBoard() {
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-base-200 rounded-lg border border-white/5">
+                            <div className="p-4 bg-base-200 rounded-lg border border-[hsl(var(--color-border))]">
                                 <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Contact Details</h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <label className="flex flex-col gap-1 col-span-2">

@@ -50,11 +50,11 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
             <div
-                className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-base-100 shadow-2xl transition-all animate-scale-in"
+                className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[hsl(var(--color-border))] bg-base-100 shadow-2xl transition-all animate-scale-in"
                 style={{
-                    boxShadow: "0 0 40px -10px rgba(0,0,0,0.5), 0 0 20px -5px rgba(255,255,255,0.05) inset",
+                    boxShadow: "0 0 40px -10px rgba(0,0,0,0.1), 0 0 20px -5px rgba(255,255,255,0.05) inset",
                     backgroundColor: "hsl(var(--color-bg-base))",
                     borderColor: "hsl(var(--color-border))"
                 }}
@@ -77,7 +77,7 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                             )}
                             <button
                                 onClick={handleSelectIcon}
-                                className="p-1 rounded bg-base-200 hover:bg-base-300 text-muted hover:text-main transition-colors border border-white/10"
+                                className="p-1 rounded bg-base-200 hover:bg-base-300 text-muted hover:text-main transition-colors border border-[hsl(var(--color-border))]"
                                 title="Change Oracle Icon for this theme"
                             >
                                 ✏️
@@ -114,11 +114,11 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                 ) : result ? (
                     <div className="flex flex-col">
                         {/* Status Header */}
-                        <div className={`p-8 pb-6 flex flex-col items-center text-center border-b border-white/5 relative overflow-hidden`}>
+                        <div className={`p-8 pb-6 flex flex-col items-center text-center border-b border-[hsl(var(--color-border))] relative overflow-hidden`}>
                             {/* Background flush */}
                             <div className={`absolute inset-0 opacity-10 ${result.verdict === "PASS" ? "bg-gradient-to-b from-success to-transparent" : "bg-gradient-to-b from-error to-transparent"}`}></div>
 
-                            <div className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg ring-1 ring-white/10 ${result.verdict === "PASS" ? "bg-success/20 text-success" : "bg-error/20 text-error"}`}>
+                            <div className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg ring-1 ring-[hsl(var(--color-border))] ${result.verdict === "PASS" ? "bg-success/20 text-success" : "bg-error/20 text-error"}`}>
                                 {result.verdict === "PASS" ? "✓" : "!"}
                             </div>
 
@@ -137,13 +137,13 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                             {/* MIT Specific Criteria Badges */}
                             {type === 'MIT' && result.mit_criteria && (
                                 <div className="flex gap-2 mt-3 relative z-10">
-                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.big_impact ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-white/10 text-muted decoration-line-through opacity-50'}`}>
+                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.big_impact ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-[hsl(var(--color-border))] text-muted decoration-line-through opacity-50'}`}>
                                         Big Impact
                                     </div>
-                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.in_control ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-white/10 text-muted decoration-line-through opacity-50'}`}>
+                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.in_control ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-[hsl(var(--color-border))] text-muted decoration-line-through opacity-50'}`}>
                                         In Control
                                     </div>
-                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.growth_oriented ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-white/10 text-muted decoration-line-through opacity-50'}`}>
+                                    <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide border ${result.mit_criteria.growth_oriented ? 'bg-success/10 border-success/30 text-success' : 'bg-base-300 border-[hsl(var(--color-border))] text-muted decoration-line-through opacity-50'}`}>
                                         Growth Oriented
                                     </div>
                                 </div>
@@ -174,9 +174,9 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                         </div>
 
                         {/* Actions */}
-                        <div className="p-4 bg-base-300/30 border-t border-white/5 flex items-center justify-end gap-3">
+                        <div className="p-4 bg-base-300/30 border-t border-[hsl(var(--color-border))] flex items-center justify-end gap-3">
                             <button
-                                className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-main hover:bg-white/5 transition-colors"
+                                className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-main hover:bg-black/5 transition-colors"
                                 onClick={onClose}
                             >
                                 Cancel
@@ -184,13 +184,13 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                             {result.verdict === "FAIL" ? (
                                 <>
                                     <button
-                                        className="px-4 py-2 rounded-lg text-sm font-medium text-main hover:text-white hover:bg-white/10 transition-colors"
+                                        className="px-4 py-2 rounded-lg text-sm font-medium text-main hover:text-main hover:bg-black/5 transition-colors"
                                         onClick={onUseAnyway}
                                     >
                                         Use Anyway
                                     </button>
                                     <button
-                                        className="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all transform hover:scale-105"
+                                        className="btn"
                                         onClick={onRewrite}
                                     >
                                         Try Again
@@ -198,7 +198,7 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                                 </>
                             ) : (
                                 <button
-                                    className="px-8 py-2 rounded-lg text-sm font-bold bg-success text-white hover:bg-success/80 shadow-lg shadow-success/20 transition-all transform hover:scale-105"
+                                    className="btn btn-success"
                                     onClick={onUseAnyway}
                                 >
                                     Confirm
@@ -217,7 +217,7 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                 {/* Close X (Absolute) - Hidden in loading to avoid interruption or maybe keep it? Detailed implementation kept it. */}
                 {!isLoading && (
                     <button
-                        className="absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-main hover:bg-white/10 transition-colors z-20"
+                        className="absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-main hover:bg-black/5 transition-colors z-20"
                         onClick={onClose}
                     >
                         ✕

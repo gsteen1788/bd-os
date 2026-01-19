@@ -28,7 +28,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay z-[200]" onClick={onClose}>
             <div className="modal-container" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h3>{title}</h3>

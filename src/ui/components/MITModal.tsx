@@ -250,270 +250,271 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
     };
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={initialTask ? "Edit MIT" : "Create Most Important Task (MIT)"}
-            footer={
-                <>
-                    {initialTask && (
-                        <button className="btn btn-ghost text-error" onClick={handleDelete} style={{ marginRight: 'auto' }}>
-                            Delete
+        <>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                title={initialTask ? "Edit MIT" : "Create Most Important Task (MIT)"}
+                footer={
+                    <>
+                        {initialTask && (
+                            <button className="btn btn-ghost text-error" onClick={handleDelete} style={{ marginRight: 'auto' }}>
+                                Delete
+                            </button>
+                        )}
+                        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+                        <button
+                            className="btn"
+                            onClick={handleSave}
+                            disabled={!isValid}
+                            title={!isValid ? "Complete all B.I.G. sections to save" : "Save MIT"}
+                        >
+                            {initialTask ? "Save Changes" : "Save MIT"}
                         </button>
-                    )}
-                    <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
-                    <button
-                        className="btn"
-                        onClick={handleSave}
-                        disabled={!isValid}
-                        title={!isValid ? "Complete all B.I.G. sections to save" : "Save MIT"}
-                    >
-                        {initialTask ? "Save Changes" : "Save MIT"}
-                    </button>
-                </>
-            }
-        >
-            <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-bold text-muted uppercase tracking-wide">Task</label>
-                    <input
-                        className="input font-semibold text-lg"
-                        placeholder="What is the one thing you must do?"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        autoFocus
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                    </>
+                }
+            >
+                <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm font-bold text-muted uppercase tracking-wide">Due Date</label>
+                        <label className="text-sm font-bold text-muted uppercase tracking-wide">Task</label>
                         <input
-                            className="input"
-                            type="date"
-                            value={dueDate}
-                            onChange={e => setDueDate(e.target.value)}
+                            className="input font-semibold text-lg"
+                            placeholder="What is the one thing you must do?"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            autoFocus
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2 relative">
-                        <div className="flex justify-between items-center">
-                            <label className="text-sm font-bold text-muted uppercase tracking-wide">Linked Context</label>
-                            <button className="btn btn-xs btn-ghost text-primary" onClick={() => setIsLinkPickerOpen(!isLinkPickerOpen)}>+ Add Link</button>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-bold text-muted uppercase tracking-wide">Due Date</label>
+                            <input
+                                className="input"
+                                type="date"
+                                value={dueDate}
+                                onChange={e => setDueDate(e.target.value)}
+                            />
                         </div>
 
-                        <div className="flex flex-col gap-1 min-h-[3rem] p-2 bg-base-200 rounded border border-white/5">
-                            {links.length === 0 && <span className="text-xs text-muted italic p-1">No links</span>}
-                            {links.map((link, i) => (
-                                <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-base-100 rounded border border-white/10 group hover:border-primary/30 transition-colors">
-                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
-                                        }`}>
-                                        {link.entityType === 'OPPORTUNITY' ? 'O' : 'R'}
+                        <div className="flex flex-col gap-2 relative">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm font-bold text-muted uppercase tracking-wide">Linked Context</label>
+                                <button className="btn btn-xs btn-ghost text-primary" onClick={() => setIsLinkPickerOpen(!isLinkPickerOpen)}>+ Add Link</button>
+                            </div>
+
+                            <div className="flex flex-col gap-1 min-h-[3rem] p-2 bg-base-200 rounded border border-white/5">
+                                {links.length === 0 && <span className="text-xs text-muted italic p-1">No links</span>}
+                                {links.map((link, i) => (
+                                    <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-base-100 rounded border border-white/10 group hover:border-primary/30 transition-colors">
+                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
+                                            }`}>
+                                            {link.entityType === 'OPPORTUNITY' ? 'O' : 'R'}
+                                        </div>
+                                        <span className="truncate text-xs flex-1 text-base-content/80">{getLinkName(link)}</span>
+                                        <button
+                                            onClick={() => removeLink(i)}
+                                            className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-white/10 text-muted hover:text-white transition-colors"
+                                        >
+                                            ×
+                                        </button>
                                     </div>
-                                    <span className="truncate text-xs flex-1 text-base-content/80">{getLinkName(link)}</span>
-                                    <button
-                                        onClick={() => removeLink(i)}
-                                        className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-white/10 text-muted hover:text-white transition-colors"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Dropdown Picker - Apple Style Segmented Control */}
-                        {isLinkPickerOpen && (
-                            <div className="absolute top-8 right-0 w-80 bg-base-100 border border-white/10 shadow-2xl rounded-xl z-50 p-3 flex flex-col gap-3 max-h-80 overflow-y-auto">
-
-                                {/* Segmented Control Container */}
-                                <div className="flex p-1 bg-base-300/50 rounded-lg backdrop-blur-sm">
-                                    <button
-                                        className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'OPPORTUNITY'
-                                            ? 'shadow-md'
-                                            : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
-                                            }`}
-                                        style={pickerType === 'OPPORTUNITY' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
-                                        onClick={() => setPickerType('OPPORTUNITY')}
-                                    >
-                                        Opportunities
-                                    </button>
-                                    <button
-                                        className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'REL_EXTERNAL'
-                                            ? 'shadow-md'
-                                            : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
-                                            }`}
-                                        style={pickerType === 'REL_EXTERNAL' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
-                                        onClick={() => setPickerType('REL_EXTERNAL')}
-                                    >
-                                        Ext. Rels
-                                    </button>
-                                    <button
-                                        className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'REL_INTERNAL'
-                                            ? 'shadow-md'
-                                            : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
-                                            }`}
-                                        style={pickerType === 'REL_INTERNAL' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
-                                        onClick={() => setPickerType('REL_INTERNAL')}
-                                    >
-                                        Int. Rels
-                                    </button>
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    {pickerType === 'OPPORTUNITY' && (
-                                        <>
-                                            {opportunities.length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No opportunities found</span>}
-                                            {opportunities.map(o => (
-                                                <button key={o.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('OPPORTUNITY', o.id)}>
-                                                    <span className="w-2 h-2 rounded-full bg-blue-400 mr-2 opacity-70"></span>
-                                                    {o.name}
-                                                </button>
-                                            ))}
-                                        </>
-                                    )}
-
-                                    {pickerType === 'REL_EXTERNAL' && (
-                                        <>
-                                            {relationships.filter(r => !r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No external relationships</span>}
-                                            {relationships.filter(r => !r.entry.isInternal).map(r => (
-                                                <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
-                                                    <span className="w-2 h-2 rounded-full bg-orange-400 mr-2 opacity-70"></span>
-                                                    {r.contact.displayName}
-                                                </button>
-                                            ))}
-                                        </>
-                                    )}
-
-                                    {pickerType === 'REL_INTERNAL' && (
-                                        <>
-                                            {relationships.filter(r => r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No team members found</span>}
-                                            {relationships.filter(r => r.entry.isInternal).map(r => (
-                                                <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
-                                                    <span className="w-2 h-2 rounded-full bg-purple-400 mr-2 opacity-70"></span>
-                                                    {r.contact.displayName}
-                                                </button>
-                                            ))}
-                                        </>
-                                    )}
-                                </div>
+                                ))}
                             </div>
-                        )}
-                        {isLinkPickerOpen && <div className="fixed inset-0 z-40" onClick={() => setIsLinkPickerOpen(false)}></div>}
+
+                            {/* Dropdown Picker - Apple Style Segmented Control */}
+                            {isLinkPickerOpen && (
+                                <div className="absolute top-8 right-0 w-80 bg-base-100 border border-white/10 shadow-2xl rounded-xl z-50 p-3 flex flex-col gap-3 max-h-80 overflow-y-auto">
+
+                                    {/* Segmented Control Container */}
+                                    <div className="flex p-1 bg-base-300/50 rounded-lg backdrop-blur-sm">
+                                        <button
+                                            className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'OPPORTUNITY'
+                                                ? 'shadow-md'
+                                                : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
+                                                }`}
+                                            style={pickerType === 'OPPORTUNITY' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
+                                            onClick={() => setPickerType('OPPORTUNITY')}
+                                        >
+                                            Opportunities
+                                        </button>
+                                        <button
+                                            className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'REL_EXTERNAL'
+                                                ? 'shadow-md'
+                                                : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
+                                                }`}
+                                            style={pickerType === 'REL_EXTERNAL' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
+                                            onClick={() => setPickerType('REL_EXTERNAL')}
+                                        >
+                                            Ext. Rels
+                                        </button>
+                                        <button
+                                            className={`flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200 ${pickerType === 'REL_INTERNAL'
+                                                ? 'shadow-md'
+                                                : 'text-base-content/60 hover:text-base-content hover:bg-base-100/10'
+                                                }`}
+                                            style={pickerType === 'REL_INTERNAL' ? { backgroundColor: 'hsl(var(--color-primary))', color: 'white' } : {}}
+                                            onClick={() => setPickerType('REL_INTERNAL')}
+                                        >
+                                            Int. Rels
+                                        </button>
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        {pickerType === 'OPPORTUNITY' && (
+                                            <>
+                                                {opportunities.length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No opportunities found</span>}
+                                                {opportunities.map(o => (
+                                                    <button key={o.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('OPPORTUNITY', o.id)}>
+                                                        <span className="w-2 h-2 rounded-full bg-blue-400 mr-2 opacity-70"></span>
+                                                        {o.name}
+                                                    </button>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {pickerType === 'REL_EXTERNAL' && (
+                                            <>
+                                                {relationships.filter(r => !r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No external relationships</span>}
+                                                {relationships.filter(r => !r.entry.isInternal).map(r => (
+                                                    <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
+                                                        <span className="w-2 h-2 rounded-full bg-orange-400 mr-2 opacity-70"></span>
+                                                        {r.contact.displayName}
+                                                    </button>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {pickerType === 'REL_INTERNAL' && (
+                                            <>
+                                                {relationships.filter(r => r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No team members found</span>}
+                                                {relationships.filter(r => r.entry.isInternal).map(r => (
+                                                    <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
+                                                        <span className="w-2 h-2 rounded-full bg-purple-400 mr-2 opacity-70"></span>
+                                                        {r.contact.displayName}
+                                                    </button>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            {isLinkPickerOpen && <div className="fixed inset-0 z-40" onClick={() => setIsLinkPickerOpen(false)}></div>}
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex flex-col gap-4 p-5 bg-base-200 rounded-xl border border-white/5">
-                    <h4 className="m-0 text-sm font-bold text-primary uppercase tracking-wide opacity-80 border-b border-white/5 pb-2 mb-2">The B.I.G. Test</h4>
+                    <div className="flex flex-col gap-4 p-5 bg-base-200 rounded-xl border border-[hsl(var(--color-border))]">
+                        <h4 className="m-0 text-sm font-bold text-primary uppercase tracking-wide opacity-80 border-b border-[hsl(var(--color-border))] pb-2 mb-2">The B.I.G. Test</h4>
 
-                    <p className="text-xs text-muted m-0 italic opacity-70 mb-2">Does this task verify as a true MIT?</p>
+                        <p className="text-xs text-muted m-0 italic opacity-70 mb-2">Does this task verify as a true MIT?</p>
 
-                    <div className="flex flex-col gap-4">
-                        {/* Big Impact */}
-                        <div className={`transition-all duration-300 rounded-lg border ${bigImpact.active ? 'bg-base-100 border-primary/40 shadow-lg shadow-primary/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
-                            <div
-                                className="flex items-center gap-4 p-3 cursor-pointer select-none"
-                                onClick={() => toggleChip(bigImpact, setBigImpact)}
-                            >
+                        <div className="flex flex-col gap-4">
+                            {/* Big Impact */}
+                            <div className={`transition-all duration-300 rounded-lg border ${bigImpact.active ? 'bg-base-100 border-primary/40 shadow-lg shadow-primary/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${bigImpact.active
-                                        ? 'bg-gradient-to-br from-primary to-blue-600 text-white shadow-primary/50'
-                                        : 'bg-base-100/50 text-muted border border-white/5'
-                                        }`}
-                                    style={bigImpact.active ? { background: 'linear-gradient(135deg, hsl(var(--color-primary)), #3b82f6)' } : {}}
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    onClick={() => toggleChip(bigImpact, setBigImpact)}
                                 >
-                                    B
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${bigImpact.active
+                                            ? 'bg-gradient-to-br from-primary to-blue-600 text-white shadow-primary/50'
+                                            : 'bg-base-100/50 text-muted border border-[hsl(var(--color-border))]'
+                                            }`}
+                                        style={bigImpact.active ? { background: 'linear-gradient(135deg, hsl(var(--color-primary)), #3b82f6)' } : {}}
+                                    >
+                                        B
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className={`font-bold transition-colors ${bigImpact.active ? 'text-main' : 'text-base-content/70'}`}>Big Impact</div>
+                                        <div className="text-[10px] text-muted opacity-70">Will this move the needle?</div>
+                                    </div>
+                                    <div className={`text-xs transition-transform duration-300 ${bigImpact.active ? 'rotate-180 text-primary' : 'text-muted'}`}>▼</div>
                                 </div>
-                                <div className="flex-1">
-                                    <div className={`font-bold transition-colors ${bigImpact.active ? 'text-white' : 'text-base-content/70'}`}>Big Impact</div>
-                                    <div className="text-[10px] text-muted opacity-70">Will this move the needle?</div>
+
+                                <div className={`overflow-hidden transition-all duration-300 ${bigImpact.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="p-3 pt-0">
+                                        <textarea
+                                            className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-primary/30 transition-all resize-none"
+                                            placeholder="Why will this move the needle significantly?"
+                                            value={bigImpact.text}
+                                            onChange={e => setBigImpact({ ...bigImpact, text: e.target.value })}
+                                            autoFocus
+                                        />
+                                    </div>
                                 </div>
-                                <div className={`text-xs transition-transform duration-300 ${bigImpact.active ? 'rotate-180 text-primary' : 'text-muted'}`}>▼</div>
                             </div>
 
-                            <div className={`overflow-hidden transition-all duration-300 ${bigImpact.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                <div className="p-3 pt-0">
-                                    <textarea
-                                        className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-white/5 focus:border-primary/30 transition-all resize-none"
-                                        placeholder="Why will this move the needle significantly?"
-                                        value={bigImpact.text}
-                                        onChange={e => setBigImpact({ ...bigImpact, text: e.target.value })}
-                                        autoFocus
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* In Control */}
-                        <div className={`transition-all duration-300 rounded-lg border ${inControl.active ? 'bg-base-100 border-success/40 shadow-lg shadow-success/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
-                            <div
-                                className="flex items-center gap-4 p-3 cursor-pointer select-none"
-                                onClick={() => toggleChip(inControl, setInControl)}
-                            >
+                            {/* In Control */}
+                            <div className={`transition-all duration-300 rounded-lg border ${inControl.active ? 'bg-base-100 border-success/40 shadow-lg shadow-success/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${inControl.active
-                                        ? 'bg-gradient-to-br from-success to-emerald-600 text-white shadow-success/50'
-                                        : 'bg-base-100/50 text-muted border border-white/5'
-                                        }`}
-                                    style={inControl.active ? { background: 'linear-gradient(135deg, hsl(var(--color-success)), #10b981)' } : {}}
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    onClick={() => toggleChip(inControl, setInControl)}
                                 >
-                                    I
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${inControl.active
+                                            ? 'bg-gradient-to-br from-success to-emerald-600 text-white shadow-success/50'
+                                            : 'bg-base-100/50 text-muted border border-[hsl(var(--color-border))]'
+                                            }`}
+                                        style={inControl.active ? { background: 'linear-gradient(135deg, hsl(var(--color-success)), #10b981)' } : {}}
+                                    >
+                                        I
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className={`font-bold transition-colors ${inControl.active ? 'text-main' : 'text-base-content/70'}`}>In Your Control</div>
+                                        <div className="text-[10px] text-muted opacity-70">Do you have autonomy?</div>
+                                    </div>
+                                    <div className={`text-xs transition-transform duration-300 ${inControl.active ? 'rotate-180 text-success' : 'text-muted'}`}>▼</div>
                                 </div>
-                                <div className="flex-1">
-                                    <div className={`font-bold transition-colors ${inControl.active ? 'text-white' : 'text-base-content/70'}`}>In Your Control</div>
-                                    <div className="text-[10px] text-muted opacity-70">Do you have autonomy?</div>
+
+                                <div className={`overflow-hidden transition-all duration-300 ${inControl.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="p-3 pt-0">
+                                        <textarea
+                                            className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-success/30 transition-all resize-none"
+                                            placeholder="Are you relying on others or is this up to you?"
+                                            value={inControl.text}
+                                            onChange={e => setInControl({ ...inControl, text: e.target.value })}
+                                        />
+                                    </div>
                                 </div>
-                                <div className={`text-xs transition-transform duration-300 ${inControl.active ? 'rotate-180 text-success' : 'text-muted'}`}>▼</div>
                             </div>
 
-                            <div className={`overflow-hidden transition-all duration-300 ${inControl.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                <div className="p-3 pt-0">
-                                    <textarea
-                                        className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-white/5 focus:border-success/30 transition-all resize-none"
-                                        placeholder="Are you relying on others or is this up to you?"
-                                        value={inControl.text}
-                                        onChange={e => setInControl({ ...inControl, text: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Growth Oriented */}
-                        <div className={`transition-all duration-300 rounded-lg border ${growthOriented.active ? 'bg-base-100 border-warning/40 shadow-lg shadow-warning/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
-                            <div
-                                className="flex items-center gap-4 p-3 cursor-pointer select-none"
-                                onClick={() => toggleChip(growthOriented, setGrowthOriented)}
-                            >
+                            {/* Growth Oriented */}
+                            <div className={`transition-all duration-300 rounded-lg border ${growthOriented.active ? 'bg-base-100 border-warning/40 shadow-lg shadow-warning/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${growthOriented.active
-                                        ? 'bg-gradient-to-br from-warning to-amber-600 text-white shadow-warning/50'
-                                        : 'bg-base-100/50 text-muted border border-white/5'
-                                        }`}
-                                    style={growthOriented.active ? { background: 'linear-gradient(135deg, hsl(var(--color-warning)), #f59e0b)' } : {}}
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    onClick={() => toggleChip(growthOriented, setGrowthOriented)}
                                 >
-                                    G
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${growthOriented.active
+                                            ? 'bg-gradient-to-br from-warning to-amber-600 text-white shadow-warning/50'
+                                            : 'bg-base-100/50 text-muted border border-[hsl(var(--color-border))]'
+                                            }`}
+                                        style={growthOriented.active ? { background: 'linear-gradient(135deg, hsl(var(--color-warning)), #f59e0b)' } : {}}
+                                    >
+                                        G
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className={`font-bold transition-colors ${growthOriented.active ? 'text-main' : 'text-base-content/70'}`}>Growth Oriented</div>
+                                        <div className="text-[10px] text-muted opacity-70">Does it align with long term?</div>
+                                    </div>
+                                    <div className={`text-xs transition-transform duration-300 ${growthOriented.active ? 'rotate-180 text-warning' : 'text-muted'}`}>▼</div>
                                 </div>
-                                <div className="flex-1">
-                                    <div className={`font-bold transition-colors ${growthOriented.active ? 'text-white' : 'text-base-content/70'}`}>Growth Oriented</div>
-                                    <div className="text-[10px] text-muted opacity-70">Does it align with long term?</div>
-                                </div>
-                                <div className={`text-xs transition-transform duration-300 ${growthOriented.active ? 'rotate-180 text-warning' : 'text-muted'}`}>▼</div>
-                            </div>
 
-                            <div className={`overflow-hidden transition-all duration-300 ${growthOriented.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                <div className="p-3 pt-0">
-                                    <textarea
-                                        className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-white/5 focus:border-warning/30 transition-all resize-none"
-                                        placeholder="Does this move you toward your bigger goals?"
-                                        value={growthOriented.text}
-                                        onChange={e => setGrowthOriented({ ...growthOriented, text: e.target.value })}
-                                    />
+                                <div className={`overflow-hidden transition-all duration-300 ${growthOriented.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="p-3 pt-0">
+                                        <textarea
+                                            className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-warning/30 transition-all resize-none"
+                                            placeholder="Does this move you toward your bigger goals?"
+                                            value={growthOriented.text}
+                                            onChange={e => setGrowthOriented({ ...growthOriented, text: e.target.value })}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
+            </Modal >
             <EvaluationModal
                 isOpen={showEvaluationModal}
                 onClose={() => setShowEvaluationModal(false)}
@@ -523,6 +524,6 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                 onRewrite={handleRewrite}
                 type="MIT"
             />
-        </Modal >
+        </>
     );
 }

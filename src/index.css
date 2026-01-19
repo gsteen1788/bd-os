@@ -185,6 +185,28 @@
     @apply translate-y-0;
   }
 
+  .btn-success {
+    background-color: hsl(var(--color-success));
+    @apply text-white px-5 py-2.5 rounded-md border-none font-semibold text-sm tracking-wide cursor-pointer transition-all duration-200 shadow-sm;
+  }
+
+  .btn-success:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    @apply -translate-y-px;
+  }
+
+  .btn-error {
+    background-color: hsl(var(--color-error));
+    @apply text-white px-5 py-2.5 rounded-md border-none font-semibold text-sm tracking-wide cursor-pointer transition-all duration-200 shadow-sm;
+  }
+
+  .btn-error:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    @apply -translate-y-px;
+  }
+
   .btn-ghost {
     @apply bg-transparent text-muted px-5 py-2.5 rounded-md border border-transparent cursor-pointer transition-all duration-200 font-medium;
     color: hsl(var(--color-text-muted));

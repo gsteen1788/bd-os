@@ -174,7 +174,7 @@ export function OpportunityBoard() {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center h-[70px] px-6 border-b border-white/5 bg-base sticky top-0 z-10">
+            <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
                 <h2 className="text-xl font-semibold m-0 tracking-tight">Pipeline (Opportunities)</h2>
                 <div className="flex items-center gap-3">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -190,7 +190,7 @@ export function OpportunityBoard() {
                 </div>
             </div>
 
-            <div style={{ display: "flex", gap: "16px", overflowX: "auto", flex: 1, padding: "24px" }}>
+            <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto", height: "100%" }}>
                 {OpportunityStage.map(stage => {
                     const stageOpps = opportunities.filter(o => o.stage === stage);
                     const info = STAGE_INFO[stage];
@@ -199,7 +199,7 @@ export function OpportunityBoard() {
                         <div key={stage} style={{
                             minWidth: "280px",
                             backgroundColor: "hsl(var(--color-bg-surface))",
-                            borderRadius: "8px",
+                            borderRadius: "12px",
                             display: "flex",
                             flexDirection: "column"
                         }}>

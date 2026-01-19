@@ -8,7 +8,11 @@ interface Learning {
     source_file: string;
 }
 
-export const OneLearning: React.FC = () => {
+interface OneLearningProps {
+    activeTab?: string;
+}
+
+export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard' }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [learning, setLearning] = useState<Learning | null>(null);
     const [loading, setLoading] = useState(false);
@@ -58,7 +62,7 @@ export const OneLearning: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <div className={`fixed right-6 z-50 flex flex-col items-end gap-2 transition-all duration-300 ${activeTab === 'dashboard' ? 'bottom-48' : 'bottom-6'}`}>
             {/* Popup Bubble */}
             {isOpen && (
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm mb-2 animate-in slide-in-from-bottom-5 fade-in duration-300 relative">
@@ -109,8 +113,8 @@ export const OneLearning: React.FC = () => {
             <button
                 onClick={handleToggle}
                 className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isOpen
-                        ? 'bg-gray-200 text-gray-600 rotate-180'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'
+                    ? 'bg-gray-200 text-gray-600 rotate-180'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'
                     }`}
                 title="Get a business development tip"
             >

@@ -31,7 +31,7 @@ function App() {
             <Layout activeTab={activeTab} onTabChange={setActiveTab}>
                 {renderContent()}
             </Layout>
-            <OneLearning />
+            <OneLearning activeTab={activeTab} />
         </ThemeProvider>
     );
 }
