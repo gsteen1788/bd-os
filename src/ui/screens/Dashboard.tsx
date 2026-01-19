@@ -345,7 +345,7 @@ export function Dashboard() {
                 </div>
             </div>
 
-            <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar">
+            <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
                 {viewMode === 'HISTORY' ? (
                     // History View - Grouped
                     (() => {

@@ -451,7 +451,7 @@ export function MeetingPrep() {
                     <button className="btn btn-primary" onClick={() => setIsNewMeetingOpen(true)}>New Meeting</button>
                 </div>
 
-                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {viewMode === "HISTORY" ? (
                             (() => {
@@ -555,86 +555,88 @@ export function MeetingPrep() {
 
     // Prep View
     return (
-        <div className="flex flex-col gap-6" style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "80px" }}>
-            <div className="flex justify-between items-center sticky top-0 bg-base py-4 z-10 glass px-4 rounded-lg">
-                <div className="flex items-center gap-4">
-                    <button className="btn-ghost" onClick={handleBack}>← Back</button>
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
-                            <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
-                            <span className="opacity-0 group-hover:opacity-100 text-xs text-muted">✎</span>
-                            {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
-                        </div>
-                        <div className="text-xs text-muted flex gap-2">
-                            <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
-                            {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
+        <div className="flex-1 w-full overflow-y-auto custom-scrollbar" style={{ paddingBottom: "80px" }}>
+            <div className="flex flex-col gap-6 relative" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+                <div className="flex justify-between items-center sticky top-0 bg-base py-4 z-10 glass px-4 rounded-lg">
+                    <div className="flex items-center gap-4">
+                        <button className="btn-ghost" onClick={handleBack}>← Back</button>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
+                                <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
+                                <span className="opacity-0 group-hover:opacity-100 text-xs text-muted">✎</span>
+                                {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
+                            </div>
+                            <div className="text-xs text-muted flex gap-2">
+                                <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
+                                {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex gap-2">
-                    {selectedMeeting.status !== "COMPLETED" && (
-                        <button className="btn btn-outline btn-success btn-sm" onClick={() => {
-                            setMeetingToComplete(selectedMeeting);
-                        }}>✓ Complete</button>
-                    )}
-                    {selectedMeeting.status === "COMPLETED" && (
-                        <button className="btn btn-outline btn-warning btn-sm" onClick={handleUncompleteMeeting}>
-                            ↩ Revert to Scheduled
+                    <div className="flex gap-2">
+                        {selectedMeeting.status !== "COMPLETED" && (
+                            <button className="btn btn-outline btn-success btn-sm" onClick={() => {
+                                setMeetingToComplete(selectedMeeting);
+                            }}>✓ Complete</button>
+                        )}
+                        {selectedMeeting.status === "COMPLETED" && (
+                            <button className="btn btn-outline btn-warning btn-sm" onClick={handleUncompleteMeeting}>
+                                ↩ Revert to Scheduled
+                            </button>
+                        )}
+                        <button className="btn-ghost text-error" onClick={handleDelete}>Delete</button>
+                        <button className="btn" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
+                            {saveStatus === "SAVING" ? "Saving..." : saveStatus === "SAVED" ? "Saved!" : "Save Prep"}
                         </button>
-                    )}
-                    <button className="btn-ghost text-error" onClick={handleDelete}>Delete</button>
-                    <button className="btn" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
-                        {saveStatus === "SAVING" ? "Saving..." : saveStatus === "SAVED" ? "Saved!" : "Save Prep"}
-                    </button>
-                </div>
-            </div>
-
-            {template === "QUICK" ? (
-                <QuickPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
-            ) : (
-                <DetailedPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
-            )}
-
-            {/* Edit Modal */}
-            {isEditOpen && (
-                <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Details">
-                    <div className="flex flex-col gap-4">
-                        <label className="flex flex-col gap-1">
-                            <span className="text-xs text-muted">Title</span>
-                            <input className="input" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
-                        </label>
-                        <div className="flex gap-4">
-                            <label className="flex flex-col gap-1 flex-1">
-                                <span className="text-xs text-muted">Date</span>
-                                <input type="date" className="input" value={editDate} onChange={e => setEditDate(e.target.value)} />
-                            </label>
-                            <label className="flex flex-col gap-1 flex-1">
-                                <span className="text-xs text-muted">Time</span>
-                                <input type="time" className="input" value={editTime} onChange={e => setEditTime(e.target.value)} />
-                            </label>
-                        </div>
-                        <label className="flex flex-col gap-1">
-                            <span className="text-xs text-muted">Location</span>
-                            <input className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
-                        </label>
-                        <div className="flex justify-end gap-2 mt-4">
-                            <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
-                            <button className="btn" onClick={handleUpdateDetails}>Update</button>
-                        </div>
                     </div>
-                </Modal>
-            )}
+                </div>
 
-            {/* Complete Modal - Condition on meetingToComplete */}
-            {!!meetingToComplete && (
-                <Modal isOpen={!!meetingToComplete} onClose={() => setMeetingToComplete(null)} title={`Complete "${meetingToComplete.title}"`}>
-                    <CompleteMeetingForm
-                        meeting={meetingToComplete}
-                        onCancel={() => setMeetingToComplete(null)}
-                        onComplete={handleCompleteMeeting}
-                    />
-                </Modal>
-            )}
+                {template === "QUICK" ? (
+                    <QuickPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
+                ) : (
+                    <DetailedPrepForm data={formData} onChange={handleInputChange} setData={setFormData} />
+                )}
+
+                {/* Edit Modal */}
+                {isEditOpen && (
+                    <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Details">
+                        <div className="flex flex-col gap-4">
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-muted">Title</span>
+                                <input className="input" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                            </label>
+                            <div className="flex gap-4">
+                                <label className="flex flex-col gap-1 flex-1">
+                                    <span className="text-xs text-muted">Date</span>
+                                    <input type="date" className="input" value={editDate} onChange={e => setEditDate(e.target.value)} />
+                                </label>
+                                <label className="flex flex-col gap-1 flex-1">
+                                    <span className="text-xs text-muted">Time</span>
+                                    <input type="time" className="input" value={editTime} onChange={e => setEditTime(e.target.value)} />
+                                </label>
+                            </div>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-muted">Location</span>
+                                <input className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
+                            </label>
+                            <div className="flex justify-end gap-2 mt-4">
+                                <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
+                                <button className="btn" onClick={handleUpdateDetails}>Update</button>
+                            </div>
+                        </div>
+                    </Modal>
+                )}
+
+                {/* Complete Modal - Condition on meetingToComplete */}
+                {!!meetingToComplete && (
+                    <Modal isOpen={!!meetingToComplete} onClose={() => setMeetingToComplete(null)} title={`Complete "${meetingToComplete.title}"`}>
+                        <CompleteMeetingForm
+                            meeting={meetingToComplete}
+                            onCancel={() => setMeetingToComplete(null)}
+                            onComplete={handleCompleteMeeting}
+                        />
+                    </Modal>
+                )}
+            </div>
         </div>
     );
 }
