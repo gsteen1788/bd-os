@@ -6,11 +6,13 @@ import { OpportunityBoard } from './ui/screens/OpportunityBoard';
 import { MeetingPrep } from './ui/screens/MeetingPrep';
 import { ProtemoiBoard } from './ui/screens/ProtemoiBoard';
 import { ThemeProvider } from './application/ThemeContext';
+import { OneLearning } from './ui/components/OneLearning';
 
 function App() {
     const [activeTab, setActiveTab] = useState("dashboard");
 
     useEffect(() => {
+        console.log("App mounted");
         initDb().catch(console.error);
     }, []);
 
@@ -29,6 +31,7 @@ function App() {
             <Layout activeTab={activeTab} onTabChange={setActiveTab}>
                 {renderContent()}
             </Layout>
+            <OneLearning />
         </ThemeProvider>
     );
 }

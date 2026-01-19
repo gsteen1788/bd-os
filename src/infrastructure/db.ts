@@ -88,6 +88,14 @@ export async function initDb() {
         // Ignore if exists
     }
 
+    // Lazy Migration for Opportunity extra fields
+    try {
+        await db.execute("ALTER TABLE opportunities ADD COLUMN primary_sponsor TEXT;");
+    } catch (e) { /* Ignore */ }
+    try {
+        await db.execute("ALTER TABLE opportunities ADD COLUMN obstacle TEXT;");
+    } catch (e) { /* Ignore */ }
+
     // Lazy Migration: Create task_links if not exists
     try {
         await db.execute(`
@@ -103,6 +111,21 @@ export async function initDb() {
         console.log("Migration: task_links table checked/created.");
     } catch (e) {
         console.error("Migration error for task_links:", e);
+    }
+
+    // Lazy Migration: Create learnings table if not exists
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS learnings (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              content TEXT NOT NULL,
+              source_file TEXT,
+              created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("Migration: learnings table checked/created.");
+    } catch (e) {
+        console.error("Migration error for learnings:", e);
     }
 
     console.log("Database initialized and schema applied.");

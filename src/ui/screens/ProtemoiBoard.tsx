@@ -5,6 +5,8 @@ import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { ThinkingPreference } from "../../domain/enums";
 import { ProtemoiEntry, Contact, Organization, Meeting } from "../../domain/entities";
 import { protemoiRepository, contactRepository, organizationRepository, meetingRepository } from "../../infrastructure/repositories";
+import { evaluateNextStep, EvaluationResult } from "../../infrastructure/ai/geminiService";
+import { EvaluationModal } from "../components/EvaluationModal";
 
 
 type ProtemoiWithDetails = ProtemoiEntry & {
@@ -33,6 +35,51 @@ const INTERNAL_TYPES = [
 import { MITModal } from "../components/MITModal";
 import { LinkedInIcon } from "../icons/Icons";
 
+import { FixedTooltip } from "../components/FixedTooltip";
+
+const RELATIONSHIP_STAGE_INFO: Record<string, { goal: string; inStage: string; exit: string }> = {
+    "TARGET": {
+        goal: "Become known and welcome.",
+        inStage: "- They do not really know you, or you have no meaningful interaction history.",
+        exit: "- They recognize you and respond to a message or intro.\n- You have permission for a short interaction."
+    },
+    "ACQUAINTANCE": {
+        goal: "Establish relevance and \"reasons to engage.\"",
+        inStage: "- They know who you are and will engage lightly.\n- Trust is still unproven.",
+        exit: "- They engage on substance, not just politeness.\n- They ask a question, react to an idea, or accept a short call."
+    },
+    "CURIOUS_SKEPTIC": {
+        goal: "Convert interest into credibility.",
+        inStage: "- They are willing to engage, and they are quietly testing: \"Are you useful? Are you aligned with my interests?\"",
+        exit: "- You have a small joint \"win\" that demonstrates value.\n- They include you in shaping thinking, not just receiving information."
+    },
+    "NEW_CLIENT": {
+        goal: "Build reliability through early value.",
+        inStage: "- There is an initial engagement or collaboration.\n- Trust is fragile and based heavily on early delivery experience.",
+        exit: "- They experience you as dependable and low-drama.\n- They want to continue working with you or expand who you interact with."
+    },
+    "NEW_COLLABORATOR": { // Internal equivalent of New Client
+        goal: "Build reliability through early value.",
+        inStage: "- There is an initial engagement or collaboration.\n- Trust is fragile and based heavily on early delivery experience.",
+        exit: "- They experience you as dependable and low-drama.\n- They want to continue working with you or expand who you interact with."
+    },
+    "SOLID_WORKING_RELATIONSHIP": {
+        goal: "Shift from \"works well\" to \"I involve you earlier.\"",
+        inStage: "- Collaboration is established and smooth.\n- Access is reasonably consistent.",
+        exit: "- They pull you in earlier in decisions.\n- They share real context and constraints, not just the polished version."
+    },
+    "TRUSTED_ADVISEE": {
+        goal: "Become part of their decision system.",
+        inStage: "- They seek your judgment, not just your services.\n- They are candid with you and use you to think.",
+        exit: "- They advocate for you when you are not in the room.\n- They bring you into new topics proactively."
+    },
+    "RAVING_FAN": {
+        goal: "Sustain advocacy and mutual value over time.",
+        inStage: "- They proactively open doors: introductions, referrals, \"call you first\" behaviour.\n- They publicly endorse you and attach your name to good outcomes.",
+        exit: "There usually is not a meaningful \"exit\" because it is the top rung.\n\nWhat’s more useful is maintenance criteria:\n- Advocacy continues without you prompting it.\n- You stay relevant to their evolving priorities.\n- They keep choosing you even when alternatives exist."
+    }
+};
+
 function getPreferenceColor(preference?: ThinkingPreference | null): string {
     switch (preference) {
         case "ANALYTICAL": return "hsl(210, 100%, 93%)"; // Light Blue
@@ -47,6 +94,29 @@ function getPreferenceTextColor(preference?: ThinkingPreference | null): string 
     if (preference) return "hsl(220, 15%, 20%)";
     return "inherit";
 }
+
+const renderTooltipContent = (text: string) => {
+    return (
+        <div className="flex flex-col gap-1">
+            {text.split('\n').map((line, i) => {
+                const trimmed = line.trim();
+                if (!trimmed) return null;
+                const isBullet = trimmed.startsWith("- ");
+                const content = isBullet ? trimmed.substring(2) : trimmed;
+
+                if (isBullet) {
+                    return (
+                        <div key={i} className="flex items-start gap-1.5 ">
+                            <span className="select-none opacity-50">•</span>
+                            <span className="flex-1">{content}</span>
+                        </div>
+                    );
+                }
+                return <div key={i} className={`${i > 0 ? "mt-1" : ""}`}>{content}</div>;
+            })}
+        </div>
+    );
+};
 
 export function ProtemoiBoard() {
     const [entries, setEntries] = useState<ProtemoiWithDetails[]>([]);
@@ -69,6 +139,39 @@ export function ProtemoiBoard() {
         setIsAnonymized(value);
         localStorage.setItem("bdos_anonymize_enabled", String(value));
     };
+
+    // Evaluation State
+    const [showEvaluationModal, setShowEvaluationModal] = useState(false);
+    const [isEvaluating, setIsEvaluating] = useState(false);
+    const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null);
+
+    const handleEvaluateNextStep = async () => {
+        if (!editingEntry || !editingEntry.nextStepText?.trim()) {
+            alert("Please enter a next step first.");
+            return;
+        }
+
+        setShowEvaluationModal(true);
+        setIsEvaluating(true);
+        setEvaluationResult(null);
+
+        try {
+            const result = await evaluateNextStep(
+                editingEntry.relationshipStage,
+                editingEntry.protemoiType,
+                editingEntry.nextStepText
+            );
+            setEvaluationResult(result);
+        } catch (error) {
+            console.error("Evaluation error:", error);
+            // Close modal on error or show error state
+            alert("Failed to evaluate. See console.");
+            setShowEvaluationModal(false);
+        } finally {
+            setIsEvaluating(false);
+        }
+    };
+
 
     useEffect(() => {
         if (editingEntry?.id) {
@@ -373,13 +476,36 @@ export function ProtemoiBoard() {
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto" }}>
                 {activeStages.map(stage => {
                     const stageEntries = filteredEntries.filter(e => e.relationshipStage === stage);
+                    const info = RELATIONSHIP_STAGE_INFO[stage];
 
                     return (
                         <div key={stage} style={{ minWidth: "320px", backgroundColor: "rgba(255,255,255,0.03)", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
                             <div className="flex justify-between items-center p-4 border-b border-white/5">
-                                <h4 style={{ margin: 0, color: "hsl(var(--color-text-muted))", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
-                                    {stage.replace(/_/g, " ")}
-                                </h4>
+                                <div className="flex items-center gap-2">
+                                    <h4 style={{ margin: 0, color: "hsl(var(--color-text-muted))", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
+                                        {stage.replace(/_/g, " ")}
+                                    </h4>
+                                    {info && (
+                                        <FixedTooltip content={
+                                            <div className="flex flex-col gap-2">
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase text-primary block mb-0.5">Goal</span>
+                                                    <div className="text-xs text-main">{renderTooltipContent(info.goal)}</div>
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase text-info block mb-0.5">You're in this stage when...</span>
+                                                    <div className="text-xs text-muted">{renderTooltipContent(info.inStage)}</div>
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase text-success block mb-0.5">Exit Criteria</span>
+                                                    <div className="text-xs text-muted">{renderTooltipContent(info.exit)}</div>
+                                                </div>
+                                            </div>
+                                        }>
+                                            <span className="cursor-help text-xs opacity-50 hover:opacity-100 flex items-center justify-center w-4 h-4 rounded-full border border-current">i</span>
+                                        </FixedTooltip>
+                                    )}
+                                </div>
                                 <span className="bg-base rounded-full px-2 py-0.5 text-xs text-muted">{stageEntries.length}</span>
                             </div>
 
@@ -841,6 +967,15 @@ export function ProtemoiBoard() {
                                             onChange={e => setEditingEntry({ ...editingEntry, nextStepText: e.target.value })}
                                             placeholder="Discussion topic, action item..."
                                         />
+                                        <div className="flex justify-end mt-1">
+                                            <button
+                                                className="btn btn-xs btn-outline btn-primary gap-1"
+                                                onClick={handleEvaluateNextStep}
+                                                disabled={!editingEntry.nextStepText}
+                                            >
+                                                ✨ Evaluate
+                                            </button>
+                                        </div>
                                     </label>
                                 </div>
                             </div>
@@ -878,9 +1013,23 @@ export function ProtemoiBoard() {
                         linkedEntityType="RELATIONSHIP"
                         linkedEntityId={editingEntry!.id}
                     />
+
+                    <EvaluationModal
+                        isOpen={showEvaluationModal}
+                        isLoading={isEvaluating}
+                        result={evaluationResult}
+                        onClose={() => setShowEvaluationModal(false)}
+                        onUseAnyway={() => {
+                            setShowEvaluationModal(false);
+                            // If they accept/use anyway, we just close the modal and let them save normally
+                        }}
+                        onRewrite={() => {
+                            setShowEvaluationModal(false);
+                            // Focus gets returned naturally, user can edit
+                        }}
+                    />
                 </>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 }

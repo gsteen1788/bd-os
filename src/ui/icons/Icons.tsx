@@ -1,9 +1,7 @@
 import { Theme } from "../../application/ThemeContext";
 
 // Icon props interface for sizing/coloring if needed
-interface IconProps {
-    className?: string;
-}
+
 
 // ----------------------------------------------------------------------
 // PLACE YOUR CUSTOM ICONS HERE

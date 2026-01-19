@@ -111,5 +111,6 @@ export const mockMeetings: Meeting[] = [
         endAt: new Date(Date.now() + 90000000).toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        status: "SCHEDULED"
     }
 ]

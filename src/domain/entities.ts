@@ -68,6 +68,8 @@ export interface Opportunity {
     nextStepDueDate?: string | null; // date
     valueEstimate?: number | null;
     currency?: Currency; // Added currency support
+    primarySponsor?: string | null;
+    obstacle?: string | null;
     probability?: number | null;      // 0-100
     expectedCloseDate?: string | null; // date
     createdAt: string;
