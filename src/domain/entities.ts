@@ -1,6 +1,6 @@
 import {
     OpportunityStage, ThinkingPreference, ProtemoiType, RelationshipStage, BuyInPriority,
-    TaskStatus, TaskType, EntityType, RoleType, Currency
+    TaskStatus, TaskType, EntityType, RoleType, Currency, TaskTag
 } from "./enums";
 
 export type UUID = string;
@@ -125,11 +125,14 @@ export interface Task {
     linkedEntityId?: UUID | null; // Deprecated: Use links[0]
     links?: TaskLink[];
     weekReviewId?: UUID | null;
+    tag?: TaskTag | null;
 
     // MIT Specific
     bigImpactDescription?: string | null;
     inControlDescription?: string | null;
     growthOrientedDescription?: string | null;
+
+    durationMinutes?: number | null;
 
     createdAt: string;
     updatedAt: string;
@@ -168,6 +171,13 @@ export interface QA {
     id: UUID;
     question: string;
     answer: string;
+}
+
+export interface TrackerGoal {
+    id: UUID;
+    metric: "BD_TASKS" | "BD_HOURS_CLIENT" | "BD_HOURS_INTERNAL" | "BD_HOURS_TOTAL" | "MITS_COMPLETED";
+    target: number;
+    updatedAt: string;
 }
 
 export { ThinkingPreference };

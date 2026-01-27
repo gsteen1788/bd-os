@@ -128,6 +128,39 @@ export async function initDb() {
         console.error("Migration error for learnings:", e);
     }
 
+    // Lazy Migration for Task Tags
+    try {
+        await db.execute("ALTER TABLE tasks ADD COLUMN tag TEXT;");
+    } catch (e) { /* Ignore if exists */ }
+
+    // Lazy Migration for Task Duration
+    try {
+        await db.execute("ALTER TABLE tasks ADD COLUMN duration_minutes INTEGER;");
+    } catch (e) { /* Ignore if exists */ }
+
+    // Lazy Migration: Convert BUSINESS_DEVELOPMENT tag to BD_TASK
+    try {
+        await db.execute("UPDATE tasks SET tag = 'BD_TASK' WHERE tag = 'BUSINESS_DEVELOPMENT';");
+        console.log("Migration: Converted BUSINESS_DEVELOPMENT tags to BD_TASK");
+    } catch (e) {
+        console.error("Migration error converting tags:", e);
+    }
+
+    // Lazy Migration: Create tracker_goals table if not exists
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS tracker_goals (
+              id TEXT PRIMARY KEY,
+              metric TEXT NOT NULL UNIQUE,
+              target INTEGER NOT NULL,
+              updated_at TEXT NOT NULL
+            );
+        `);
+        console.log("Migration: tracker_goals table checked/created.");
+    } catch (e) {
+        console.error("Migration error for tracker_goals:", e);
+    }
+
     console.log("Database initialized and schema applied.");
     return db;
 }

@@ -38,6 +38,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
         { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
         { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
         { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
+        { id: "tracker", label: "Tracker", Icon: AppIcons.dashboard }, // Reusing dashboard icon or add a new one? Let's assume dashboard or similar.
     ];
 
     return (

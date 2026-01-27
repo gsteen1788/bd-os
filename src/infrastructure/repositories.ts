@@ -1,9 +1,9 @@
 import {
     OrganizationRepository, ContactRepository, OpportunityRepository,
-    MeetingRepository, Repository, ProtemoiRepository, TaskRepository
+    MeetingRepository, Repository, ProtemoiRepository, TaskRepository, TrackerGoalRepository, WeekReviewRepository
 } from "../application/interfaces";
 import {
-    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task
+    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
@@ -386,9 +386,11 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
             linkedEntityType: row.linked_entity_type,
             linkedEntityId: row.linked_entity_id,
             weekReviewId: row.week_review_id,
+            tag: row.tag,
             bigImpactDescription: row.big_impact_description,
             inControlDescription: row.in_control_description,
             growthOrientedDescription: row.growth_oriented_description,
+            durationMinutes: row.duration_minutes,
             createdAt: row.created_at,
             updatedAt: row.updated_at
         };
@@ -429,10 +431,10 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         await db.execute(
             `INSERT INTO tasks (
                 id, title, description_md, status, type, due_date, 
-                linked_entity_type, linked_entity_id, week_review_id,
-                big_impact_description, in_control_description, growth_oriented_description,
+                linked_entity_type, linked_entity_id, week_review_id, tag,
+                big_impact_description, in_control_description, growth_oriented_description, duration_minutes,
                 created_at, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
             ON CONFLICT(id) DO UPDATE SET
                 title=excluded.title,
                 description_md=excluded.description_md,
@@ -442,14 +444,17 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
                 linked_entity_type=excluded.linked_entity_type,
                 linked_entity_id=excluded.linked_entity_id,
                 week_review_id=excluded.week_review_id,
+                tag=excluded.tag,
                 big_impact_description=excluded.big_impact_description,
                 in_control_description=excluded.in_control_description,
                 growth_oriented_description=excluded.growth_oriented_description,
+                duration_minutes=excluded.duration_minutes,
                 updated_at=excluded.updated_at`,
             [
                 entity.id, entity.title, entity.descriptionMd, entity.status, entity.type, entity.dueDate,
-                entity.linkedEntityType, entity.linkedEntityId, entity.weekReviewId,
+                entity.linkedEntityType, entity.linkedEntityId, entity.weekReviewId, entity.tag,
                 entity.bigImpactDescription, entity.inControlDescription, entity.growthOrientedDescription,
+                entity.durationMinutes,
                 entity.createdAt, entity.updatedAt
             ]
         );
@@ -499,6 +504,77 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         const tasks = rows.map(r => this.mapRow(r));
         return this.populateLinks(tasks);
     }
+
+    async findAllHistory(): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC");
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
+    }
+}
+
+export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> implements TrackerGoalRepository {
+    protected tableName = "tracker_goals";
+
+    private mapRow(row: any): TrackerGoal {
+        return {
+            id: row.id,
+            metric: row.metric,
+            target: row.target,
+            updatedAt: row.updated_at
+        };
+    }
+
+    async save(entity: TrackerGoal): Promise<void> {
+        const db = await this.getDb();
+        await db.execute(
+            `INSERT INTO tracker_goals (id, metric, target, updated_at) VALUES ($1, $2, $3, $4)
+             ON CONFLICT(metric) DO UPDATE SET target=excluded.target, updated_at=excluded.updated_at`,
+            [entity.id, entity.metric, entity.target, entity.updatedAt]
+        );
+    }
+
+    async findAll(): Promise<TrackerGoal[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM tracker_goals");
+        return rows.map(r => this.mapRow(r));
+    }
+
+    async findByMetric(metric: string): Promise<TrackerGoal | null> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM tracker_goals WHERE metric = $1", [metric]);
+        return rows[0] ? this.mapRow(rows[0]) : null;
+    }
+}
+
+export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> implements WeekReviewRepository {
+    protected tableName = "week_reviews"; // Ensure this table exists? Wait, user didn't ask for week reviews table, but it's referenced. I should check schema.
+
+    private mapRow(row: any): WeekReview {
+        return {
+            id: row.id,
+            weekStartDate: row.week_start_date,
+            weekEndDate: row.week_end_date,
+            reflectionMd: row.reflection_md,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        };
+    }
+
+    async save(entity: WeekReview): Promise<void> {
+        const db = await this.getDb();
+        await db.execute(
+            `INSERT INTO week_reviews (id, week_start_date, week_end_date, reflection_md, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)
+             ON CONFLICT(id) DO UPDATE SET reflection_md=excluded.reflection_md, updated_at=excluded.updated_at`,
+            [entity.id, entity.weekStartDate, entity.weekEndDate, entity.reflectionMd, entity.createdAt, entity.updatedAt]
+        );
+    }
+
+    async findLatest(): Promise<WeekReview | null> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>("SELECT * FROM week_reviews ORDER BY week_start_date DESC LIMIT 1");
+        return rows[0] ? this.mapRow(rows[0]) : null;
+    }
 }
 
 // ... imports
@@ -514,5 +590,8 @@ export const contactRepository = isTauri ? new SqliteContactRepository() : mockR
 export const opportunityRepository = isTauri ? new SqliteOpportunityRepository() : mockRepos.opportunityRepository;
 export const meetingRepository = isTauri ? new SqliteMeetingRepository() : mockRepos.meetingRepository;
 export const protemoiRepository = isTauri ? new SqliteProtemoiRepository() : mockRepos.protemoiRepository;
+
 export const taskRepository = isTauri ? new SqliteTaskRepository() : (mockRepos as any).taskRepository || new SqliteTaskRepository(); // Fallback if mock task repo missing
+export const trackerGoalRepository = isTauri ? new SqliteTrackerGoalRepository() : (mockRepos as any).trackerGoalRepository || new SqliteTrackerGoalRepository();
+export const weekReviewRepository = isTauri ? new SqliteWeekReviewRepository() : (mockRepos as any).weekReviewRepository || new SqliteWeekReviewRepository();
 

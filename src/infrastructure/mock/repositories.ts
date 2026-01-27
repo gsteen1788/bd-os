@@ -1,8 +1,8 @@
 import {
     OrganizationRepository, ContactRepository, OpportunityRepository, MeetingRepository,
-    ProtemoiRepository, Repository
+    ProtemoiRepository, Repository, TaskRepository, TrackerGoalRepository, WeekReviewRepository
 } from "../../application/interfaces";
-import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry } from "../../domain/entities";
+import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview } from "../../domain/entities";
 import { mockOrganizations, mockContacts, mockOpportunities, mockMeetings } from "./data";
 
 class MockRepository<T extends { id: UUID }> implements Repository<T> {
@@ -114,9 +114,28 @@ export class MockProtemoiRepository implements ProtemoiRepository {
     }
 }
 
+export class MockTaskRepository extends MockRepository<Task> implements TaskRepository {
+    async findPending(): Promise<Task[]> { return []; }
+    async findHistory(_limit: number): Promise<Task[]> { return []; }
+    async findByLinkedEntity(_type: string, _id: string): Promise<Task[]> { return []; }
+    async findAllHistory(): Promise<Task[]> { return []; }
+}
+
+export class MockTrackerGoalRepository extends MockRepository<TrackerGoal> implements TrackerGoalRepository {
+    async findByMetric(_metric: string): Promise<TrackerGoal | null> { return null; }
+    async findAll(): Promise<TrackerGoal[]> { return []; }
+}
+
+export class MockWeekReviewRepository extends MockRepository<WeekReview> implements WeekReviewRepository {
+    async findLatest(): Promise<WeekReview | null> { return null; }
+}
+
 // Instantiate singletons
 export const organizationRepository = new MockOrganizationRepository(mockOrganizations);
 export const contactRepository = new MockContactRepository(mockContacts);
 export const opportunityRepository = new MockOpportunityRepository(mockOpportunities);
 export const meetingRepository = new MockMeetingRepository(mockMeetings);
 export const protemoiRepository = new MockProtemoiRepository();
+export const taskRepository = new MockTaskRepository([]);
+export const trackerGoalRepository = new MockTrackerGoalRepository([]);
+export const weekReviewRepository = new MockWeekReviewRepository([]);

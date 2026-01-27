@@ -25,11 +25,21 @@
                 "assetScope": [
                     "**"
                 ]
+            },
+            "http": {
+                "all": true,
+                "request": true,
+                "scope": [
+                    "https://login.microsoftonline.com/**",
+                    "https://graph.microsoft.com/**"
+                ]
             }
         },
         "bundle": {
             "active": true,
-            "targets": "all",
+            "targets": [
+                "nsis"
+            ],
             "identifier": "com.bd-os.app",
             "icon": [
                 "icons/32x32.png",

@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   big_impact_description TEXT,
   in_control_description TEXT,
   growth_oriented_description TEXT,
+  duration_minutes INTEGER,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -135,5 +136,12 @@ CREATE TABLE IF NOT EXISTS task_links (
   entity_id TEXT NOT NULL,
   created_at TEXT NOT NULL,
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tracker_goals (
+  id TEXT PRIMARY KEY,
+  metric TEXT NOT NULL UNIQUE,
+  target INTEGER NOT NULL,
+  updated_at TEXT NOT NULL
 );
 `;

@@ -3,10 +3,13 @@ import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domai
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
 import { MITModal } from "../components/MITModal";
 import { AdminTaskBar } from "../components/AdminTaskBar";
-import { EntityType } from "../../domain/enums";
+import { TaskCompletionModal } from "../components/TaskCompletionModal";
+import { EntityType, TaskTag } from "../../domain/enums";
 import { useTheme } from "../../application/ThemeContext";
 
 import { groupItemsByWeek } from "../../utils/dateUtils";
+import { CalendarWidget } from "../components/CalendarWidget";
+import { Modal } from "../components/Modal";
 
 export function Dashboard() {
     const { theme } = useTheme();
@@ -18,7 +21,12 @@ export function Dashboard() {
     const [viewMode, setViewMode] = useState<"PENDING" | "HISTORY">("PENDING");
 
     const [showMITModal, setShowMITModal] = useState(false);
+    const [showCalendarModal, setShowCalendarModal] = useState(false);
     const [editingMIT, setEditingMIT] = useState<Task | undefined>(undefined);
+
+    // Completion Flow
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
+    const [completionTask, setCompletionTask] = useState<Task | undefined>(undefined);
 
     useEffect(() => {
         loadData();
@@ -28,7 +36,7 @@ export function Dashboard() {
         try {
             const [tasks, history, opps, protemoi, contacts] = await Promise.all([
                 viewMode === "PENDING" ? taskRepository.findPending() : taskRepository.findHistory(50),
-                taskRepository.findHistory(50), // Always fetch recent history for Admin Bar regardless of view mode? Or only if needed. Let's fetch it always for now to simplify.
+                taskRepository.findHistory(50),
                 opportunityRepository.findAll(),
                 protemoiRepository.findAll(),
                 contactRepository.findAll()
@@ -38,7 +46,6 @@ export function Dashboard() {
             setAdminTasks(tasks.filter(t => t.type === 'ADMIN'));
 
             // For admin history, we want tasks that are type ADMIN and status DONE/CANCELED
-            // The findHistory returns mixed types.
             setAdminHistory(history.filter(t => t.type === 'ADMIN'));
 
             setOpportunities(opps);
@@ -65,17 +72,25 @@ export function Dashboard() {
     };
 
     const handleCompleteMIT = async (task: Task) => {
-        if (!confirm("Mark this MIT as complete?")) return;
+        setCompletionTask(task);
+        setShowCompletionModal(true);
+    };
+
+    const handleConfirmCompletion = async (duration: number) => {
+        if (!completionTask) return;
         try {
             await taskRepository.save({
-                ...task,
+                ...completionTask,
                 status: 'DONE',
+                durationMinutes: duration,
                 updatedAt: new Date().toISOString()
             });
+            setShowCompletionModal(false);
+            setCompletionTask(undefined);
             loadData();
         } catch (e) {
-            console.error("Failed to complete MIT", e);
-            alert("Failed to complete MIT");
+            console.error("Failed to complete task", e);
+            alert("Failed to complete task");
         }
     };
 
@@ -94,7 +109,7 @@ export function Dashboard() {
         }
     };
 
-    const handleCreateAdminTask = async (title: string, dueDate: string, links: { type: EntityType, id: string }[]) => {
+    const handleCreateAdminTask = async (title: string, dueDate: string, links: { type: EntityType, id: string }[], tag?: TaskTag | null) => {
         try {
             const taskId = crypto.randomUUID();
             await taskRepository.save({
@@ -103,8 +118,9 @@ export function Dashboard() {
                 status: 'TODO',
                 type: 'ADMIN',
                 dueDate,
-                linkedEntityType: links.length > 0 ? links[0].type : "NONE", // DEPRECATED: Keep sync for now
-                linkedEntityId: links.length > 0 ? links[0].id : null,       // DEPRECATED
+                tag,
+                linkedEntityType: links.length > 0 ? links[0].type : "NONE",
+                linkedEntityId: links.length > 0 ? links[0].id : null,
                 links: links.map(l => ({
                     id: crypto.randomUUID(),
                     taskId,
@@ -136,16 +152,8 @@ export function Dashboard() {
     };
 
     const handleCompleteAdminTask = async (task: Task) => {
-        try {
-            await taskRepository.save({
-                ...task,
-                status: 'DONE',
-                updatedAt: new Date().toISOString()
-            });
-            loadData();
-        } catch (e) {
-            console.error("Failed to complete Admin Task", e);
-        }
+        setCompletionTask(task);
+        setShowCompletionModal(true);
     };
 
     const handleDeleteAdminTask = async (task: Task) => {
@@ -160,6 +168,21 @@ export function Dashboard() {
         } catch (e) {
             console.error("Failed to delete Admin Task", e);
             alert("Failed to delete task");
+        }
+    };
+
+    const handleRevertAdminTask = async (task: Task) => {
+        if (!confirm("Revert this task to Pending?")) return;
+        try {
+            await taskRepository.save({
+                ...task,
+                status: 'TODO',
+                updatedAt: new Date().toISOString()
+            });
+            loadData();
+        } catch (e) {
+            console.error("Failed to revert Admin Task", e);
+            alert("Failed to revert task");
         }
     };
 
@@ -235,7 +258,7 @@ export function Dashboard() {
                         </button>
                     )}
 
-                    <div className="flex gap-2 mr-8"> {/* Added margin-right to avoid overlap with button if visible, or just let it overlay? Better to shift items left or just use absolute positioning wisely. */}
+                    <div className="flex gap-2 mr-8">
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.bigImpactDescription || 'Big Impact'}
@@ -304,8 +327,11 @@ export function Dashboard() {
                     </div>
                 )}
                 {viewMode === 'HISTORY' && (
-                    <div className="ml-auto text-xs text-muted italic">
-                        Completed: {new Date(mit.updatedAt).toLocaleDateString()}
+                    <div className="ml-auto flex items-center gap-2 text-xs text-muted italic">
+                        {mit.durationMinutes && (
+                            <span className="badge badge-sm badge-ghost font-mono">{mit.durationMinutes}m</span>
+                        )}
+                        <span>Completed: {new Date(mit.updatedAt).toLocaleDateString()}</span>
                     </div>
                 )}
             </div>
@@ -321,15 +347,31 @@ export function Dashboard() {
                 initialTask={editingMIT}
             />
 
+            <TaskCompletionModal
+                isOpen={showCompletionModal}
+                onClose={() => {
+                    setShowCompletionModal(false);
+                    setCompletionTask(undefined);
+                }}
+                onConfirm={handleConfirmCompletion}
+                task={completionTask}
+            />
+
             <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
                 <div>
                     <h2 className="text-xl font-semibold m-0 tracking-tight flex items-center gap-2">
                         <img src={getMitIcon()} alt="MIT" className="w-8 h-8 object-contain" />
                         Most Important Tasks
                     </h2>
-                    {/* Subtitle removed or moved to keep header height consistent, or we keep it if it fits */}
                 </div>
                 <div className="flex items-center gap-2">
+                    <button
+                        className="btn btn-ghost btn-circle"
+                        onClick={() => setShowCalendarModal(true)}
+                        title="Open Outlook Calendar"
+                    >
+                        <span className="text-xl">📅</span>
+                    </button>
                     <select
                         className="input"
                         value={viewMode}
@@ -345,57 +387,70 @@ export function Dashboard() {
                 </div>
             </div>
 
-            <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
-                {viewMode === 'HISTORY' ? (
-                    // History View - Grouped
-                    (() => {
-                        const groups = groupItemsByWeek(mits, 'updatedAt');
-                        // Use keys as they are generated in order from sorted list, or sort if needed.
-                        // Since DB returns sorted DESC, we expect keys to be roughly in order. 
-                        // But let's verify via Object.keys.
-                        return Object.keys(groups).map(weekLabel => (
-                            <div key={weekLabel} className="col-span-full mb-2">
-                                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
-                                    {weekLabel}
-                                </h3>
-                                <div className="grid-mit-cards">
-                                    {groups[weekLabel].map(mit => renderMitCard(mit))}
-                                </div>
-                            </div>
-                        ));
-                    })()
-                ) : (
-                    // Pending View - Flat
-                    mits.map(mit => renderMitCard(mit))
-                )}
-            </div>
+            {/* Main Content Area - Full Width */}
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* MIT Grid */}
+                <div className="flex-1 flex flex-col min-w-0">
+                    <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
+                        {viewMode === 'HISTORY' ? (
+                            // History View - Grouped
+                            (() => {
+                                const groups = groupItemsByWeek(mits, 'updatedAt');
+                                return Object.keys(groups).map(weekLabel => (
+                                    <div key={weekLabel} className="col-span-full mb-2">
+                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
+                                            {weekLabel}
+                                        </h3>
+                                        <div className="grid-mit-cards">
+                                            {groups[weekLabel].map(mit => renderMitCard(mit))}
+                                        </div>
+                                    </div>
+                                ));
+                            })()
+                        ) : (
+                            // Pending View - Flat
+                            mits.map(mit => renderMitCard(mit))
+                        )}
+                    </div>
 
-            {mits.length === 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center text-muted opacity-50 border-2 border-dashed border-base-300 rounded-xl m-4">
-                    <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '🎯'}</div>
-                    <p className="text-xl font-medium">{viewMode === 'HISTORY' ? 'No completed MITs found.' : 'No MITs defined yet.'}</p>
-                    {viewMode === 'PENDING' && (
-                        <>
-                            <p className="text-sm mt-2">What is the one thing you MUST do today?</p>
-                            <button className="btn btn-outline mt-6" onClick={handleCreate}>Set Intentions</button>
-                        </>
+                    {mits.length === 0 && (
+                        <div className="flex-1 flex flex-col items-center justify-center text-muted opacity-50 border-2 border-dashed border-base-300 rounded-xl m-4">
+                            <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '🎯'}</div>
+                            <p className="text-xl font-medium">{viewMode === 'HISTORY' ? 'No completed MITs found.' : 'No MITs defined yet.'}</p>
+                            {viewMode === 'PENDING' && (
+                                <>
+                                    <p className="text-sm mt-2">What is the one thing you MUST do today?</p>
+                                    <button className="btn btn-outline mt-6" onClick={handleCreate}>Set Intentions</button>
+                                </>
+                            )}
+                        </div>
                     )}
                 </div>
-            )}
+            </div>
 
-            {/* Admin Task Bar (Only in Pending View) */}
-            {viewMode === 'PENDING' && (
-                <AdminTaskBar
-                    tasks={adminTasks}
-                    history={adminHistory}
-                    opportunities={opportunities}
-                    relationships={relationships}
-                    onCreate={handleCreateAdminTask}
-                    onComplete={handleCompleteAdminTask}
-                    onUpdate={handleUpdateAdminTask}
-                    onDelete={handleDeleteAdminTask}
-                />
-            )}
+            {/* Admin Task Bar */}
+            <AdminTaskBar
+                tasks={adminTasks}
+                history={adminHistory}
+                opportunities={opportunities}
+                relationships={relationships}
+                onCreate={handleCreateAdminTask}
+                onComplete={handleCompleteAdminTask}
+                onUpdate={handleUpdateAdminTask}
+                onDelete={handleDeleteAdminTask}
+                onRevert={handleRevertAdminTask}
+            />
+
+            {/* Calendar Modal */}
+            <Modal
+                isOpen={showCalendarModal}
+                onClose={() => setShowCalendarModal(false)}
+                title="Outlook Calendar"
+            >
+                <div className="min-h-[400px]">
+                    <CalendarWidget />
+                </div>
+            </Modal>
         </div>
     );
 }

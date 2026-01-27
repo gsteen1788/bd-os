@@ -1,4 +1,4 @@
-import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, WeekReview } from "../domain/entities";
+import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, WeekReview, TrackerGoal } from "../domain/entities";
 
 export interface Repository<T> {
     findById(id: UUID): Promise<T | null>;
@@ -47,4 +47,9 @@ export interface TaskRepository extends Repository<Task> {
 
 export interface WeekReviewRepository extends Repository<WeekReview> {
     findLatest(): Promise<WeekReview | null>;
+}
+
+export interface TrackerGoalRepository extends Repository<TrackerGoal> {
+    findAll(): Promise<TrackerGoal[]>;
+    findByMetric(metric: string): Promise<TrackerGoal | null>;
 }

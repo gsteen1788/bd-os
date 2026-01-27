@@ -54,3 +54,6 @@ export type TaskType = (typeof TaskType)[number];
 
 export const EntityType = ["OPPORTUNITY", "RELATIONSHIP", "MEETING", "CONTACT", "ORGANIZATION", "NONE"] as const;
 export type EntityType = (typeof EntityType)[number];
+
+export const TaskTag = ["BD_TASK", "BD_INTERNAL_MEETING", "BD_EXTERNAL_MEETING", "PROJECT", "OFFICE", "OTHER"] as const;
+export type TaskTag = (typeof TaskTag)[number];

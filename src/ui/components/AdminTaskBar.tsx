@@ -1,27 +1,32 @@
 import { useState, useRef, useEffect } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact, TaskLink } from "../../domain/entities";
-import { EntityType } from "../../domain/enums";
+import { EntityType, TaskTag } from "../../domain/enums";
 
 interface AdminTaskBarProps {
     tasks: Task[];
     opportunities: Opportunity[];
     relationships: { entry: ProtemoiEntry, contact: Contact }[];
     history: Task[];
-    onCreate: (title: string, dueDate: string, links: { type: EntityType, id: string }[]) => Promise<void>;
+    onCreate: (title: string, dueDate: string, links: { type: EntityType, id: string }[], tag?: TaskTag | null) => Promise<void>;
     onComplete: (task: Task) => Promise<void>;
     onUpdate: (task: Task) => Promise<void>;
     onDelete: (task: Task) => Promise<void>;
+    onRevert: (task: Task) => Promise<void>;
 }
 
-export function AdminTaskBar({ tasks, history, opportunities, relationships, onCreate, onComplete, onUpdate, onDelete }: AdminTaskBarProps) {
+export function AdminTaskBar({ tasks, history, opportunities, relationships, onCreate, onComplete, onUpdate, onDelete, onRevert }: AdminTaskBarProps) {
     // View State
     const [viewMode, setViewMode] = useState<"PENDING" | "DONE">("PENDING");
-    const displayTasks = viewMode === "PENDING" ? tasks : history;
+
+    const [filterTag, setFilterTag] = useState<TaskTag | "ALL">("ALL");
+
+    const displayTasks = (viewMode === "PENDING" ? tasks : history).filter(t => filterTag === "ALL" || t.tag === filterTag);
 
     // Creation/Editing State
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [title, setTitle] = useState("");
     const [dueDate, setDueDate] = useState<string>(new Date().toISOString().split('T')[0]);
+    const [selectedTag, setSelectedTag] = useState<TaskTag | null>(null);
     const [selectedLinks, setSelectedLinks] = useState<{ type: EntityType, id: string, name: string }[]>([]);
 
     // UI State
@@ -40,11 +45,34 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Monitor height
+    const rootRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (!rootRef.current) return;
+        const observer = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                // Add padding/border if contentRect doesn't include it, or use offsetHeight if needed.
+                // ResizeObserver contentRect is content box. offsetHeight is usually safer for layout.
+                // Let's rely on standard box model, usually we want the full visual block.
+                // But ResizeObserver doesn't give offsetHeight directly.
+                // We can access the element:
+                const el = entry.target as HTMLElement;
+                document.documentElement.style.setProperty('--admin-bar-height', `${el.offsetHeight}px`);
+            }
+        });
+        observer.observe(rootRef.current);
+        return () => {
+            observer.disconnect();
+            document.documentElement.style.removeProperty('--admin-bar-height');
+        };
+    }, []);
+
     // Populate form when editing
     useEffect(() => {
         if (editingTask) {
             setTitle(editingTask.title);
             setDueDate(editingTask.dueDate || new Date().toISOString().split('T')[0]);
+            setSelectedTag(editingTask.tag || null);
 
             const links = editingTask.links && editingTask.links.length > 0
                 ? editingTask.links
@@ -63,6 +91,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
         } else {
             setTitle("");
             setDueDate(new Date().toISOString().split('T')[0]);
+            setSelectedTag(null);
             setSelectedLinks([]);
         }
     }, [editingTask, opportunities, relationships]);
@@ -76,9 +105,9 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                 ...editingTask,
                 title,
                 dueDate,
+                tag: selectedTag,
                 links: selectedLinks.map(l => ({
-                    id: crypto.randomUUID(), // New link ID, practically replacing old ones or we should try to preserve? For simplicity, we regenerate links for now or just update existing task to have these links. 
-                    // Actually, onUpdate in dashboard just saves the task. We need to construct the task object properly here.
+                    id: crypto.randomUUID(), // New link ID
                     taskId: editingTask.id,
                     entityType: l.type,
                     entityId: l.id,
@@ -88,11 +117,12 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
             setEditingTask(null);
         } else {
             // Create new
-            await onCreate(title, dueDate, selectedLinks.map(l => ({ type: l.type, id: l.id })));
+            await onCreate(title, dueDate, selectedLinks.map(l => ({ type: l.type, id: l.id })), selectedTag);
         }
 
         // Reset form
         setTitle("");
+        setSelectedTag(null);
         setSelectedLinks([]);
         setEditingTask(null);
     };
@@ -100,6 +130,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
     const handleCancel = () => {
         setEditingTask(null);
         setTitle("");
+        setSelectedTag(null);
         setSelectedLinks([]);
     };
 
@@ -119,14 +150,48 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
         return link.entityType;
     };
 
+    const getTagColor = (tag: TaskTag) => {
+        switch (tag) {
+            case 'BD_TASK': return 'bg-blue-500/20 text-blue-500 border-blue-500/30';
+            case 'BD_INTERNAL_MEETING': return 'bg-cyan-500/20 text-cyan-500 border-cyan-500/30';
+            case 'BD_EXTERNAL_MEETING': return 'bg-green-500/20 text-green-500 border-green-500/30';
+            case 'PROJECT': return 'bg-purple-500/20 text-purple-500 border-purple-500/30';
+            case 'OFFICE': return 'bg-orange-500/20 text-orange-500 border-orange-500/30';
+            case 'OTHER': return 'bg-gray-500/20 text-gray-500 border-gray-500/30';
+            default: return 'bg-base-200 text-muted';
+        }
+    };
+
+    const getTagShort = (tag: TaskTag) => {
+        switch (tag) {
+            case 'BD_TASK': return 'BD';
+            case 'BD_INTERNAL_MEETING': return 'INT';
+            case 'BD_EXTERNAL_MEETING': return 'EXT';
+            case 'PROJECT': return 'PRJ';
+            case 'OFFICE': return 'OFF';
+            case 'OTHER': return 'OTH';
+            default: return tag;
+        }
+    };
+
     return (
-        <div className="bg-base-200 border-t border-[hsl(var(--color-border))] py-3 px-6 flex flex-col gap-3 shrink-0 z-[60] shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+        <div ref={rootRef} className="bg-base-200 border-t border-[hsl(var(--color-border))] py-3 px-6 flex flex-col gap-3 shrink-0 z-[60] shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <h4 className="text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-secondary"></span>
                         Admin / Routine Tasks
                     </h4>
+                    <select
+                        className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
+                        value={filterTag}
+                        onChange={(e) => setFilterTag(e.target.value as TaskTag | "ALL")}
+                    >
+                        <option value="ALL">ALL TAGS</option>
+                        {TaskTag.map(tag => (
+                            <option key={tag} value={tag}>{tag.replace('_', ' ')}</option>
+                        ))}
+                    </select>
                     <select
                         className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
                         value={viewMode}
@@ -149,8 +214,15 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                                 onClick={() => setEditingTask(task)}
                             >
                                 <div className="flex justify-between items-start gap-2">
-                                    <span className={`text-xs font-semibold line-clamp-2 leading-tight ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`} title={task.title}>{task.title}</span>
-                                    {viewMode === "PENDING" && (
+                                    <div className="flex flex-col gap-1 w-full min-w-0">
+                                        {task.tag && (
+                                            <span className={`text-[8px] font-bold px-1 py-0.5 rounded border self-start ${getTagColor(task.tag)}`}>
+                                                {task.tag.replace('_', ' ')}
+                                            </span>
+                                        )}
+                                        <span className={`text-xs font-semibold line-clamp-2 leading-tight ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`} title={task.title}>{task.title}</span>
+                                    </div>
+                                    {viewMode === "PENDING" ? (
                                         <input
                                             type="checkbox"
                                             className="checkbox checkbox-xs checkbox-secondary rounded-sm border-[hsl(var(--color-border))]"
@@ -161,6 +233,17 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                                             }}
                                             title="Mark Complete"
                                         />
+                                    ) : (
+                                        <button
+                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRevert(task);
+                                            }}
+                                            title="Revert to Pending"
+                                        >
+                                            ↩
+                                        </button>
                                     )}
                                 </div>
                                 <div className="flex justify-between items-end mt-1">
@@ -168,6 +251,9 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                                         <span className={`text-[10px] ${new Date(task.dueDate || '') < new Date() ? 'text-error' : 'text-muted'}`}>
                                             {task.dueDate ? new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'No Date'}
                                         </span>
+                                        {viewMode === "DONE" && task.durationMinutes && (
+                                            <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
+                                        )}
                                         {task.links && task.links.length > 0 && (
                                             <div className="flex flex-wrap gap-1 max-w-[120px]">
                                                 {task.links.map((link, i) => (
@@ -224,6 +310,18 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                             value={dueDate}
                             onChange={e => setDueDate(e.target.value)}
                         />
+
+                        {/* Tag Selector */}
+                        <select
+                            className="select select-xs select-ghost h-7 min-h-0 text-[10px] uppercase font-bold text-muted/80 border border-[hsl(var(--color-border))] rounded px-2"
+                            value={selectedTag || ""}
+                            onChange={(e) => setSelectedTag(e.target.value ? e.target.value as TaskTag : null)}
+                        >
+                            <option value="">No Tag</option>
+                            {TaskTag.map(tag => (
+                                <option key={tag} value={tag}>{getTagShort(tag)}</option>
+                            ))}
+                        </select>
 
                         {/* Link Picker Trigger */}
                         <div className="relative flex-1" ref={pickerRef}>
