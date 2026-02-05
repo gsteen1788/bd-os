@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { meetingRepository, contactRepository, protemoiRepository, opportunityRepository } from '../../infrastructure/repositories';
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
 import { groupItemsByWeek } from "../../utils/dateUtils";
@@ -70,16 +70,21 @@ export function MeetingPrep() {
         contactRepository.findAll().then(setAllContacts);
     }, [viewMode]);
 
+    // Optimization: Pre-compute lookups
+    const oppsMap = useMemo(() => new Map(allOpps.map(o => [o.id, o])), [allOpps]);
+    const relsMap = useMemo(() => new Map(allRels.map(r => [r.id, r])), [allRels]);
+    const contactsMap = useMemo(() => new Map(allContacts.map(c => [c.id, c])), [allContacts]);
+
     // Helper to get name
     const getLinkName = (m: Meeting) => {
         if (m.relatedOpportunityId) {
-            const op = allOpps.find(o => o.id === m.relatedOpportunityId);
+            const op = oppsMap.get(m.relatedOpportunityId);
             return op ? `Op: ${op.name}` : "Unknown Op";
         }
         if (m.relatedProtemoiId) {
-            const rel = allRels.find(r => r.id === m.relatedProtemoiId);
+            const rel = relsMap.get(m.relatedProtemoiId);
             if (rel) {
-                const c = allContacts.find(c => c.id === rel.contactId);
+                const c = contactsMap.get(rel.contactId);
                 return c ? `Rel: ${c.displayName}` : "Unknown Rel";
             }
         }
