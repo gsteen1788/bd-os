@@ -508,8 +508,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     async findAllHistory(): Promise<Task[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC");
-        const tasks = rows.map(r => this.mapRow(r));
-        return this.populateLinks(tasks);
+        return rows.map(r => this.mapRow(r));
     }
 }
 

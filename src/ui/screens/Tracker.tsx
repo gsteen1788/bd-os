@@ -42,6 +42,16 @@ export function Tracker() {
             allGoals.forEach((g: any) => goalMap[g.metric] = g.target);
             setGoals(goalMap);
 
+            // Group tasks by week first for O(1) access inside loop
+            // Optimization: Bolt ⚡ - Pre-bucket tasks to avoid O(W*T) complexity
+            const tasksByWeek: Record<string, any[]> = {};
+            allTasks.forEach((t: any) => {
+                const d = new Date(t.updatedAt);
+                const ws = getWeekStart(d).toISOString().split('T')[0];
+                if (!tasksByWeek[ws]) tasksByWeek[ws] = [];
+                tasksByWeek[ws].push(t);
+            });
+
             // Process Weeks
             const weeks: WeeklyStats[] = [];
 
@@ -66,15 +76,8 @@ export function Tracker() {
                 // Avoid duplicates if we decrement by days but stay in same week (not happening here as we jump 7 days, but good to check)
                 if (!weeks.find(w => w.weekStart === weekStr)) {
 
-                    // Filter tasks for this week
-                    const weekStartObj = new Date(weekStr);
-                    const nextWeekObj = new Date(weekStr);
-                    nextWeekObj.setDate(nextWeekObj.getDate() + 7);
-
-                    const tasksInWeek = allTasks.filter((t: any) => {
-                        const d = new Date(t.updatedAt);
-                        return d >= weekStartObj && d < nextWeekObj;
-                    });
+                    // Bolt ⚡: O(1) lookup instead of filtering allTasks
+                    const tasksInWeek = tasksByWeek[weekStr] || [];
 
                     // Calculate Stats
                     let bdTasksCount = 0;
