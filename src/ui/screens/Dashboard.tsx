@@ -50,8 +50,11 @@ export function Dashboard() {
 
             setOpportunities(opps);
 
+            const contactMap = new Map<string, Contact>();
+            contacts.forEach(c => contactMap.set(c.id, c));
+
             const rels = protemoi.map(p => {
-                const contact = contacts.find(c => c.id === p.contactId);
+                const contact = contactMap.get(p.contactId);
                 return contact ? { entry: p, contact } : null;
             }).filter(Boolean) as { entry: ProtemoiEntry, contact: Contact }[];
             setRelationships(rels);
