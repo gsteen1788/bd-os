@@ -465,12 +465,25 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
 
         // 2. Insert new links
         if (entity.links && entity.links.length > 0) {
-            for (const link of entity.links) {
-                await db.execute(
-                    "INSERT INTO task_links (id, task_id, entity_type, entity_id, created_at) VALUES ($1, $2, $3, $4, $5)",
-                    [link.id || crypto.randomUUID(), entity.id, link.entityType, link.entityId, new Date().toISOString()]
+            const values: any[] = [];
+            const placeholders: string[] = [];
+
+            entity.links.forEach((link, index) => {
+                const i = index * 5;
+                placeholders.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4}, $${i + 5})`);
+                values.push(
+                    link.id || crypto.randomUUID(),
+                    entity.id,
+                    link.entityType,
+                    link.entityId,
+                    new Date().toISOString()
                 );
-            }
+            });
+
+            await db.execute(
+                `INSERT INTO task_links (id, task_id, entity_type, entity_id, created_at) VALUES ${placeholders.join(", ")}`,
+                values
+            );
         }
     }
 
