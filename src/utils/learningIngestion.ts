@@ -78,10 +78,23 @@ export async function ingestLearnings() {
 
             const learnings = JSON.parse(jsonString) as string[];
 
-            if (Array.isArray(learnings)) {
-                for (const learning of learnings) {
-                    await db.execute("INSERT INTO learnings (content, source_file) VALUES ($1, $2)", [learning, fileName]);
-                    count++;
+            if (Array.isArray(learnings) && learnings.length > 0) {
+                // Bulk insert optimization
+                const chunkSize = 50;
+                for (let i = 0; i < learnings.length; i += chunkSize) {
+                    const chunk = learnings.slice(i, i + chunkSize);
+                    const placeholders: string[] = [];
+                    const values: any[] = [];
+
+                    chunk.forEach((learning, index) => {
+                        const offset = index * 2;
+                        placeholders.push(`($${offset + 1}, $${offset + 2})`);
+                        values.push(learning, fileName);
+                    });
+
+                    const query = `INSERT INTO learnings (content, source_file) VALUES ${placeholders.join(", ")}`;
+                    await db.execute(query, values);
+                    count += chunk.length;
                 }
                 console.log(`Extracted ${learnings.length} learnings from ${fileName}.`);
             }
