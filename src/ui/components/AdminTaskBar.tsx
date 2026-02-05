@@ -232,15 +232,17 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                                                 onComplete(task);
                                             }}
                                             title="Mark Complete"
+                                            aria-label="Mark Complete"
                                         />
                                     ) : (
                                         <button
-                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRevert(task);
                                             }}
                                             title="Revert to Pending"
+                                            aria-label="Revert to Pending"
                                         >
                                             ↩
                                         </button>
@@ -290,16 +292,16 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                             onKeyDown={handleKeyDown}
                         />
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit">
+                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit" aria-label="Cancel editing">
                                 ×
                             </button>
                         )}
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task">
+                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task" aria-label="Delete task">
                                 🗑️
                             </button>
                         )}
-                        <button className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"}>
+                        <button className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"} aria-label={editingTask ? "Save changes" : "Create task"}>
                             {editingTask ? '✓' : '+'}
                         </button>
                     </div>
@@ -328,6 +330,9 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                             <button
                                 className={`w-full h-7 text-xs border rounded px-2 flex items-center gap-1 hover:bg-black/5 overflow-hidden ${selectedLinks.length > 0 ? 'border-primary/50 text-base-content' : 'border-[hsl(var(--color-border))] text-muted'}`}
                                 onClick={() => setShowLinkPicker(!showLinkPicker)}
+                                aria-haspopup="true"
+                                aria-expanded={showLinkPicker}
+                                aria-label="Manage links"
                             >
                                 {selectedLinks.length > 0 ? (
                                     <div className="flex gap-1 overflow-x-auto no-scrollbar items-center w-full">
@@ -341,6 +346,8 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
                                                         e.stopPropagation();
                                                         setSelectedLinks(selectedLinks.filter((_, idx) => idx !== i));
                                                     }}
+                                                    aria-label="Remove link"
+                                                    role="button"
                                                 >
                                                     ×
                                                 </span>
