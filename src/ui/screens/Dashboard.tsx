@@ -34,9 +34,13 @@ export function Dashboard() {
 
     const loadData = async () => {
         try {
+            // Optimization: Avoid double fetch when viewMode is HISTORY by reusing the history promise
+            const historyPromise = taskRepository.findHistory(50);
+            const pendingOrHistoryPromise = viewMode === "PENDING" ? taskRepository.findPending() : historyPromise;
+
             const [tasks, history, opps, protemoi, contacts] = await Promise.all([
-                viewMode === "PENDING" ? taskRepository.findPending() : taskRepository.findHistory(50),
-                taskRepository.findHistory(50),
+                pendingOrHistoryPromise,
+                historyPromise,
                 opportunityRepository.findAll(),
                 protemoiRepository.findAll(),
                 contactRepository.findAll()
