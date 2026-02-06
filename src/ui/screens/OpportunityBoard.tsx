@@ -131,7 +131,7 @@ export function OpportunityBoard() {
 
     const handleSave = async (opp: Opportunity) => {
         try {
-            console.log("Saving opportunity:", opp);
+            console.log("Saving opportunity ID:", opp.id);
             await opportunityRepository.save(opp);
             setEditingOpp(null);
             load();

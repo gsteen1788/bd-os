@@ -115,7 +115,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
 
     async save(entity: Contact): Promise<void> {
         const db = await this.getDb();
-        console.log("Saving contact:", entity);
+        console.log("Saving contact ID:", entity.id);
         try {
             await db.execute(
                 `INSERT INTO contacts (

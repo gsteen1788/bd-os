@@ -379,7 +379,6 @@ export function MeetingPrep() {
 
         try {
             setSaveStatus("SAVING");
-            console.log("Saving meeting prep:", formData);
             const updatedMeeting = {
                 ...selectedMeeting,
                 notesMd: JSON.stringify(formData, null, 2),
