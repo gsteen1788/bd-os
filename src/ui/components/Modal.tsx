@@ -28,11 +28,24 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay z-[200]" onClick={onClose}>
+        <div
+            className="modal-overlay z-[200]"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+        >
             <div className="modal-container" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h3>{title}</h3>
-                    <button className="btn-ghost" onClick={onClose} style={{ padding: '4px 8px' }}>✕</button>
+                    <h3 id="modal-title">{title}</h3>
+                    <button
+                        className="btn-ghost"
+                        onClick={onClose}
+                        style={{ padding: '4px 8px' }}
+                        aria-label="Close modal"
+                    >
+                        ✕
+                    </button>
                 </div>
                 <div className="modal-body">
                     {children}

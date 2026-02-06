@@ -115,10 +115,24 @@ export class MockProtemoiRepository implements ProtemoiRepository {
 }
 
 export class MockTaskRepository extends MockRepository<Task> implements TaskRepository {
-    async findPending(): Promise<Task[]> { return []; }
-    async findHistory(_limit: number): Promise<Task[]> { return []; }
-    async findByLinkedEntity(_type: string, _id: string): Promise<Task[]> { return []; }
-    async findAllHistory(): Promise<Task[]> { return []; }
+    async findPending(): Promise<Task[]> {
+        return this.items.filter(t => t.status !== 'DONE' && t.status !== 'CANCELED');
+    }
+    async findHistory(limit: number): Promise<Task[]> {
+        return this.items
+            .filter(t => t.status === 'DONE')
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .slice(0, limit);
+    }
+    async findByLinkedEntity(type: string, id: string): Promise<Task[]> {
+        return this.items.filter(t =>
+            (t.linkedEntityType === type && t.linkedEntityId === id) ||
+            (t.links && t.links.some(l => l.entityType === type && l.entityId === id))
+        );
+    }
+    async findAllHistory(): Promise<Task[]> {
+        return this.items.filter(t => t.status === 'DONE');
+    }
 }
 
 export class MockTrackerGoalRepository extends MockRepository<TrackerGoal> implements TrackerGoalRepository {

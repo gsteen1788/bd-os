@@ -239,23 +239,25 @@ export function Dashboard() {
                     {/* Complete/Revert Button */}
                     {viewMode === 'PENDING' ? (
                         <button
-                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity text-success absolute top-2 right-2"
+                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-success absolute top-2 right-2"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleCompleteMIT(mit);
                             }}
                             title="Mark as Complete"
+                            aria-label="Mark as Complete"
                         >
                             ✓
                         </button>
                     ) : (
                         <button
-                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity text-warning absolute top-2 right-2"
+                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-warning absolute top-2 right-2"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleUncompleteMIT(mit);
                             }}
                             title="Revert to Pending"
+                            aria-label="Revert to Pending"
                         >
                             ↩
                         </button>
@@ -372,6 +374,7 @@ export function Dashboard() {
                         className="btn btn-ghost btn-circle"
                         onClick={() => setShowCalendarModal(true)}
                         title="Open Outlook Calendar"
+                        aria-label="Open Outlook Calendar"
                     >
                         <span className="text-xl">📅</span>
                     </button>
