@@ -83,8 +83,9 @@ export const CalendarWidget = () => {
                             disabled={loading}
                             className="btn btn-ghost btn-xs text-muted hover:text-primary transition-colors"
                             title="Refresh Events"
+                            aria-label="Refresh events"
                         >
-                            <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                                 <path d="M23 4v6h-6M1 20v-6h6" />
                                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                             </svg>
@@ -94,13 +95,14 @@ export const CalendarWidget = () => {
                         onClick={() => setShowConnectModal(true)}
                         className={`btn btn-xs ${isAuthenticated ? 'btn-ghost text-success' : 'btn-ghost text-muted hover:text-primary'}`}
                         title={isAuthenticated ? "Connected" : "Connect Outlook"}
+                        aria-label={isAuthenticated ? "Outlook connected" : "Connect Outlook"}
                     >
                         {isAuthenticated ? (
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                             </svg>
                         ) : (
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                             </svg>
                         )}
@@ -110,7 +112,7 @@ export const CalendarWidget = () => {
                 <div className="p-4 flex-1 overflow-y-auto min-h-[300px] custom-scrollbar">
                     {!isAuthenticated ? (
                         <div className="flex flex-col items-center justify-center h-full text-muted opacity-60">
-                            <span className="text-4xl mb-4">📴</span>
+                            <span className="text-4xl mb-4" role="img" aria-label="Disconnected">📴</span>
                             <p>Not Connected</p>
                             <button onClick={() => setShowConnectModal(true)} className="text-xs text-primary hover:underline mt-2">Connect Account</button>
                         </div>
@@ -123,12 +125,14 @@ export const CalendarWidget = () => {
                                     value={newEventSubject}
                                     onChange={(e) => setNewEventSubject(e.target.value)}
                                     placeholder="New meeting subject..."
+                                    aria-label="New meeting subject"
                                     className="w-full pl-4 pr-12 py-2 rounded-lg border border-[hsl(var(--color-border))] bg-base-100 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm text-main placeholder:text-muted"
                                 />
                                 <button
                                     type="submit"
                                     disabled={isCreating || !newEventSubject}
                                     className="absolute right-1 top-1 bottom-1 px-3 bg-primary text-white rounded-md hover:bg-primary-hover disabled:opacity-50 text-xs font-bold transition-colors"
+                                    aria-label="Add new event"
                                 >
                                     {isCreating ? '...' : 'ADD'}
                                 </button>
