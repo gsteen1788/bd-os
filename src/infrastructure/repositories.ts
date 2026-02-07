@@ -150,7 +150,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
                 ]
             );
         } catch (e) {
-            console.error("Critical Error saving Contact:", e, entity);
+            console.error(`Critical Error saving Contact (ID: ${entity.id}):`, e);
             throw e;
         }
     }
