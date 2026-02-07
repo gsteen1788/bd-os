@@ -32,8 +32,14 @@ export function Tracker() {
 
     const loadData = async () => {
         try {
+            // Optimization: Bolt ⚡ - Fetch only relevant history range
+            // Calculate query range to cover full weeks
+            const rangeStart = getWeekStart(new Date(startDate));
+            const rangeEnd = new Date(endDate);
+            rangeEnd.setDate(rangeEnd.getDate() + 7); // Buffer to ensure we cover the end week
+
             const [allTasks, allGoals] = await Promise.all([
-                taskRepository.findAllHistory(),
+                taskRepository.findHistoryInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
                 trackerGoalRepository.findAll()
             ]);
 

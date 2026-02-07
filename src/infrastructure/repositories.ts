@@ -518,9 +518,12 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         return this.populateLinks(tasks);
     }
 
-    async findAllHistory(): Promise<Task[]> {
+    async findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]> {
         const db = await this.getDb();
-        const rows = await db.select<any[]>("SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC");
+        const rows = await db.select<any[]>(
+            "SELECT * FROM tasks WHERE status = 'DONE' AND updated_at >= $1 AND updated_at <= $2 ORDER BY updated_at DESC",
+            [fromDate, toDate]
+        );
         return rows.map(r => this.mapRow(r));
     }
 }

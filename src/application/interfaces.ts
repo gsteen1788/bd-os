@@ -43,6 +43,7 @@ export interface TaskRepository extends Repository<Task> {
     findPending(): Promise<Task[]>;
     findHistory(limit: number): Promise<Task[]>;
     findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]>;
+    findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]>;
 }
 
 export interface WeekReviewRepository extends Repository<WeekReview> {

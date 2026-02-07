@@ -130,8 +130,10 @@ export class MockTaskRepository extends MockRepository<Task> implements TaskRepo
             (t.links && t.links.some(l => l.entityType === type && l.entityId === id))
         );
     }
-    async findAllHistory(): Promise<Task[]> {
-        return this.items.filter(t => t.status === 'DONE');
+    async findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        return this.items
+            .filter(t => t.status === 'DONE' && t.updatedAt >= fromDate && t.updatedAt <= toDate)
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     }
 }
 
