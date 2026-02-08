@@ -9,3 +9,7 @@
 ## 2026-02-07 - [Unbounded History Fetching]
 **Learning:** The `Tracker` component was fetching all task history via `findAllHistory` and filtering in memory, which scales poorly (O(N) memory + O(W*N) loop).
 **Action:** Always implement date-range filtering in repository methods (e.g., `findHistoryInRange`) when building date-based views like calendars or trackers, rather than fetching all records.
+
+## 2026-02-08 - [Redundant Context Fetching & Render Function Recreation]
+**Learning:** The Dashboard was re-fetching slow-moving context data (Opportunities, Contacts) on every task update, and defining the `renderMitCard` function inside the component body caused all list items to re-render unnecessarily on any state change.
+**Action:** Split data fetching into static context (mount only) and dynamic data (updates). Extract complex render functions to memoized components to prevent unnecessary re-renders.
