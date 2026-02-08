@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 
 interface FixedTooltipProps {
@@ -10,8 +10,9 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
     const [isVisible, setIsVisible] = useState(false);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const triggerRef = useRef<HTMLDivElement>(null);
+    const tooltipId = useId();
 
-    const handleMouseEnter = () => {
+    const updatePosition = () => {
         if (triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
             // Position tooltip below the trigger
@@ -23,8 +24,18 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
         }
     };
 
+    const handleMouseEnter = () => {
+        updatePosition();
+    };
+
     const handleMouseLeave = () => {
         setIsVisible(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            setIsVisible(false);
+        }
     };
 
     return (
@@ -32,11 +43,19 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
             ref={triggerRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="inline-block"
+            onFocus={handleMouseEnter}
+            onBlur={handleMouseLeave}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            role="button"
+            aria-describedby={tooltipId}
+            className="inline-block outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-help"
         >
             {children}
             {isVisible && createPortal(
                 <div
+                    id={tooltipId}
+                    role="tooltip"
                     style={{
                         position: "fixed",
                         top: coords.top,
@@ -50,7 +69,7 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
                         padding: "12px",
                         pointerEvents: "none",
                     }}
-                    className="text-sm shadow-xl"
+                    className="text-sm shadow-xl animate-in fade-in zoom-in-95 duration-200"
                 >
                     {content}
                 </div>,
