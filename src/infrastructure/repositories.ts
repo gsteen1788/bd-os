@@ -294,7 +294,8 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         const db = await this.getDb();
         // Show all non-completed meetings, ordered by date (oldest first - i.e. catch up on what you missed)
         const rows = await db.select<any[]>(
-            `SELECT * FROM meetings WHERE status != 'COMPLETED' ORDER BY start_at ASC LIMIT ${limit}`
+            "SELECT * FROM meetings WHERE status != 'COMPLETED' ORDER BY start_at ASC LIMIT $1",
+            [limit]
         );
         return rows.map(r => this.mapRow(r));
     }
@@ -302,7 +303,8 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     async findHistory(limit: number): Promise<Meeting[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>(
-            `SELECT * FROM meetings WHERE status = 'COMPLETED' ORDER BY start_at DESC LIMIT ${limit}`
+            "SELECT * FROM meetings WHERE status = 'COMPLETED' ORDER BY start_at DESC LIMIT $1",
+            [limit]
         );
         return rows.map(r => this.mapRow(r));
     }
@@ -399,10 +401,16 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     private async populateLinks(tasks: Task[]): Promise<Task[]> {
         if (tasks.length === 0) return [];
         const db = await this.getDb();
-        const taskIds = tasks.map(t => `'${t.id}'`).join(",");
+
+        // Use parameterized query to prevent SQL injection
+        const placeholders = tasks.map((_, i) => `$${i + 1}`).join(",");
+        const taskIds = tasks.map(t => t.id);
 
         try {
-            const links = await db.select<any[]>(`SELECT * FROM task_links WHERE task_id IN (${taskIds})`);
+            const links = await db.select<any[]>(
+                `SELECT * FROM task_links WHERE task_id IN (${placeholders})`,
+                taskIds
+            );
 
             const linkMap = new Map<string, any[]>();
             links.forEach(l => {
@@ -497,7 +505,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     async findHistory(limit: number): Promise<Task[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>(
-            `SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC LIMIT ${limit}`
+            "SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC LIMIT $1",
+            [limit]
         );
         const tasks = rows.map(r => this.mapRow(r));
         return this.populateLinks(tasks);
