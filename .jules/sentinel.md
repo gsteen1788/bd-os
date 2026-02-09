@@ -12,3 +12,8 @@
 **Vulnerability:** A SQL injection vulnerability was found in `SqliteTaskRepository.populateLinks` where task IDs were directly interpolated into the SQL query string using `task_id IN (${taskIds})`.
 **Learning:** Even when using typed IDs (like UUIDs), relying on string interpolation for dynamic lists (e.g., `IN` clauses) bypasses parameterization and creates injection risks.
 **Prevention:** Always use parameterized queries (`$1`, `$2`, etc.) even for dynamic lists by generating the placeholders programmatically and passing the values array separately.
+
+## 2026-02-09 - Prompt Injection in LLM Features
+**Vulnerability:** User inputs were directly interpolated into LLM prompts without sanitization or delimitation, allowing users to potentially override instructions and inject malicious commands.
+**Learning:** LLMs treat all input as context, making it easy for "data" to be interpreted as "instructions" if not properly isolated.
+**Prevention:** Always sanitize user inputs (e.g., XML escaping) and wrap them in clear delimiters (like `<user_input>`) with explicit instructions for the model to treat the enclosed content as data only.
