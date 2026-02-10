@@ -4,8 +4,8 @@ import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domai
 interface MitCardProps {
     mit: Task;
     viewMode: "PENDING" | "HISTORY";
-    opportunities: Opportunity[];
-    relationships: { entry: ProtemoiEntry, contact: Contact }[];
+    opportunitiesMap: Map<string, Opportunity>;
+    relationshipsMap: Map<string, { entry: ProtemoiEntry, contact: Contact }>;
     onEdit: (task: Task) => void;
     onComplete: (task: Task) => void;
     onRevert: (task: Task) => void;
@@ -14,8 +14,8 @@ interface MitCardProps {
 export const MitCard = memo(function MitCard({
     mit,
     viewMode,
-    opportunities,
-    relationships,
+    opportunitiesMap,
+    relationshipsMap,
     onEdit,
     onComplete,
     onRevert
@@ -23,10 +23,10 @@ export const MitCard = memo(function MitCard({
 
     const getLinkDisplay = (link: TaskLink) => {
         if (link.entityType === 'OPPORTUNITY') {
-            const opp = opportunities.find(o => o.id === link.entityId);
+            const opp = opportunitiesMap.get(link.entityId);
             return opp ? opp.name : 'Unknown Opportunity';
         } else if (link.entityType === 'RELATIONSHIP') {
-            const rel = relationships.find(r => r.entry.id === link.entityId);
+            const rel = relationshipsMap.get(link.entityId);
             return rel ? rel.contact.displayName : 'Unknown Relationship';
         }
         return link.entityType;
@@ -35,10 +35,10 @@ export const MitCard = memo(function MitCard({
     const getLegacyLinkDisplay = (type: string, id: string | null) => {
         if (!id) return type;
         if (type === 'OPPORTUNITY') {
-            const opp = opportunities.find(o => o.id === id);
+            const opp = opportunitiesMap.get(id);
             return opp ? opp.name : type;
         } else if (type === 'RELATIONSHIP') {
-            const rel = relationships.find(r => r.entry.id === id);
+            const rel = relationshipsMap.get(id);
             return rel ? rel.contact.displayName : type;
         }
         return type;

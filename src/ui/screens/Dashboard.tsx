@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
 import { MitCard } from "../components/MitCard";
@@ -28,6 +28,10 @@ export function Dashboard() {
     // Completion Flow
     const [showCompletionModal, setShowCompletionModal] = useState(false);
     const [completionTask, setCompletionTask] = useState<Task | undefined>(undefined);
+
+    // Optimization: Pre-compute lookups to avoid O(N*M) scans in child components
+    const oppsMap = useMemo(() => new Map(opportunities.map(o => [o.id, o])), [opportunities]);
+    const relsMap = useMemo(() => new Map(relationships.map(r => [r.entry.id, r])), [relationships]);
 
     useEffect(() => {
         loadContextData();
@@ -291,8 +295,8 @@ export function Dashboard() {
                                                     key={mit.id}
                                                     mit={mit}
                                                     viewMode={viewMode}
-                                                    opportunities={opportunities}
-                                                    relationships={relationships}
+                                                    opportunitiesMap={oppsMap}
+                                                    relationshipsMap={relsMap}
                                                     onEdit={handleEdit}
                                                     onComplete={handleCompleteMIT}
                                                     onRevert={handleUncompleteMIT}
@@ -309,8 +313,8 @@ export function Dashboard() {
                                     key={mit.id}
                                     mit={mit}
                                     viewMode={viewMode}
-                                    opportunities={opportunities}
-                                    relationships={relationships}
+                                    opportunitiesMap={oppsMap}
+                                    relationshipsMap={relsMap}
                                     onEdit={handleEdit}
                                     onComplete={handleCompleteMIT}
                                     onRevert={handleUncompleteMIT}
@@ -340,6 +344,8 @@ export function Dashboard() {
                 history={adminHistory}
                 opportunities={opportunities}
                 relationships={relationships}
+                opportunitiesMap={oppsMap}
+                relationshipsMap={relsMap}
                 onCreate={handleCreateAdminTask}
                 onComplete={handleCompleteAdminTask}
                 onUpdate={handleUpdateAdminTask}
