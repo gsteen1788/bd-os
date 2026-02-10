@@ -412,8 +412,18 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                             {/* Big Impact */}
                             <div className={`transition-all duration-300 rounded-lg border ${bigImpact.active ? 'bg-base-100 border-primary/40 shadow-lg shadow-primary/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-lg"
                                     onClick={() => toggleChip(bigImpact, setBigImpact)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={bigImpact.active}
+                                    aria-controls="big-impact-content"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            toggleChip(bigImpact, setBigImpact);
+                                        }
+                                    }}
                                 >
                                     <div
                                         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${bigImpact.active
@@ -431,7 +441,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                     <div className={`text-xs transition-transform duration-300 ${bigImpact.active ? 'rotate-180 text-primary' : 'text-muted'}`}>▼</div>
                                 </div>
 
-                                <div className={`overflow-hidden transition-all duration-300 ${bigImpact.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div id="big-impact-content" className={`overflow-hidden transition-all duration-300 ${bigImpact.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-primary/30 transition-all resize-none"
@@ -447,8 +457,18 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                             {/* In Control */}
                             <div className={`transition-all duration-300 rounded-lg border ${inControl.active ? 'bg-base-100 border-success/40 shadow-lg shadow-success/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-success focus-visible:outline-none rounded-lg"
                                     onClick={() => toggleChip(inControl, setInControl)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={inControl.active}
+                                    aria-controls="in-control-content"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            toggleChip(inControl, setInControl);
+                                        }
+                                    }}
                                 >
                                     <div
                                         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${inControl.active
@@ -466,7 +486,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                     <div className={`text-xs transition-transform duration-300 ${inControl.active ? 'rotate-180 text-success' : 'text-muted'}`}>▼</div>
                                 </div>
 
-                                <div className={`overflow-hidden transition-all duration-300 ${inControl.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div id="in-control-content" className={`overflow-hidden transition-all duration-300 ${inControl.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-success/30 transition-all resize-none"
@@ -481,8 +501,18 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                             {/* Growth Oriented */}
                             <div className={`transition-all duration-300 rounded-lg border ${growthOriented.active ? 'bg-base-100 border-warning/40 shadow-lg shadow-warning/5' : 'bg-base-300/50 border-transparent hover:bg-base-300'}`}>
                                 <div
-                                    className="flex items-center gap-4 p-3 cursor-pointer select-none"
+                                    className="flex items-center gap-4 p-3 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:outline-none rounded-lg"
                                     onClick={() => toggleChip(growthOriented, setGrowthOriented)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={growthOriented.active}
+                                    aria-controls="growth-oriented-content"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            toggleChip(growthOriented, setGrowthOriented);
+                                        }
+                                    }}
                                 >
                                     <div
                                         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner transition-colors duration-300 shrink-0 ${growthOriented.active
@@ -500,7 +530,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                     <div className={`text-xs transition-transform duration-300 ${growthOriented.active ? 'rotate-180 text-warning' : 'text-muted'}`}>▼</div>
                                 </div>
 
-                                <div className={`overflow-hidden transition-all duration-300 ${growthOriented.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div id="growth-oriented-content" className={`overflow-hidden transition-all duration-300 ${growthOriented.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-warning/30 transition-all resize-none"
