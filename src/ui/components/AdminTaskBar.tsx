@@ -6,6 +6,8 @@ interface AdminTaskBarProps {
     tasks: Task[];
     opportunities: Opportunity[];
     relationships: { entry: ProtemoiEntry, contact: Contact }[];
+    opportunitiesMap: Map<string, Opportunity>;
+    relationshipsMap: Map<string, { entry: ProtemoiEntry, contact: Contact }>;
     history: Task[];
     onCreate: (title: string, dueDate: string, links: { type: EntityType, id: string }[], tag?: TaskTag | null) => Promise<void>;
     onComplete: (task: Task) => Promise<void>;
@@ -14,7 +16,7 @@ interface AdminTaskBarProps {
     onRevert: (task: Task) => Promise<void>;
 }
 
-export function AdminTaskBar({ tasks, history, opportunities, relationships, onCreate, onComplete, onUpdate, onDelete, onRevert }: AdminTaskBarProps) {
+export function AdminTaskBar({ tasks, history, opportunities, relationships, opportunitiesMap, relationshipsMap, onCreate, onComplete, onUpdate, onDelete, onRevert }: AdminTaskBarProps) {
     // View State
     const [viewMode, setViewMode] = useState<"PENDING" | "DONE">("PENDING");
 
@@ -80,10 +82,10 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
 
             const mappedLinks = links.map(l => {
                 if (l.entityType === 'OPPORTUNITY') {
-                    const opp = opportunities.find(o => o.id === l.entityId);
+                    const opp = opportunitiesMap.get(l.entityId);
                     return { type: 'OPPORTUNITY' as EntityType, id: l.entityId, name: opp ? opp.name : 'Unknown' };
                 } else {
-                    const rel = relationships.find(r => r.entry.id === l.entityId);
+                    const rel = relationshipsMap.get(l.entityId);
                     return { type: 'RELATIONSHIP' as EntityType, id: l.entityId, name: rel ? rel.contact.displayName : 'Unknown' };
                 }
             });
@@ -94,7 +96,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
             setSelectedTag(null);
             setSelectedLinks([]);
         }
-    }, [editingTask, opportunities, relationships]);
+    }, [editingTask, opportunitiesMap, relationshipsMap]);
 
     const handleSave = async () => {
         if (!title.trim()) return;
@@ -141,10 +143,10 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, onC
 
     const getLinkDisplay = (link: TaskLink) => {
         if (link.entityType === 'OPPORTUNITY') {
-            const opp = opportunities.find(o => o.id === link.entityId);
+            const opp = opportunitiesMap.get(link.entityId);
             return opp ? opp.name : 'Unknown Opp';
         } else if (link.entityType === 'RELATIONSHIP') {
-            const rel = relationships.find(r => r.entry.id === link.entityId);
+            const rel = relationshipsMap.get(link.entityId);
             return rel ? rel.contact.displayName : 'Unknown Rel';
         }
         return link.entityType;
