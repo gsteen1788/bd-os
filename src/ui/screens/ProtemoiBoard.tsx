@@ -197,10 +197,14 @@ export function ProtemoiBoard() {
             const orgs = await organizationRepository.findAll();
             setOrganizations(orgs);
 
+            // Optimization: Create Maps for O(1) lookups instead of O(N*M) nested loops
+            const contactMap = new Map(contacts.map(c => [c.id, c]));
+            const orgMap = new Map(orgs.map(o => [o.id, o]));
+
             const combined = protemoi.map(p => {
-                const contact = contacts.find(c => c.id === p.contactId);
+                const contact = contactMap.get(p.contactId);
                 const orgId = p.organizationId || contact?.organizationId;
-                const organization = orgs.find(o => o.id === orgId);
+                const organization = orgId ? orgMap.get(orgId) : undefined;
 
                 return {
                     ...p,
