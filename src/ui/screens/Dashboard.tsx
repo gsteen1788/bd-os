@@ -20,6 +20,7 @@ export function Dashboard() {
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const [relationships, setRelationships] = useState<{ entry: ProtemoiEntry, contact: Contact }[]>([]);
     const [viewMode, setViewMode] = useState<"PENDING" | "HISTORY">("PENDING");
+    const [isLoading, setIsLoading] = useState(true);
 
     const [showMITModal, setShowMITModal] = useState(false);
     const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -61,6 +62,7 @@ export function Dashboard() {
     };
 
     const loadTasks = useCallback(async () => {
+        setIsLoading(true);
         try {
             // Optimization: Avoid double fetch when viewMode is HISTORY by reusing the history promise
             const historyPromise = taskRepository.findHistory(50);
@@ -79,6 +81,8 @@ export function Dashboard() {
 
         } catch (e) {
             console.error("Failed to load dashboard tasks", e);
+        } finally {
+            setIsLoading(false);
         }
     }, [viewMode]);
 
@@ -275,61 +279,70 @@ export function Dashboard() {
             <div className="flex flex-1 overflow-hidden relative">
                 {/* MIT Grid */}
                 <div className="flex-1 flex flex-col min-w-0">
-                    <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
-                        {viewMode === 'HISTORY' ? (
-                            // History View - Grouped
-                            (() => {
-                                const groups = groupItemsByWeek(mits, 'updatedAt');
-                                return Object.keys(groups).map(weekLabel => (
-                                    <div key={weekLabel} className="col-span-full mb-2">
-                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
-                                            {weekLabel}
-                                        </h3>
-                                        <div className="grid-mit-cards">
-                                            {groups[weekLabel].map(mit => (
-                                                <MitCard
-                                                    key={mit.id}
-                                                    mit={mit}
-                                                    viewMode={viewMode}
-                                                    opportunities={opportunities}
-                                                    relationships={relationships}
-                                                    onEdit={handleEdit}
-                                                    onComplete={handleCompleteMIT}
-                                                    onRevert={handleUncompleteMIT}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                ));
-                            })()
-                        ) : (
-                            // Pending View - Flat
-                            mits.map(mit => (
-                                <MitCard
-                                    key={mit.id}
-                                    mit={mit}
-                                    viewMode={viewMode}
-                                    opportunities={opportunities}
-                                    relationships={relationships}
-                                    onEdit={handleEdit}
-                                    onComplete={handleCompleteMIT}
-                                    onRevert={handleUncompleteMIT}
-                                />
-                            ))
-                        )}
-                    </div>
-
-                    {mits.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-muted opacity-50 border-2 border-dashed border-base-300 rounded-xl m-4">
-                            <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '🎯'}</div>
-                            <p className="text-xl font-medium">{viewMode === 'HISTORY' ? 'No completed MITs found.' : 'No MITs defined yet.'}</p>
-                            {viewMode === 'PENDING' && (
-                                <>
-                                    <p className="text-sm mt-2">What is the one thing you MUST do today?</p>
-                                    <button className="btn btn-outline mt-6" onClick={handleCreate}>Set Intentions</button>
-                                </>
-                            )}
+                    {isLoading ? (
+                        <div className="flex-1 flex items-center justify-center h-full">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                            <span className="sr-only">Loading...</span>
                         </div>
+                    ) : (
+                        <>
+                            <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
+                                {viewMode === 'HISTORY' ? (
+                                    // History View - Grouped
+                                    (() => {
+                                        const groups = groupItemsByWeek(mits, 'updatedAt');
+                                        return Object.keys(groups).map(weekLabel => (
+                                            <div key={weekLabel} className="col-span-full mb-2">
+                                                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
+                                                    {weekLabel}
+                                                </h3>
+                                                <div className="grid-mit-cards">
+                                                    {groups[weekLabel].map(mit => (
+                                                        <MitCard
+                                                            key={mit.id}
+                                                            mit={mit}
+                                                            viewMode={viewMode}
+                                                            opportunities={opportunities}
+                                                            relationships={relationships}
+                                                            onEdit={handleEdit}
+                                                            onComplete={handleCompleteMIT}
+                                                            onRevert={handleUncompleteMIT}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()
+                                ) : (
+                                    // Pending View - Flat
+                                    mits.map(mit => (
+                                        <MitCard
+                                            key={mit.id}
+                                            mit={mit}
+                                            viewMode={viewMode}
+                                            opportunities={opportunities}
+                                            relationships={relationships}
+                                            onEdit={handleEdit}
+                                            onComplete={handleCompleteMIT}
+                                            onRevert={handleUncompleteMIT}
+                                        />
+                                    ))
+                                )}
+                            </div>
+
+                            {mits.length === 0 && (
+                                <div className="flex-1 flex flex-col items-center justify-center text-muted opacity-50 border-2 border-dashed border-base-300 rounded-xl m-4">
+                                    <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '🎯'}</div>
+                                    <p className="text-xl font-medium">{viewMode === 'HISTORY' ? 'No completed MITs found.' : 'No MITs defined yet.'}</p>
+                                    {viewMode === 'PENDING' && (
+                                        <>
+                                            <p className="text-sm mt-2">What is the one thing you MUST do today?</p>
+                                            <button className="btn btn-outline mt-6" onClick={handleCreate}>Set Intentions</button>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
