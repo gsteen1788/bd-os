@@ -57,6 +57,11 @@ export interface ProtemoiEntry {
     updatedAt: string;
 }
 
+export type ProtemoiEntryWithDetails = ProtemoiEntry & {
+    contact?: Contact;
+    organization?: Organization;
+};
+
 export interface Opportunity {
     id: UUID;
     name: string;

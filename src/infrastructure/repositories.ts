@@ -3,7 +3,7 @@ import {
     MeetingRepository, Repository, ProtemoiRepository, TaskRepository, TrackerGoalRepository, WeekReviewRepository
 } from "../application/interfaces";
 import {
-    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
+    Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, ProtemoiEntryWithDetails, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
@@ -371,6 +371,83 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM protemoi_entries ORDER BY updated_at DESC");
         return rows.map(r => this.mapRow(r));
+    }
+
+    async findAllWithDetails(): Promise<ProtemoiEntryWithDetails[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(`
+            SELECT
+                p.id as p_id, p.contact_id as p_contact_id, p.organization_id as p_organization_id,
+                p.protemoi_type, p.relationship_stage, p.next_step_text, p.next_step_due_date,
+                p.last_touch_date, p.next_touch_date, p.importance_score, p.is_internal,
+                p.created_at as p_created_at, p.updated_at as p_updated_at,
+
+                c.id as c_id, c.organization_id as c_organization_id, c.first_name, c.last_name, c.display_name,
+                c.title, c.email, c.phone, c.location, c.marital_status, c.children, c.hobbies_interests,
+                c.current_focus, c.stories_anecdotes, c.career_history, c.education, c.linkedin_url,
+                c.other, c.notes_md as c_notes_md, c.thinking_preference, c.primary_buy_in_priority,
+                c.created_at as c_created_at, c.updated_at as c_updated_at,
+
+                o.id as o_id, o.name as o_name, o.industry, o.logo_url, o.notes_md as o_notes_md,
+                o.created_at as o_created_at, o.updated_at as o_updated_at
+
+            FROM protemoi_entries p
+            LEFT JOIN contacts c ON p.contact_id = c.id
+            LEFT JOIN organizations o ON o.id = COALESCE(p.organization_id, c.organization_id)
+            ORDER BY p.updated_at DESC
+        `);
+
+        return rows.map(row => ({
+            id: row.p_id,
+            contactId: row.p_contact_id,
+            organizationId: row.p_organization_id,
+            protemoiType: row.protemoi_type,
+            relationshipStage: row.relationship_stage,
+            nextStepText: row.next_step_text,
+            nextStepDueDate: row.next_step_due_date,
+            lastTouchDate: row.last_touch_date,
+            nextTouchDate: row.next_touch_date,
+            importanceScore: row.importance_score,
+            isInternal: row.is_internal === 1,
+            createdAt: row.p_created_at,
+            updatedAt: row.p_updated_at,
+
+            contact: row.c_id ? {
+                id: row.c_id,
+                organizationId: row.c_organization_id,
+                firstName: row.first_name,
+                lastName: row.last_name,
+                displayName: row.display_name,
+                title: row.title,
+                email: row.email,
+                phone: row.phone,
+                location: row.location,
+                maritalStatus: row.marital_status,
+                children: row.children,
+                hobbiesInterests: row.hobbies_interests,
+                currentFocus: row.current_focus,
+                storiesAnecdotes: row.stories_anecdotes,
+                careerHistory: row.career_history,
+                education: row.education,
+                linkedinUrl: row.linkedin_url,
+                other: row.other,
+                notesMd: row.c_notes_md,
+                thinkingPreference: row.thinking_preference,
+                primaryBuyInPriority: row.primary_buy_in_priority,
+                createdAt: row.c_created_at,
+                updatedAt: row.c_updated_at
+            } : undefined,
+
+            organization: row.o_id ? {
+                id: row.o_id,
+                name: row.o_name,
+                industry: row.industry,
+                logoUrl: row.logo_url,
+                notesMd: row.o_notes_md,
+                createdAt: row.o_created_at,
+                updatedAt: row.o_updated_at
+            } : undefined
+        }));
     }
 }
 

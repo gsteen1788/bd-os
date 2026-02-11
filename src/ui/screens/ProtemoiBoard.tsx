@@ -3,16 +3,14 @@ import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { ThinkingPreference } from "../../domain/enums";
-import { ProtemoiEntry, Contact, Organization, Meeting } from "../../domain/entities";
+import { ProtemoiEntry, Contact, Organization, Meeting, ProtemoiEntryWithDetails } from "../../domain/entities";
 import { protemoiRepository, contactRepository, organizationRepository, meetingRepository } from "../../infrastructure/repositories";
 import { evaluateNextStep, EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { EvaluationModal } from "../components/EvaluationModal";
 
 
-type ProtemoiWithDetails = ProtemoiEntry & {
-    contact?: Contact;
-    organization?: Organization;
-};
+// Type alias for backward compatibility or clarity, though we could just use ProtemoiEntryWithDetails directly
+type ProtemoiWithDetails = ProtemoiEntryWithDetails;
 
 const EXTERNAL_STAGES = [
     "TARGET", "ACQUAINTANCE", "CURIOUS_SKEPTIC", "NEW_CLIENT",
@@ -192,27 +190,15 @@ export function ProtemoiBoard() {
 
     const load = async () => {
         try {
-            const protemoi = await protemoiRepository.findAll();
-            const contacts = await contactRepository.findAll();
+            // ⚡ Bolt Optimization: Fetch joined data directly from DB
+            // Replaces separate fetches for protemoi, contacts (ALL), and organizations (ALL) + in-memory join
+            // This significantly reduces memory usage and initial load time by only fetching relevant contacts.
+            const combined = await protemoiRepository.findAllWithDetails();
+            setEntries(combined);
+
+            // We still need organizations for the edit dropdown, but we could potentially lazy load this
             const orgs = await organizationRepository.findAll();
             setOrganizations(orgs);
-
-            // Optimization: Create Maps for O(1) lookups instead of O(N*M) nested loops
-            const contactMap = new Map(contacts.map(c => [c.id, c]));
-            const orgMap = new Map(orgs.map(o => [o.id, o]));
-
-            const combined = protemoi.map(p => {
-                const contact = contactMap.get(p.contactId);
-                const orgId = p.organizationId || contact?.organizationId;
-                const organization = orgId ? orgMap.get(orgId) : undefined;
-
-                return {
-                    ...p,
-                    contact,
-                    organization
-                };
-            });
-            setEntries(combined);
         } catch (e) {
             console.error("Load failed:", e);
         }

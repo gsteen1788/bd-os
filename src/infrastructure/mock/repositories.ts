@@ -2,7 +2,7 @@ import {
     OrganizationRepository, ContactRepository, OpportunityRepository, MeetingRepository,
     ProtemoiRepository, Repository, TaskRepository, TrackerGoalRepository, WeekReviewRepository
 } from "../../application/interfaces";
-import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview } from "../../domain/entities";
+import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, ProtemoiEntryWithDetails, Task, TrackerGoal, WeekReview } from "../../domain/entities";
 import { mockOrganizations, mockContacts, mockOpportunities, mockMeetings } from "./data";
 
 class MockRepository<T extends { id: UUID }> implements Repository<T> {
@@ -111,6 +111,19 @@ export class MockProtemoiRepository implements ProtemoiRepository {
     async delete(id: UUID): Promise<void> {
         const index = this.items.findIndex(p => p.id === id);
         if (index >= 0) this.items.splice(index, 1);
+    }
+
+    async findAllWithDetails(): Promise<ProtemoiEntryWithDetails[]> {
+        return this.items.map(p => {
+            const contact = mockContacts.find(c => c.id === p.contactId);
+            const orgId = p.organizationId || contact?.organizationId;
+            const organization = orgId ? mockOrganizations.find(o => o.id === orgId) : undefined;
+            return {
+                ...p,
+                contact,
+                organization
+            };
+        });
     }
 }
 

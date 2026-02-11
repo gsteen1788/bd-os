@@ -1,4 +1,4 @@
-import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, WeekReview, TrackerGoal } from "../domain/entities";
+import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, ProtemoiEntryWithDetails, Task, WeekReview, TrackerGoal } from "../domain/entities";
 
 export interface Repository<T> {
     findById(id: UUID): Promise<T | null>;
@@ -37,6 +37,7 @@ export interface ProtemoiRepository {
     save(entry: ProtemoiEntry): Promise<void>;
     delete(id: UUID): Promise<void>;
     findAll(): Promise<ProtemoiEntry[]>;
+    findAllWithDetails(): Promise<ProtemoiEntryWithDetails[]>;
 }
 
 export interface TaskRepository extends Repository<Task> {
