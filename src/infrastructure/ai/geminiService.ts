@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { sanitizeInput } from "./security";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -19,17 +20,6 @@ export const getGeminiClient = () => {
     return genAI;
 };
 
-// Helper to sanitize input for XML/HTML context to prevent prompt injection
-const sanitizeInput = (input: string): string => {
-    if (!input) return "";
-    return input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-};
-
 export const generateContent = async (prompt: string | any[], modelName: string = "gemini-3-flash-preview") => {
     const client = getGeminiClient();
     if (!client) {
@@ -46,7 +36,7 @@ export const generateContent = async (prompt: string | any[], modelName: string 
         // The response structure might be different, let's extract text
         return (response as any).text;
     } catch (error) {
-        console.error("Error generating content:", error);
+        console.error("Gemini API Error:", error instanceof Error ? error.message : String(error));
         throw error;
     }
 };

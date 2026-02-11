@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2024-05-23 - Testing Vite-Dependent Security Logic
+**Vulnerability:** Input sanitization logic was tightly coupled with Vite-specific environment variables (`import.meta.env`), making it impossible to verify with standalone Node.js scripts (`tsx`) without mocking the build environment.
+**Learning:** Security-critical functions like input validation must be verifiable in isolation. Dependencies on build-time constants can hinder automated security testing.
+**Prevention:** Extract pure security logic (sanitization, validation) into dedicated utility files (e.g., `security.ts`) that have zero dependencies on framework-specific globals, enabling easy unit testing with standard tools.
