@@ -62,7 +62,7 @@ export const MitCard = memo(function MitCard({
                                 onComplete(mit);
                             }}
                             title="Mark as Complete"
-                            aria-label="Mark as Complete"
+                            aria-label={`Mark "${mit.title}" as Complete`}
                         >
                             ✓
                         </button>
@@ -74,7 +74,7 @@ export const MitCard = memo(function MitCard({
                                 onRevert(mit);
                             }}
                             title="Revert to Pending"
-                            aria-label="Revert to Pending"
+                            aria-label={`Revert "${mit.title}" to Pending`}
                         >
                             ↩
                         </button>
@@ -105,7 +105,17 @@ export const MitCard = memo(function MitCard({
 
             {/* Title */}
             <div className="px-4 pb-4">
-                <h3 className={`text-lg font-bold leading-tight group-hover:text-primary transition-colors ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}>{mit.title}</h3>
+                <h3 className={`text-lg font-bold leading-tight group-hover:text-primary transition-colors ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}>
+                    <button
+                        className="text-left w-full focus:outline-none focus:underline"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(mit);
+                        }}
+                    >
+                        {mit.title}
+                    </button>
+                </h3>
             </div>
 
             {/* B.I.G. Details (Subtle) */}
