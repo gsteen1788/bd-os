@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-06-25 - Missing Input Length Validation for AI Services
+**Vulnerability:** User inputs (e.g., `nextStepText`) were passed directly to AI services without length validation, creating a potential Denial of Service (DoS) or resource exhaustion vector.
+**Learning:** Even with sanitized inputs, unbounded string lengths can consume excessive tokens/costs or crash the service if the AI provider has strict limits.
+**Prevention:** Implement strict length limits (e.g., `MAX_INPUT_LENGTH`) on all user inputs before sending them to external AI services. Centralize this validation logic.
