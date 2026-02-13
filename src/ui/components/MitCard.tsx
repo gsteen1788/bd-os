@@ -46,8 +46,17 @@ export const MitCard = memo(function MitCard({
 
     return (
         <div
+            role="button"
+            tabIndex={0}
             className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
             onClick={() => onEdit(mit)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onEdit(mit);
+                }
+            }}
+            aria-label={`Edit task: ${mit.title}`}
         >
             {/* Card Header */}
             <div className="p-4 pb-2 flex justify-between items-start">
@@ -62,7 +71,7 @@ export const MitCard = memo(function MitCard({
                                 onComplete(mit);
                             }}
                             title="Mark as Complete"
-                            aria-label="Mark as Complete"
+                            aria-label={`Mark "${mit.title}" as Complete`}
                         >
                             ✓
                         </button>
@@ -74,7 +83,7 @@ export const MitCard = memo(function MitCard({
                                 onRevert(mit);
                             }}
                             title="Revert to Pending"
-                            aria-label="Revert to Pending"
+                            aria-label={`Revert "${mit.title}" to Pending`}
                         >
                             ↩
                         </button>
@@ -84,18 +93,21 @@ export const MitCard = memo(function MitCard({
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.bigImpactDescription || 'Big Impact'}
+                            aria-label={mit.bigImpactDescription ? `Big Impact: ${mit.bigImpactDescription}` : 'Big Impact'}
                         >
                             B
                         </div>
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.inControlDescription ? 'bg-success/20 text-success border-success/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.inControlDescription || 'In Control'}
+                            aria-label={mit.inControlDescription ? `In Control: ${mit.inControlDescription}` : 'In Control'}
                         >
                             I
                         </div>
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.growthOrientedDescription ? 'bg-warning/20 text-warning border-warning/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.growthOrientedDescription || 'Growth Oriented'}
+                            aria-label={mit.growthOrientedDescription ? `Growth Oriented: ${mit.growthOrientedDescription}` : 'Growth Oriented'}
                         >
                             G
                         </div>
