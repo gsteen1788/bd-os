@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-03-05 - Missing Input Length Validation in AI Service
+**Vulnerability:** User inputs were passed directly to AI prompts without strict length limits, exposing the system to potential DoS (excessive token costs or latency) via massive inputs.
+**Learning:** Sanitization alone is insufficient; large inputs can still impact performance and cost. Security logic (like validation/sanitization) should be isolated from infrastructure code (like API keys) to enable easier testing without mocking.
+**Prevention:** Enforce strict input length limits (e.g., 5000 chars) before processing. Isolate pure security functions in separate modules (e.g., `security.ts`) to facilitate testing.

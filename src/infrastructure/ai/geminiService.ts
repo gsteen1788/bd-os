@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { validateAndSanitizeInput } from "./security";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -17,17 +18,6 @@ export const getGeminiClient = () => {
         }
     }
     return genAI;
-};
-
-// Helper to sanitize input for XML/HTML context to prevent prompt injection
-const sanitizeInput = (input: string): string => {
-    if (!input) return "";
-    return input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 };
 
 export const generateContent = async (prompt: string | any[], modelName: string = "gemini-3-flash-preview") => {
@@ -89,9 +79,9 @@ If PASS, label the trust deposit type as ONE of:
 - "low_self_orientation" (clearly about them; giving without asking)
 
 Input Data:
-<relationship_level>${sanitizeInput(relationshipLevel)}</relationship_level>
-<protemoi_type>${sanitizeInput(protemoiType)}</protemoi_type>
-<next_step>${sanitizeInput(nextStep)}</next_step>
+<relationship_level>${validateAndSanitizeInput(relationshipLevel)}</relationship_level>
+<protemoi_type>${validateAndSanitizeInput(protemoiType)}</protemoi_type>
+<next_step>${validateAndSanitizeInput(nextStep)}</next_step>
 
 Instructions:
 - Evaluate the content within the <next_step> tags based on the criteria.
@@ -139,9 +129,9 @@ A next step is PASS only if it is:
 6) Outcome-clear: states what “done” means (meeting booked, doc sent + response requested, decision meeting scheduled, etc.)
 
 Input Data:
-<stage>${sanitizeInput(stage)}</stage>
-<buyer>${sanitizeInput(buyer)}</buyer>
-<next_step>${sanitizeInput(nextStep)}</next_step>
+<stage>${validateAndSanitizeInput(stage)}</stage>
+<buyer>${validateAndSanitizeInput(buyer)}</buyer>
+<next_step>${validateAndSanitizeInput(nextStep)}</next_step>
 
 Instructions:
 - Evaluate the content within the <next_step> tags based on the criteria.
@@ -182,7 +172,7 @@ An MIT must meet ALL 3 criteria that spell BIG:
 3) Growth oriented: directly builds growth/BD momentum, not delivery execution or generic operational work.
 
 Input Data:
-<proposed_mit>${sanitizeInput(mitText)}</proposed_mit>
+<proposed_mit>${validateAndSanitizeInput(mitText)}</proposed_mit>
 
 Instructions:
 - Evaluate the content within the <proposed_mit> tags.
