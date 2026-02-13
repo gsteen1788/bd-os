@@ -67,7 +67,7 @@ export function MeetingPrep() {
         loadMeetings();
         opportunityRepository.findAll().then(setAllOpps);
         protemoiRepository.findAll().then(setAllRels);
-        contactRepository.findAll().then(setAllContacts);
+        contactRepository.findAllSummaries().then(setAllContacts);
     }, [viewMode]);
 
     // Optimization: Pre-compute lookups
@@ -673,7 +673,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
         // Load data for linking
         opportunityRepository.findAll().then(setOpportunities);
         protemoiRepository.findAll().then(setRelationships);
-        contactRepository.findAll().then(setContacts);
+        contactRepository.findAllSummaries().then(setContacts);
     }, []);
 
     // Helper to get name for relationship
@@ -756,7 +756,7 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
 
     useEffect(() => {
         if (isAddOpen && tab === "EXISTING") {
-            contactRepository.findAll().then(setContacts);
+            contactRepository.findAllSummaries().then(setContacts);
         }
     }, [isAddOpen, tab]);
 

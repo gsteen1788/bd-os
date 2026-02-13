@@ -193,7 +193,7 @@ export function ProtemoiBoard() {
     const load = async () => {
         try {
             const protemoi = await protemoiRepository.findAll();
-            const contacts = await contactRepository.findAll();
+            const contacts = await contactRepository.findAllSummaries();
             const orgs = await organizationRepository.findAll();
             setOrganizations(orgs);
 
@@ -524,7 +524,19 @@ export function ProtemoiBoard() {
                                             backgroundColor: getPreferenceColor(entry.contact?.thinkingPreference),
                                             color: getPreferenceTextColor(entry.contact?.thinkingPreference)
                                         }}
-                                        onClick={() => setEditingEntry(entry)}
+                                        onClick={async () => {
+                                            if (entry.contactId) {
+                                                try {
+                                                    const fullContact = await contactRepository.findById(entry.contactId);
+                                                    setEditingEntry({ ...entry, contact: fullContact || entry.contact });
+                                                } catch (e) {
+                                                    console.error("Failed to load details", e);
+                                                    setEditingEntry(entry);
+                                                }
+                                            } else {
+                                                setEditingEntry(entry);
+                                            }
+                                        }}
                                     >
                                         {/* Company Logo in Top Right */}
                                         {entry.organization?.logoUrl && !isAnonymized && (
