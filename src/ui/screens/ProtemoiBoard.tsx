@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
@@ -222,10 +222,26 @@ export function ProtemoiBoard() {
         load();
     }, []);
 
-    const filteredEntries = entries.filter(e => {
+    const filteredEntries = useMemo(() => entries.filter(e => {
         const isInternal = e.isInternal;
         return viewMode === "INTERNAL" ? isInternal : !isInternal;
-    });
+    }), [entries, viewMode]);
+
+    // Optimization: Group entries by stage once to avoid O(N*M) filtering inside render loop
+    const groupedEntries = useMemo(() => {
+        const groups: Record<string, ProtemoiWithDetails[]> = {};
+        // Initialize all active stages
+        for (const stage of activeStages) {
+            groups[stage] = [];
+        }
+        // Populate
+        for (const entry of filteredEntries) {
+            if (groups[entry.relationshipStage]) {
+                groups[entry.relationshipStage].push(entry);
+            }
+        }
+        return groups;
+    }, [filteredEntries, activeStages]);
 
     const handleSave = async () => {
         if (!editingEntry) return;
@@ -479,7 +495,7 @@ export function ProtemoiBoard() {
 
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto" }}>
                 {activeStages.map(stage => {
-                    const stageEntries = filteredEntries.filter(e => e.relationshipStage === stage);
+                    const stageEntries = groupedEntries[stage] || [];
                     const info = RELATIONSHIP_STAGE_INFO[stage];
 
                     return (
