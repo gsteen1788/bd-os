@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-02-14 - Centralized AI Input Validation
+**Vulnerability:** AI input validation logic (sanitization) was scattered and duplicated, and lacked length limits (DoS risk).
+**Learning:** GenAI prompts are constructed from user input and can be massive. Without centralized validation, it's easy to miss checks or have inconsistent rules across different prompt templates.
+**Prevention:** Always use a dedicated security module for input validation and sanitization, especially for AI services where prompt injection is a risk.
