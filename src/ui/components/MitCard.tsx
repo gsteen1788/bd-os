@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, KeyboardEvent } from 'react';
 import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 
 interface MitCardProps {
@@ -46,7 +46,16 @@ export const MitCard = memo(function MitCard({
 
     return (
         <div
-            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Edit task: ${mit.title}`}
+            onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onEdit(mit);
+                }
+            }}
+            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
             onClick={() => onEdit(mit)}
         >
             {/* Card Header */}

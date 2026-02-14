@@ -5,3 +5,7 @@
 ## 2024-05-23 - Accordion Accessibility
 **Learning:** Custom accordions using `div` elements with `onClick` are inaccessible to keyboard users and screen readers unless manually instrumented.
 **Action:** When creating expandable sections, always use `role="button"`, `tabIndex={0}`, `aria-expanded`, `aria-controls`, and `onKeyDown` handlers for Enter/Space, or prefer native `<details>`/`<summary>` if styling permits.
+
+## 2026-02-14 - Clickable Cards Pattern
+**Learning:** The app uses `div`s with `onClick` for card interactions (MITs, Admin Tasks), making them inaccessible to keyboard users.
+**Action:** Convert clickable cards to `role="button"` with `tabIndex={0}` and `onKeyDown` (Enter/Space) handlers.
