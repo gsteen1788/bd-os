@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { sanitizeInput, validateInput } from "./security";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -17,17 +18,6 @@ export const getGeminiClient = () => {
         }
     }
     return genAI;
-};
-
-// Helper to sanitize input for XML/HTML context to prevent prompt injection
-const sanitizeInput = (input: string): string => {
-    if (!input) return "";
-    return input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 };
 
 export const generateContent = async (prompt: string | any[], modelName: string = "gemini-3-flash-preview") => {
@@ -72,6 +62,10 @@ export const evaluateNextStep = async (
     protemoiType: string,
     nextStep: string
 ): Promise<EvaluationResult> => {
+    validateInput(relationshipLevel, "Relationship Level");
+    validateInput(protemoiType, "Protemoi Type");
+    validateInput(nextStep, "Next Step");
+
     const prompt = `
 You are evaluating a proposed NEXT STEP to advance a professional relationship (Protemoi). Return PASS if it is a meaningful trust deposit; otherwise FAIL.
 
@@ -127,6 +121,10 @@ export const evaluateOpportunityNextStep = async (
     buyer: string,
     nextStep: string
 ): Promise<EvaluationResult> => {
+    validateInput(stage, "Stage");
+    validateInput(buyer, "Buyer");
+    validateInput(nextStep, "Next Step");
+
     const prompt = `
 You are evaluating a proposed NEXT STEP for a consulting opportunity. Your job is to return PASS if it is sufficient to advance the opportunity, otherwise FAIL.
 
@@ -173,6 +171,8 @@ Rules:
 export const evaluateMIT = async (
     mitText: string,
 ): Promise<EvaluationResult> => {
+    validateInput(mitText, "MIT Text");
+
     const prompt = `
 You are evaluating whether a proposed task qualifies as a GrowBIG Most Important Thing (MIT).
 

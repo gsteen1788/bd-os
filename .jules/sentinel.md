@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-03-04 - Unbounded Input Length in AI Prompts (DoS Risk)
+**Vulnerability:** User inputs (e.g., relationship level, next steps) were being included in AI prompts without any length validation.
+**Learning:** Even with sanitized inputs, large payloads can cause Denial of Service (DoS) by exhausting API quotas, increasing latency, or crashing the application due to memory limits.
+**Prevention:** Implement strict length limits on all user-supplied data before processing or sending it to external AI services.
