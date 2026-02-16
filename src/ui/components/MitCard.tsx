@@ -105,7 +105,18 @@ export const MitCard = memo(function MitCard({
 
             {/* Title */}
             <div className="px-4 pb-4">
-                <h3 className={`text-lg font-bold leading-tight group-hover:text-primary transition-colors ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}>{mit.title}</h3>
+                <h3>
+                    <button
+                        className={`text-lg font-bold leading-tight text-left w-full group-hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded px-1 -ml-1 ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(mit);
+                        }}
+                        aria-label={`Edit task: ${mit.title}`}
+                    >
+                        {mit.title}
+                    </button>
+                </h3>
             </div>
 
             {/* B.I.G. Details (Subtle) */}
