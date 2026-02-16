@@ -43,6 +43,18 @@ export class MockContactRepository extends MockRepository<Contact> implements Co
     async findByOrganizationId(orgId: UUID): Promise<Contact[]> {
         return this.items.filter(c => c.organizationId === orgId);
     }
+    async findAllSummaries(): Promise<Contact[]> {
+        return this.items.map(c => ({
+            ...c,
+            careerHistory: undefined,
+            notesMd: undefined,
+            storiesAnecdotes: undefined,
+            hobbiesInterests: undefined,
+            education: undefined,
+            other: undefined,
+            currentFocus: undefined
+        }));
+    }
     async search(query: string): Promise<Contact[]> {
         return this.items.filter(c => c.displayName.toLowerCase().includes(query.toLowerCase()));
     }

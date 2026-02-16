@@ -6,7 +6,7 @@ export function ContactList() {
     const [contacts, setContacts] = useState<Contact[]>([]);
 
     useEffect(() => {
-        contactRepository.findAll().then(setContacts);
+        contactRepository.findAllSummaries().then(setContacts);
     }, []);
 
     return (

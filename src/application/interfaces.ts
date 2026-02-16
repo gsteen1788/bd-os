@@ -13,6 +13,7 @@ export interface OrganizationRepository extends Repository<Organization> {
 
 export interface ContactRepository extends Repository<Contact> {
     findAll(): Promise<Contact[]>;
+    findAllSummaries(): Promise<Contact[]>;
     findByOrganizationId(orgId: UUID): Promise<Contact[]>;
     search(query: string): Promise<Contact[]>;
 }
