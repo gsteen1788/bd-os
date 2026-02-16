@@ -193,7 +193,7 @@ export function ProtemoiBoard() {
     const load = async () => {
         try {
             const protemoi = await protemoiRepository.findAll();
-            const contacts = await contactRepository.findAll();
+            const contacts = await contactRepository.findAllSummaries();
             const orgs = await organizationRepository.findAll();
             setOrganizations(orgs);
 
@@ -524,7 +524,25 @@ export function ProtemoiBoard() {
                                             backgroundColor: getPreferenceColor(entry.contact?.thinkingPreference),
                                             color: getPreferenceTextColor(entry.contact?.thinkingPreference)
                                         }}
-                                        onClick={() => setEditingEntry(entry)}
+                                        onClick={async () => {
+                                            // Fetch full contact details before editing to ensure we don't lose data
+                                            try {
+                                                const fullContact = await contactRepository.findById(entry.contactId);
+                                                if (fullContact) {
+                                                    setEditingEntry({
+                                                        ...entry,
+                                                        contact: fullContact,
+                                                        organizationId: fullContact.organizationId || entry.organizationId
+                                                    });
+                                                } else {
+                                                    setEditingEntry(entry);
+                                                }
+                                            } catch (e) {
+                                                console.error("Failed to load contact details", e);
+                                                // Fallback
+                                                setEditingEntry(entry);
+                                            }
+                                        }}
                                     >
                                         {/* Company Logo in Top Right */}
                                         {entry.organization?.logoUrl && !isAnonymized && (

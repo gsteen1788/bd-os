@@ -113,6 +113,19 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         return rows.map(r => this.mapRow(r));
     }
 
+    async findAllSummaries(): Promise<Contact[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT
+                id, organization_id, first_name, last_name, display_name, title, email, phone,
+                location, linkedin_url, thinking_preference, primary_buy_in_priority,
+                created_at, updated_at
+             FROM contacts
+             ORDER BY updated_at DESC`
+        );
+        return rows.map(r => this.mapRow(r));
+    }
+
     async save(entity: Contact): Promise<void> {
         const db = await this.getDb();
         console.log("Saving contact ID:", entity.id);
