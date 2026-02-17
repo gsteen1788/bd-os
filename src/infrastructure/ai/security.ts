@@ -32,3 +32,18 @@ export const validateInput = (input: string, fieldName: string = "Input"): void 
         throw new Error(`${fieldName} exceeds maximum allowed length of ${MAX_INPUT_LENGTH} characters.`);
     }
 };
+
+/**
+ * Sanitizes error objects to prevent leaking sensitive information (like prompts or API keys) in logs.
+ * Returns a safe string representation of the error.
+ */
+export const sanitizeError = (error: unknown): string => {
+    if (error instanceof Error) {
+        // Log the error name and message, but avoid stack traces or custom properties that might contain data
+        return `${error.name}: ${error.message}`;
+    }
+    if (typeof error === 'string') {
+        return error;
+    }
+    return "An unexpected error occurred during AI processing.";
+};

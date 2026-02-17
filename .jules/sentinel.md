@@ -17,3 +17,8 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-03-05 - Sensitive Data Exposure via Error Logging
+**Vulnerability:** The application was logging raw error objects from external API calls (e.g., Google GenAI) to the console. These objects often contain sensitive request data (like prompts with PII) or configuration details (like API keys) in their properties.
+**Learning:** Standard error logging (`console.error(error)`) is risky when dealing with third-party SDKs or HTTP clients, as they frequently attach the full request/response context to the error object for debugging purposes.
+**Prevention:** Implement a `sanitizeError` utility that extracts only safe messages (e.g., `error.message`) and use it consistently in catch blocks instead of logging or re-throwing the raw error object.

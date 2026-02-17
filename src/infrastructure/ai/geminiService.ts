@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { sanitizeInput, validateInput } from "./security";
+import { sanitizeInput, validateInput, sanitizeError } from "./security";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -111,8 +111,8 @@ Rules:
         const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
         return JSON.parse(jsonString) as EvaluationResult;
     } catch (error) {
-        console.error("Evaluation failed:", error);
-        throw error;
+        console.error("Evaluation failed:", sanitizeError(error));
+        throw new Error(sanitizeError(error));
     }
 };
 
@@ -163,8 +163,8 @@ Rules:
         const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
         return JSON.parse(jsonString) as EvaluationResult;
     } catch (error) {
-        console.error("Opportunity Evaluation failed:", error);
-        throw error;
+        console.error("Opportunity Evaluation failed:", sanitizeError(error));
+        throw new Error(sanitizeError(error));
     }
 };
 
@@ -221,7 +221,7 @@ Rules:
             }
         } as EvaluationResult;
     } catch (error) {
-        console.error("MIT Evaluation failed:", error);
-        throw error;
+        console.error("MIT Evaluation failed:", sanitizeError(error));
+        throw new Error(sanitizeError(error));
     }
 };

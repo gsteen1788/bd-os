@@ -1,4 +1,4 @@
-import { sanitizeInput, validateInput, MAX_INPUT_LENGTH } from "./security";
+import { sanitizeInput, validateInput, sanitizeError, MAX_INPUT_LENGTH } from "./security";
 
 console.log("🛡️ Running Security Verification...");
 
@@ -53,7 +53,30 @@ try {
 
 if (validatePassed) console.log("✅ All validateInput tests passed.");
 
-if (sanitizePassed && validatePassed) {
+// Test sanitizeError
+console.log("\n🧪 Testing sanitizeError...");
+let sanitizeErrorPassed = true;
+
+const errorTests = [
+    { input: new Error("Safe Message"), expected: "Error: Safe Message" },
+    { input: "String Error", expected: "String Error" },
+    { input: { random: "object" }, expected: "An unexpected error occurred during AI processing." },
+    { input: null, expected: "An unexpected error occurred during AI processing." }
+];
+
+errorTests.forEach(({ input, expected }, index) => {
+    const result = sanitizeError(input);
+    if (result !== expected) {
+        console.error(`❌ sanitizeError failed for test case ${index}\n  Expected: ${expected}\n  Got:      ${result}`);
+        sanitizeErrorPassed = false;
+    } else {
+        console.log(`✅ sanitizeError passed for test case ${index}`);
+    }
+});
+
+if (sanitizeErrorPassed) console.log("✅ All sanitizeError tests passed.");
+
+if (sanitizePassed && validatePassed && sanitizeErrorPassed) {
     console.log("\n🎉 Security Verification Successful!");
 } else {
     console.error("\n💥 Security Verification Failed!");
