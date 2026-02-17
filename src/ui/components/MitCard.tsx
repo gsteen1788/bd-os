@@ -46,8 +46,17 @@ export const MitCard = memo(function MitCard({
 
     return (
         <div
-            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Edit task: ${mit.title}`}
+            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none focus-visible:rounded-lg ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
             onClick={() => onEdit(mit)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onEdit(mit);
+                }
+            }}
         >
             {/* Card Header */}
             <div className="p-4 pb-2 flex justify-between items-start">
@@ -106,16 +115,11 @@ export const MitCard = memo(function MitCard({
             {/* Title */}
             <div className="px-4 pb-4">
                 <h3>
-                    <button
-                        className={`text-lg font-bold leading-tight text-left w-full group-hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded px-1 -ml-1 ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(mit);
-                        }}
-                        aria-label={`Edit task: ${mit.title}`}
+                    <div
+                        className={`text-lg font-bold leading-tight text-left w-full group-hover:text-primary transition-colors px-1 -ml-1 ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}
                     >
                         {mit.title}
-                    </button>
+                    </div>
                 </h3>
             </div>
 

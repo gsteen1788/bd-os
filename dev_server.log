@@ -1,0 +1,12 @@
+
+> bd-os@0.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 287 ms
+
+  ➜  Local:   http://localhost:1420/
+  ➜  Network: use --host to expose
+2:24:49 AM [vite] page reload verify_mit_card.py
+2:25:33 AM [vite] page reload .jules/palette.md
+2:25:41 AM [vite] page reload verify_mit_card.py
