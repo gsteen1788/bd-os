@@ -34,6 +34,12 @@ export class MockOrganizationRepository extends MockRepository<Organization> imp
     async findAll(): Promise<Organization[]> {
         return [...this.items];
     }
+    async findAllSummaries(): Promise<Organization[]> {
+        return this.items.map(o => ({
+            ...o,
+            notesMd: undefined
+        }));
+    }
     async search(query: string): Promise<Organization[]> {
         return this.items.filter(o => o.name.toLowerCase().includes(query.toLowerCase()));
     }

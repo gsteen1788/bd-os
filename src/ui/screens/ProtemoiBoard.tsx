@@ -194,7 +194,7 @@ export function ProtemoiBoard() {
         try {
             const protemoi = await protemoiRepository.findAll();
             const contacts = await contactRepository.findAllSummaries();
-            const orgs = await organizationRepository.findAll();
+            const orgs = await organizationRepository.findAllSummaries();
             setOrganizations(orgs);
 
             // Optimization: Create Maps for O(1) lookups instead of O(N*M) nested loops
@@ -297,8 +297,11 @@ export function ProtemoiBoard() {
                 const existing = organizations.find(o => o.id === editingOrgId);
                 if (!existing) return;
 
+                // Fetch full organization to ensure we don't lose notesMd
+                const fullOrg = await organizationRepository.findById(editingOrgId) || existing;
+
                 const updatedOrg: Organization = {
-                    ...existing,
+                    ...fullOrg,
                     name: newOrgName,
                     logoUrl: newOrgLogo || null,
                     updatedAt: new Date().toISOString()

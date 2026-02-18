@@ -66,6 +66,14 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
         return rows.map(r => this.mapRow(r));
     }
 
+    async findAllSummaries(): Promise<Organization[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            "SELECT id, name, industry, logo_url, created_at, updated_at FROM organizations ORDER BY updated_at DESC"
+        );
+        return rows.map(r => this.mapRow(r));
+    }
+
     async search(query: string): Promise<Organization[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>(
