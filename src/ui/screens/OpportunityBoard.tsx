@@ -232,10 +232,10 @@ export function OpportunityBoard() {
 
                             <div className="flex flex-col gap-2" style={{ padding: "12px", overflowY: "auto", flex: 1 }}>
                                 {stageOpps.map(opp => (
-                                    <div
+                                    <button
                                         key={opp.id}
-                                        className="card"
-                                        style={{ padding: "12px", border: "1px solid hsl(var(--color-border))", backgroundColor: "hsl(var(--color-bg-base))", cursor: "pointer" }}
+                                        type="button"
+                                        className="card w-full text-left p-3 bg-base-100 hover:bg-base-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                         onClick={() => setEditingOpp(opp)}
                                     >
                                         <div style={{ fontWeight: "600" }}>
@@ -261,7 +261,7 @@ export function OpportunityBoard() {
                                                 Next: {opp.nextStepText}
                                             </div>
                                         )}
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
