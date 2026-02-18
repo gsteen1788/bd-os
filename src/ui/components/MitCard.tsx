@@ -56,7 +56,7 @@ export const MitCard = memo(function MitCard({
                     {/* Complete/Revert Button */}
                     {viewMode === 'PENDING' ? (
                         <button
-                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-success absolute top-2 right-2"
+                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-success absolute top-2 right-2"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onComplete(mit);
@@ -68,7 +68,7 @@ export const MitCard = memo(function MitCard({
                         </button>
                     ) : (
                         <button
-                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-warning absolute top-2 right-2"
+                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-warning absolute top-2 right-2"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onRevert(mit);
@@ -84,18 +84,24 @@ export const MitCard = memo(function MitCard({
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.bigImpactDescription || 'Big Impact'}
+                            role="img"
+                            aria-label="Big Impact"
                         >
                             B
                         </div>
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.inControlDescription ? 'bg-success/20 text-success border-success/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.inControlDescription || 'In Control'}
+                            role="img"
+                            aria-label="In Control"
                         >
                             I
                         </div>
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.growthOrientedDescription ? 'bg-warning/20 text-warning border-warning/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.growthOrientedDescription || 'Growth Oriented'}
+                            role="img"
+                            aria-label="Growth Oriented"
                         >
                             G
                         </div>
@@ -146,8 +152,12 @@ export const MitCard = memo(function MitCard({
                 {mit.links && mit.links.length > 0 ? (
                     mit.links.map((link, i) => (
                         <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-base-100 rounded border border-white/5 max-w-full">
-                            <div className={`w-3 h-3 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0 ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
-                                }`}>
+                            <div
+                                className={`w-3 h-3 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0 ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'
+                                    }`}
+                                role="img"
+                                aria-label={link.entityType === 'OPPORTUNITY' ? 'Opportunity' : 'Relationship'}
+                            >
                                 {link.entityType === 'OPPORTUNITY' ? 'O' : 'R'}
                             </div>
                             <span className="truncate text-[10px] opacity-80">{getLinkDisplay(link)}</span>
