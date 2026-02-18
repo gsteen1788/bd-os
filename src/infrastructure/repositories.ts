@@ -5,6 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
+import { validateEmail, validateWebUrl } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -34,6 +35,11 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
     protected tableName = "organizations";
 
     async save(entity: Organization): Promise<void> {
+        // Security validation
+        if (entity.logoUrl && entity.logoUrl.startsWith("http")) {
+            validateWebUrl(entity.logoUrl);
+        }
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO organizations (id, name, industry, logo_url, notes_md, created_at, updated_at) 
@@ -127,6 +133,10 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
     }
 
     async save(entity: Contact): Promise<void> {
+        // Security validation
+        validateEmail(entity.email);
+        validateWebUrl(entity.linkedinUrl);
+
         const db = await this.getDb();
         console.log("Saving contact ID:", entity.id);
         try {

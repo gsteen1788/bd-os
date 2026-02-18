@@ -17,3 +17,13 @@
 **Vulnerability:** User inputs (e.g., meeting notes, next steps) were interpolated directly into the prompt string without sanitization or delimitation, allowing potential prompt injection attacks.
 **Learning:** LLMs can be manipulated by malicious instructions embedded in input data if the prompt doesn't clearly distinguish between "instructions" and "data".
 **Prevention:** Use XML-like tags (e.g., `<input>`) to wrap user data, sanitize the input to escape those tags, and explicitly instruct the model to treat the content within tags as data only.
+
+## 2026-06-01 - Insecure Token Storage
+**Vulnerability:** OAuth access and refresh tokens were being stored in `localStorage` in `src/services/authService.ts`.
+**Learning:** `localStorage` is vulnerable to XSS attacks, allowing malicious scripts to steal sensitive tokens.
+**Prevention:** Use secure storage mechanisms like `tauri-plugin-store` (persisted to file) or `sessionStorage` (cleared on close) for sensitive data, and minimize XSS surface area.
+
+## 2026-06-01 - Missing Input Validation in Repositories
+**Vulnerability:** Repositories were persisting user input (emails, URLs) without validation, allowing invalid data formats and potential injection vectors (e.g., `javascript:` URLs).
+**Learning:** Relying solely on frontend validation is insufficient as it can be bypassed. Backend/Repository layer must enforce data integrity and security constraints.
+**Prevention:** Implement strict input validation (e.g., regex for email, protocol check for URLs) in the repository `save` methods before executing database queries.

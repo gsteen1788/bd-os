@@ -1,4 +1,4 @@
-import { sanitizeInput, validateInput, MAX_INPUT_LENGTH } from "./security";
+import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, validateEmail, validateWebUrl } from "./security";
 
 console.log("🛡️ Running Security Verification...");
 
@@ -53,7 +53,76 @@ try {
 
 if (validatePassed) console.log("✅ All validateInput tests passed.");
 
-if (sanitizePassed && validatePassed) {
+// Test validateEmail
+console.log("\n🧪 Testing validateEmail...");
+let emailPassed = true;
+
+const emailTestCases = [
+    { input: "user@example.com", valid: true },
+    { input: "user.name@sub.domain.co.uk", valid: true },
+    { input: null, valid: true },
+    { input: undefined, valid: true },
+    { input: "invalid-email", valid: false },
+    { input: "user@domain", valid: false }, // Missing TLD
+    { input: "@domain.com", valid: false },
+];
+
+emailTestCases.forEach(({ input, valid }) => {
+    try {
+        validateEmail(input);
+        if (!valid) {
+            console.error(`❌ validateEmail failed: accepted invalid email "${input}"`);
+            emailPassed = false;
+        } else {
+            console.log(`✅ validateEmail passed for "${input}"`);
+        }
+    } catch (e) {
+        if (valid) {
+            console.error(`❌ validateEmail failed: rejected valid email "${input}"`);
+            emailPassed = false;
+        } else {
+            console.log(`✅ validateEmail correctly rejected "${input}"`);
+        }
+    }
+});
+if (emailPassed) console.log("✅ All validateEmail tests passed.");
+
+
+// Test validateWebUrl
+console.log("\n🧪 Testing validateWebUrl...");
+let urlPassed = true;
+
+const urlTestCases = [
+    { input: "https://example.com", valid: true },
+    { input: "http://localhost:3000", valid: true },
+    { input: null, valid: true },
+    { input: undefined, valid: true },
+    { input: "ftp://example.com", valid: false },
+    { input: "javascript:alert(1)", valid: false },
+    { input: "not-a-url", valid: false },
+];
+
+urlTestCases.forEach(({ input, valid }) => {
+    try {
+        validateWebUrl(input);
+        if (!valid) {
+            console.error(`❌ validateWebUrl failed: accepted invalid URL "${input}"`);
+            urlPassed = false;
+        } else {
+            console.log(`✅ validateWebUrl passed for "${input}"`);
+        }
+    } catch (e) {
+        if (valid) {
+            console.error(`❌ validateWebUrl failed: rejected valid URL "${input}"`);
+            urlPassed = false;
+        } else {
+            console.log(`✅ validateWebUrl correctly rejected "${input}"`);
+        }
+    }
+});
+if (urlPassed) console.log("✅ All validateWebUrl tests passed.");
+
+if (sanitizePassed && validatePassed && emailPassed && urlPassed) {
     console.log("\n🎉 Security Verification Successful!");
 } else {
     console.error("\n💥 Security Verification Failed!");
