@@ -8,6 +8,7 @@ export interface Repository<T> {
 
 export interface OrganizationRepository extends Repository<Organization> {
     findAll(): Promise<Organization[]>;
+    findAllSummaries(): Promise<Organization[]>;
     search(query: string): Promise<Organization[]>;
 }
 
