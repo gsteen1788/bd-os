@@ -27,3 +27,8 @@
 **Vulnerability:** Repositories were persisting user input (emails, URLs) without validation, allowing invalid data formats and potential injection vectors (e.g., `javascript:` URLs).
 **Learning:** Relying solely on frontend validation is insufficient as it can be bypassed. Backend/Repository layer must enforce data integrity and security constraints.
 **Prevention:** Implement strict input validation (e.g., regex for email, protocol check for URLs) in the repository `save` methods before executing database queries.
+
+## 2026-10-27 - Unrestricted Input Length (DoS Risk)
+**Vulnerability:** Text fields (Task descriptions, Meeting notes) were accepted without length limits in repositories, allowing potentially massive payloads (10MB+) to be saved to the database.
+**Learning:** Developers often assume frontend limits are sufficient or that local databases don't need DoS protection, but this leaves the application vulnerable to resource exhaustion and AI service failures (context window overflow).
+**Prevention:** Enforce strict maximum length limits in the Repository layer (e.g., `validateInput(..., MAX_TEXT_LENGTH)`) for all user-generated content before persistence.

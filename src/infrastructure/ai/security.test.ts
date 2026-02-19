@@ -51,6 +51,21 @@ try {
     }
 }
 
+// Custom maxLength
+try {
+    const customLimit = 10;
+    validateInput("12345678901", "Custom Length Test", customLimit);
+    console.error("❌ validateInput failed to throw for custom oversized input");
+    validatePassed = false;
+} catch (e: any) {
+    if (e.message.includes("exceeds maximum allowed length of 10")) {
+        console.log("✅ validateInput correctly handled custom maxLength");
+    } else {
+        console.error(`❌ validateInput threw wrong error for custom length: ${e.message}`);
+        validatePassed = false;
+    }
+}
+
 if (validatePassed) console.log("✅ All validateInput tests passed.");
 
 // Test validateEmail

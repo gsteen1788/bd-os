@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -229,6 +229,12 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async save(entity: Opportunity): Promise<void> {
+        validateInput(entity.name, "Name");
+        validateInput(entity.nextStepText, "Next Step");
+        if (entity.descriptionMd) validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        if (entity.primarySponsor) validateInput(entity.primarySponsor, "Primary Sponsor");
+        if (entity.obstacle) validateInput(entity.obstacle, "Obstacle");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
@@ -274,6 +280,10 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     protected tableName = "meetings";
 
     async save(entity: Meeting): Promise<void> {
+        validateInput(entity.title, "Title");
+        if (entity.location) validateInput(entity.location, "Location");
+        if (entity.notesMd) validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO meetings (id, title, start_at, end_at, location, status, organization_id, related_opportunity_id, related_protemoi_id, notes_md, created_at, updated_at) 
@@ -372,6 +382,8 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
     }
 
     async save(entity: ProtemoiEntry): Promise<void> {
+        validateInput(entity.nextStepText, "Next Step");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO protemoi_entries (id, contact_id, organization_id, protemoi_type, relationship_stage, next_step_text, next_step_due_date, last_touch_date, next_touch_date, importance_score, is_internal, created_at, updated_at)
@@ -466,6 +478,12 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async save(entity: Task): Promise<void> {
+        validateInput(entity.title, "Title");
+        if (entity.descriptionMd) validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        if (entity.bigImpactDescription) validateInput(entity.bigImpactDescription, "Big Impact Description");
+        if (entity.inControlDescription) validateInput(entity.inControlDescription, "In Control Description");
+        if (entity.growthOrientedDescription) validateInput(entity.growthOrientedDescription, "Growth Oriented Description");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO tasks (
