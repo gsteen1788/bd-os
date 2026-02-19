@@ -566,6 +566,19 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         );
         return rows.map(r => this.mapRow(r));
     }
+
+    async findHistoryStatsInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT
+                id, title, status, type, tag, duration_minutes, week_review_id, updated_at, created_at
+             FROM tasks
+             WHERE status = 'DONE' AND updated_at >= $1 AND updated_at <= $2
+             ORDER BY updated_at DESC`,
+            [fromDate, toDate]
+        );
+        return rows.map(r => this.mapRow(r));
+    }
 }
 
 export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> implements TrackerGoalRepository {

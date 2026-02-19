@@ -39,7 +39,7 @@ export function Tracker() {
             rangeEnd.setDate(rangeEnd.getDate() + 7); // Buffer to ensure we cover the end week
 
             const [allTasks, allGoals] = await Promise.all([
-                taskRepository.findHistoryInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
+                taskRepository.findHistoryStatsInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
                 trackerGoalRepository.findAll()
             ]);
 

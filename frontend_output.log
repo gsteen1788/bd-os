@@ -1,0 +1,10 @@
+
+> bd-os@0.0.0 dev
+> vite --port 1420
+
+
+  VITE v5.4.21  ready in 289 ms
+
+  ➜  Local:   http://localhost:1420/
+  ➜  Network: use --host to expose
+2:22:37 AM [vite] page reload .jules/bolt.md

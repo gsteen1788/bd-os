@@ -46,6 +46,7 @@ export interface TaskRepository extends Repository<Task> {
     findHistory(limit: number): Promise<Task[]>;
     findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]>;
     findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]>;
+    findHistoryStatsInRange(fromDate: string, toDate: string): Promise<Task[]>;
 }
 
 export interface WeekReviewRepository extends Repository<WeekReview> {

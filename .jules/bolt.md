@@ -15,3 +15,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 **Learning:** When optimizing list views by fetching only summary data (e.g., `findAllSummaries` excluding large text fields), always verify the **edit/save** flow.
 If the UI uses the summary object to populate an edit form, saving it back might overwrite the missing fields (like `notesMd`) with `null` or `undefined`.
 **Action:** Always fetch the full entity by ID before applying updates in the save handler, or ensure the backend `save` method performs a partial update (which `tauri-sql` repositories here do NOT support; they do full UPSERT).
+
+## 2026-02-19 - [Partial Entity Loading for Stats]
+**Learning:** `Tracker` view was loading all historical tasks with `SELECT *` including large `descriptionMd` fields just to calculate stats (count/duration). This is inefficient for long histories.
+**Action:** Implement specialized methods like `findHistoryStatsInRange` that strictly select only the necessary columns (e.g., `id`, `status`, `duration_minutes`) to minimize data transfer and memory usage.

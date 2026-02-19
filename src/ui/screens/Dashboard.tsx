@@ -46,7 +46,7 @@ export function Dashboard() {
             const [opps, protemoi, contacts] = await Promise.all([
                 opportunityRepository.findAll(),
                 protemoiRepository.findAll(),
-                contactRepository.findAll()
+                contactRepository.findAllSummaries()
             ]);
 
             setOpportunities(opps);

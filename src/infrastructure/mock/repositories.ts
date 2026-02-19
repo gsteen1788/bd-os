@@ -153,6 +153,19 @@ export class MockTaskRepository extends MockRepository<Task> implements TaskRepo
             .filter(t => t.status === 'DONE' && t.updatedAt >= fromDate && t.updatedAt <= toDate)
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     }
+
+    async findHistoryStatsInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        return this.items
+            .filter(t => t.status === 'DONE' && t.updatedAt >= fromDate && t.updatedAt <= toDate)
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .map(t => ({
+                ...t,
+                descriptionMd: undefined,
+                bigImpactDescription: undefined,
+                inControlDescription: undefined,
+                growthOrientedDescription: undefined
+            }));
+    }
 }
 
 export class MockTrackerGoalRepository extends MockRepository<TrackerGoal> implements TrackerGoalRepository {
