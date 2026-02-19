@@ -9,3 +9,7 @@
 ## 2024-05-24 - Discoverability of Primary Actions
 **Learning:** `opacity-0` cleaner UI sacrifices discoverability on touch devices and for users who don't explore with hover.
 **Action:** Prefer `opacity-40` (or similar low opacity) for persistent actions, ensuring they are visible but subtle, and always include `focus-visible` styles for keyboard navigation.
+
+## 2024-05-25 - Clickable Card Pattern
+**Learning:** Clickable cards implemented as `div` with `onClick` lack keyboard accessibility and semantic meaning.
+**Action:** Use the "Stretched Link" pattern: make the primary action (e.g., Title) a semantic link/button with `::after` pseudo-element covering the card, and use `z-index` to elevate secondary actions.
