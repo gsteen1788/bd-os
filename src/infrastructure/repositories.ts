@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -229,6 +229,10 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async save(entity: Opportunity): Promise<void> {
+        // Security validation
+        validateInput(entity.name, "Opportunity Name", MAX_INPUT_LENGTH);
+        validateInput(entity.descriptionMd, "Opportunity Description", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
@@ -274,6 +278,10 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     protected tableName = "meetings";
 
     async save(entity: Meeting): Promise<void> {
+        // Security validation
+        validateInput(entity.title, "Meeting Title", MAX_INPUT_LENGTH);
+        validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO meetings (id, title, start_at, end_at, location, status, organization_id, related_opportunity_id, related_protemoi_id, notes_md, created_at, updated_at) 
@@ -466,6 +474,10 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async save(entity: Task): Promise<void> {
+        // Security validation
+        validateInput(entity.title, "Task Title", MAX_INPUT_LENGTH);
+        validateInput(entity.descriptionMd, "Task Description", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO tasks (

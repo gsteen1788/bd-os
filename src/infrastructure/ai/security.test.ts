@@ -51,6 +51,29 @@ try {
     }
 }
 
+// Test custom max length
+const customMaxString = "abc";
+try {
+    validateInput(customMaxString, "Custom Max Test", 2); // Limit is 2, string is 3
+    console.error("❌ validateInput failed to throw for custom max length violation");
+    validatePassed = false;
+} catch (e: any) {
+    if (e.message.includes("exceeds maximum allowed length of 2")) {
+        console.log("✅ validateInput correctly threw error for custom max length violation");
+    } else {
+        console.error(`❌ validateInput threw wrong error for custom max: ${e.message}`);
+        validatePassed = false;
+    }
+}
+
+try {
+    validateInput("ok", "Custom Max Valid", 2);
+    console.log("✅ validateInput passed for valid input with custom max");
+} catch (e) {
+    console.error(`❌ validateInput failed for valid input with custom max: ${e}`);
+    validatePassed = false;
+}
+
 if (validatePassed) console.log("✅ All validateInput tests passed.");
 
 // Test validateEmail

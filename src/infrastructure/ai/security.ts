@@ -5,6 +5,11 @@
 export const MAX_INPUT_LENGTH = 5000;
 
 /**
+ * Maximum allowed length for large text fields (e.g., notes, descriptions) to prevent DoS attacks.
+ */
+export const MAX_TEXT_LENGTH = 50000;
+
+/**
  * Sanitizes input for XML/HTML context to prevent prompt injection.
  * Escapes: & < > " '
  */
@@ -24,12 +29,13 @@ export const sanitizeInput = (input: string): string => {
  *
  * @param input The input string to validate.
  * @param fieldName Optional name of the field for error reporting.
+ * @param maxLength Optional custom max length (defaults to MAX_INPUT_LENGTH).
  */
-export const validateInput = (input: string, fieldName: string = "Input"): void => {
+export const validateInput = (input: string | null | undefined, fieldName: string = "Input", maxLength: number = MAX_INPUT_LENGTH): void => {
     if (!input) return;
 
-    if (input.length > MAX_INPUT_LENGTH) {
-        throw new Error(`${fieldName} exceeds maximum allowed length of ${MAX_INPUT_LENGTH} characters.`);
+    if (input.length > maxLength) {
+        throw new Error(`${fieldName} exceeds maximum allowed length of ${maxLength} characters.`);
     }
 };
 
