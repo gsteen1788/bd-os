@@ -67,6 +67,12 @@ export class MockContactRepository extends MockRepository<Contact> implements Co
 }
 
 export class MockOpportunityRepository extends MockRepository<Opportunity> implements OpportunityRepository {
+    async findAllSummaries(): Promise<Opportunity[]> {
+        return this.items.map(o => ({
+            ...o,
+            descriptionMd: undefined
+        }));
+    }
     async findByOrganizationId(orgId: UUID): Promise<Opportunity[]> {
         return this.items.filter(o => o.organizationId === orgId);
     }

@@ -43,10 +43,11 @@ export function Dashboard() {
 
     const loadContextData = async () => {
         try {
+            // Optimization: Load summaries to avoid fetching large text fields (e.g. descriptionMd, notesMd)
             const [opps, protemoi, contacts] = await Promise.all([
-                opportunityRepository.findAll(),
+                opportunityRepository.findAllSummaries(),
                 protemoiRepository.findAll(),
-                contactRepository.findAll()
+                contactRepository.findAllSummaries()
             ]);
 
             setOpportunities(opps);

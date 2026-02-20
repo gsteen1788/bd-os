@@ -21,6 +21,7 @@ export interface ContactRepository extends Repository<Contact> {
 
 export interface OpportunityRepository extends Repository<Opportunity> {
     findAll(): Promise<Opportunity[]>;
+    findAllSummaries(): Promise<Opportunity[]>;
     findByOrganizationId(orgId: UUID): Promise<Opportunity[]>;
     findAllByStage(stage: string): Promise<Opportunity[]>;
     search(query: string): Promise<Opportunity[]>;
