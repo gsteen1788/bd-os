@@ -46,8 +46,7 @@ export const MitCard = memo(function MitCard({
 
     return (
         <div
-            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 cursor-pointer overflow-hidden relative ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
-            onClick={() => onEdit(mit)}
+            className={`card border border-[hsl(var(--color-border))] hover:border-primary/50 transition-all p-0 flex flex-col gap-0 group hover:shadow-lg hover:shadow-primary/5 overflow-hidden relative focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 ${viewMode === 'HISTORY' ? 'bg-base-300 opacity-80' : 'bg-base-200'}`}
         >
             {/* Card Header */}
             <div className="p-4 pb-2 flex justify-between items-start">
@@ -56,11 +55,8 @@ export const MitCard = memo(function MitCard({
                     {/* Complete/Revert Button */}
                     {viewMode === 'PENDING' ? (
                         <button
-                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-success absolute top-2 right-2"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onComplete(mit);
-                            }}
+                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-success absolute top-2 right-2 z-10"
+                            onClick={() => onComplete(mit)}
                             title="Mark as Complete"
                             aria-label="Mark as Complete"
                         >
@@ -68,11 +64,8 @@ export const MitCard = memo(function MitCard({
                         </button>
                     ) : (
                         <button
-                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-warning absolute top-2 right-2"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRevert(mit);
-                            }}
+                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 transition-opacity text-warning absolute top-2 right-2 z-10"
+                            onClick={() => onRevert(mit)}
                             title="Revert to Pending"
                             aria-label="Revert to Pending"
                         >
@@ -80,7 +73,7 @@ export const MitCard = memo(function MitCard({
                         </button>
                     )}
 
-                    <div className="flex gap-2 mr-8">
+                    <div className="flex gap-2 mr-8 relative z-10">
                         <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.bigImpactDescription || 'Big Impact'}
@@ -113,11 +106,8 @@ export const MitCard = memo(function MitCard({
             <div className="px-4 pb-4">
                 <h3>
                     <button
-                        className={`text-lg font-bold leading-tight text-left w-full group-hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded px-1 -ml-1 ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(mit);
-                        }}
+                        className={`text-lg font-bold leading-tight text-left w-full group-hover:text-primary transition-colors focus:outline-none px-1 -ml-1 after:absolute after:inset-0 after:z-0 after:content-[''] ${viewMode === 'HISTORY' ? 'line-through text-muted' : ''}`}
+                        onClick={() => onEdit(mit)}
                         aria-label={`Edit task: ${mit.title}`}
                     >
                         {mit.title}
