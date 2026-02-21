@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -36,6 +36,10 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
 
     async save(entity: Organization): Promise<void> {
         // Security validation
+        validateInput(entity.name, "Name");
+        validateInput(entity.industry, "Industry");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+
         if (entity.logoUrl && entity.logoUrl.startsWith("http")) {
             validateWebUrl(entity.logoUrl);
         }
@@ -144,6 +148,23 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         // Security validation
         validateEmail(entity.email);
         validateWebUrl(entity.linkedinUrl);
+        validateInput(entity.firstName, "First Name");
+        validateInput(entity.lastName, "Last Name");
+        validateInput(entity.displayName, "Display Name");
+        validateInput(entity.title, "Title");
+        validateInput(entity.phone, "Phone");
+        validateInput(entity.location, "Location");
+        validateInput(entity.maritalStatus, "Marital Status");
+        validateInput(entity.children, "Children");
+
+        // Large text fields
+        validateInput(entity.hobbiesInterests, "Hobbies/Interests", MAX_TEXT_LENGTH);
+        validateInput(entity.currentFocus, "Current Focus", MAX_TEXT_LENGTH);
+        validateInput(entity.storiesAnecdotes, "Stories/Anecdotes", MAX_TEXT_LENGTH);
+        validateInput(entity.careerHistory, "Career History", MAX_TEXT_LENGTH);
+        validateInput(entity.education, "Education", MAX_TEXT_LENGTH);
+        validateInput(entity.other, "Other", MAX_TEXT_LENGTH);
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
 
         const db = await this.getDb();
         console.log("Saving contact ID:", entity.id);
@@ -229,6 +250,13 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async save(entity: Opportunity): Promise<void> {
+        // Security Validation
+        validateInput(entity.name, "Name");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+        validateInput(entity.obstacle, "Obstacle", MAX_TEXT_LENGTH);
+        validateInput(entity.primarySponsor, "Primary Sponsor");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
@@ -274,6 +302,11 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     protected tableName = "meetings";
 
     async save(entity: Meeting): Promise<void> {
+        // Security Validation
+        validateInput(entity.title, "Title");
+        validateInput(entity.location, "Location");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO meetings (id, title, start_at, end_at, location, status, organization_id, related_opportunity_id, related_protemoi_id, notes_md, created_at, updated_at) 
@@ -372,6 +405,9 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
     }
 
     async save(entity: ProtemoiEntry): Promise<void> {
+        // Security Validation
+        validateInput(entity.nextStepText, "Next Step");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO protemoi_entries (id, contact_id, organization_id, protemoi_type, relationship_stage, next_step_text, next_step_due_date, last_touch_date, next_touch_date, importance_score, is_internal, created_at, updated_at)
@@ -466,6 +502,13 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async save(entity: Task): Promise<void> {
+        // Security Validation
+        validateInput(entity.title, "Title");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH);
+        validateInput(entity.inControlDescription, "In Control", MAX_TEXT_LENGTH);
+        validateInput(entity.growthOrientedDescription, "Growth Oriented", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO tasks (
@@ -617,6 +660,9 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
     }
 
     async save(entity: WeekReview): Promise<void> {
+        // Security Validation
+        validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO week_reviews (id, week_start_date, week_end_date, reflection_md, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)
@@ -649,4 +695,3 @@ export const protemoiRepository = isTauri ? new SqliteProtemoiRepository() : moc
 export const taskRepository = isTauri ? new SqliteTaskRepository() : (mockRepos as any).taskRepository || new SqliteTaskRepository(); // Fallback if mock task repo missing
 export const trackerGoalRepository = isTauri ? new SqliteTrackerGoalRepository() : (mockRepos as any).trackerGoalRepository || new SqliteTrackerGoalRepository();
 export const weekReviewRepository = isTauri ? new SqliteWeekReviewRepository() : (mockRepos as any).weekReviewRepository || new SqliteWeekReviewRepository();
-

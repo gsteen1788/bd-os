@@ -4,6 +4,7 @@ import {
 } from "../../application/interfaces";
 import { Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview } from "../../domain/entities";
 import { mockOrganizations, mockContacts, mockOpportunities, mockMeetings } from "./data";
+import { validateInput, MAX_TEXT_LENGTH } from "../ai/security";
 
 class MockRepository<T extends { id: UUID }> implements Repository<T> {
     constructor(protected items: T[]) { }
@@ -31,6 +32,12 @@ class MockRepository<T extends { id: UUID }> implements Repository<T> {
 }
 
 export class MockOrganizationRepository extends MockRepository<Organization> implements OrganizationRepository {
+    async save(entity: Organization): Promise<void> {
+        validateInput(entity.name, "Name");
+        validateInput(entity.industry, "Industry");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+        await super.save(entity);
+    }
     async findAll(): Promise<Organization[]> {
         return [...this.items];
     }
@@ -46,6 +53,25 @@ export class MockOrganizationRepository extends MockRepository<Organization> imp
 }
 
 export class MockContactRepository extends MockRepository<Contact> implements ContactRepository {
+    async save(entity: Contact): Promise<void> {
+        validateInput(entity.firstName, "First Name");
+        validateInput(entity.lastName, "Last Name");
+        validateInput(entity.displayName, "Display Name");
+        validateInput(entity.title, "Title");
+        validateInput(entity.phone, "Phone");
+        validateInput(entity.location, "Location");
+        validateInput(entity.maritalStatus, "Marital Status");
+        validateInput(entity.children, "Children");
+
+        validateInput(entity.hobbiesInterests, "Hobbies/Interests", MAX_TEXT_LENGTH);
+        validateInput(entity.currentFocus, "Current Focus", MAX_TEXT_LENGTH);
+        validateInput(entity.storiesAnecdotes, "Stories/Anecdotes", MAX_TEXT_LENGTH);
+        validateInput(entity.careerHistory, "Career History", MAX_TEXT_LENGTH);
+        validateInput(entity.education, "Education", MAX_TEXT_LENGTH);
+        validateInput(entity.other, "Other", MAX_TEXT_LENGTH);
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+        await super.save(entity);
+    }
     async findByOrganizationId(orgId: UUID): Promise<Contact[]> {
         return this.items.filter(c => c.organizationId === orgId);
     }
@@ -67,6 +93,14 @@ export class MockContactRepository extends MockRepository<Contact> implements Co
 }
 
 export class MockOpportunityRepository extends MockRepository<Opportunity> implements OpportunityRepository {
+    async save(entity: Opportunity): Promise<void> {
+        validateInput(entity.name, "Name");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+        validateInput(entity.obstacle, "Obstacle", MAX_TEXT_LENGTH);
+        validateInput(entity.primarySponsor, "Primary Sponsor");
+        await super.save(entity);
+    }
     async findByOrganizationId(orgId: UUID): Promise<Opportunity[]> {
         return this.items.filter(o => o.organizationId === orgId);
     }
@@ -82,6 +116,12 @@ export class MockOpportunityRepository extends MockRepository<Opportunity> imple
 }
 
 export class MockMeetingRepository extends MockRepository<Meeting> implements MeetingRepository {
+    async save(entity: Meeting): Promise<void> {
+        validateInput(entity.title, "Title");
+        validateInput(entity.location, "Location");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+        await super.save(entity);
+    }
     async findByOpportunityId(oppId: UUID): Promise<Meeting[]> {
         return this.items.filter(m => m.relatedOpportunityId === oppId);
     }
@@ -118,10 +158,11 @@ export class MockProtemoiRepository implements ProtemoiRepository {
     async findByContactId(contactId: UUID): Promise<ProtemoiEntry | null> {
         return this.items.find(p => p.contactId === contactId) || null;
     }
-    async save(entry: ProtemoiEntry): Promise<void> {
-        const index = this.items.findIndex(p => p.id === entry.id);
-        if (index >= 0) this.items[index] = entry;
-        else this.items.push(entry);
+    async save(entity: ProtemoiEntry): Promise<void> {
+        validateInput(entity.nextStepText, "Next Step");
+        const index = this.items.findIndex(p => p.id === entity.id);
+        if (index >= 0) this.items[index] = entity;
+        else this.items.push(entity);
     }
     async findAll(): Promise<ProtemoiEntry[]> {
         return [...this.items];
@@ -133,6 +174,14 @@ export class MockProtemoiRepository implements ProtemoiRepository {
 }
 
 export class MockTaskRepository extends MockRepository<Task> implements TaskRepository {
+    async save(entity: Task): Promise<void> {
+        validateInput(entity.title, "Title");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH);
+        validateInput(entity.inControlDescription, "In Control", MAX_TEXT_LENGTH);
+        validateInput(entity.growthOrientedDescription, "Growth Oriented", MAX_TEXT_LENGTH);
+        await super.save(entity);
+    }
     async findPending(): Promise<Task[]> {
         return this.items.filter(t => t.status !== 'DONE' && t.status !== 'CANCELED');
     }
@@ -161,6 +210,10 @@ export class MockTrackerGoalRepository extends MockRepository<TrackerGoal> imple
 }
 
 export class MockWeekReviewRepository extends MockRepository<WeekReview> implements WeekReviewRepository {
+    async save(entity: WeekReview): Promise<void> {
+        validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
+        await super.save(entity);
+    }
     async findLatest(): Promise<WeekReview | null> { return null; }
 }
 
