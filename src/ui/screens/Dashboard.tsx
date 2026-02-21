@@ -29,6 +29,9 @@ export function Dashboard() {
     const [showCompletionModal, setShowCompletionModal] = useState(false);
     const [completionTask, setCompletionTask] = useState<Task | undefined>(undefined);
 
+    // Optimization: Memoize grouped history to avoid expensive date operations on every render
+    const groupedMits = useMemo(() => groupItemsByWeek(mits, 'updatedAt'), [mits]);
+
     // Optimization: Pre-compute lookups to avoid O(N*M) scans in child components
     const oppsMap = useMemo(() => new Map(opportunities.map(o => [o.id, o])), [opportunities]);
     const relsMap = useMemo(() => new Map(relationships.map(r => [r.entry.id, r])), [relationships]);
@@ -282,30 +285,27 @@ export function Dashboard() {
                     <div className="grid-mit-cards p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
                         {viewMode === 'HISTORY' ? (
                             // History View - Grouped
-                            (() => {
-                                const groups = groupItemsByWeek(mits, 'updatedAt');
-                                return Object.keys(groups).map(weekLabel => (
-                                    <div key={weekLabel} className="col-span-full mb-2">
-                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
-                                            {weekLabel}
-                                        </h3>
-                                        <div className="grid-mit-cards">
-                                            {groups[weekLabel].map(mit => (
-                                                <MitCard
-                                                    key={mit.id}
-                                                    mit={mit}
-                                                    viewMode={viewMode}
-                                                    opportunitiesMap={oppsMap}
-                                                    relationshipsMap={relsMap}
-                                                    onEdit={handleEdit}
-                                                    onComplete={handleCompleteMIT}
-                                                    onRevert={handleUncompleteMIT}
-                                                />
-                                            ))}
-                                        </div>
+                            Object.keys(groupedMits).map(weekLabel => (
+                                <div key={weekLabel} className="col-span-full mb-2">
+                                    <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-[hsl(var(--color-border))] pb-1">
+                                        {weekLabel}
+                                    </h3>
+                                    <div className="grid-mit-cards">
+                                        {groupedMits[weekLabel].map(mit => (
+                                            <MitCard
+                                                key={mit.id}
+                                                mit={mit}
+                                                viewMode={viewMode}
+                                                opportunitiesMap={oppsMap}
+                                                relationshipsMap={relsMap}
+                                                onEdit={handleEdit}
+                                                onComplete={handleCompleteMIT}
+                                                onRevert={handleUncompleteMIT}
+                                            />
+                                        ))}
                                     </div>
-                                ));
-                            })()
+                                </div>
+                            ))
                         ) : (
                             // Pending View - Flat
                             mits.map(mit => (
