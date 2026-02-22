@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -36,6 +36,9 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
 
     async save(entity: Organization): Promise<void> {
         // Security validation
+        validateInput(entity.name, "Organization Name");
+        validateInput(entity.industry, "Industry");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
         if (entity.logoUrl && entity.logoUrl.startsWith("http")) {
             validateWebUrl(entity.logoUrl);
         }
@@ -142,6 +145,14 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
 
     async save(entity: Contact): Promise<void> {
         // Security validation
+        validateInput(entity.firstName, "First Name");
+        validateInput(entity.lastName, "Last Name");
+        validateInput(entity.displayName, "Display Name");
+        validateInput(entity.title, "Title");
+        validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
+        validateInput(entity.storiesAnecdotes, "Stories & Anecdotes", MAX_TEXT_LENGTH);
+        validateInput(entity.careerHistory, "Career History", MAX_TEXT_LENGTH);
+        validateInput(entity.hobbiesInterests, "Hobbies & Interests", MAX_TEXT_LENGTH);
         validateEmail(entity.email);
         validateWebUrl(entity.linkedinUrl);
 
@@ -237,6 +248,11 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async save(entity: Opportunity): Promise<void> {
+        // Security validation
+        validateInput(entity.name, "Opportunity Name");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
@@ -282,6 +298,11 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     protected tableName = "meetings";
 
     async save(entity: Meeting): Promise<void> {
+        // Security validation
+        validateInput(entity.title, "Meeting Title");
+        validateInput(entity.location, "Location");
+        validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO meetings (id, title, start_at, end_at, location, status, organization_id, related_opportunity_id, related_protemoi_id, notes_md, created_at, updated_at) 
@@ -474,6 +495,10 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async save(entity: Task): Promise<void> {
+        // Security validation
+        validateInput(entity.title, "Task Title");
+        validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO tasks (
