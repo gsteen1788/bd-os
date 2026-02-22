@@ -228,6 +228,14 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         return rows.map(r => this.mapRow(r));
     }
 
+    async findAllSummaries(): Promise<Opportunity[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            "SELECT id, name, organization_id, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at FROM opportunities ORDER BY updated_at DESC"
+        );
+        return rows.map(r => this.mapRow(r));
+    }
+
     async save(entity: Opportunity): Promise<void> {
         const db = await this.getDb();
         await db.execute(

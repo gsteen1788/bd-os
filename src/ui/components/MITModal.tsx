@@ -77,11 +77,11 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
     const loadCandidates = async () => {
         try {
-            const opps = await opportunityRepository.findAll();
+            const opps = await opportunityRepository.findAllSummaries();
             setOpportunities(opps);
 
             const protemoi = await protemoiRepository.findAll();
-            const contacts = await contactRepository.findAll();
+            const contacts = await contactRepository.findAllSummaries();
 
             // Join relationship with contact/org name
             const rels = protemoi.map(p => {
