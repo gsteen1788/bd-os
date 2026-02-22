@@ -9,3 +9,7 @@
 ## 2026-02-07 - Complex Card Accessibility
 **Learning:** Wrapping a complex card with `role="button"` creates invalid ARIA structures when it contains nested interactive elements.
 **Action:** Use a semantic `<h3><button>...</button></h3>` for the card title to serve as the primary keyboard action, while keeping the outer container click handler for mouse users.
+
+## 2026-02-08 - Stretched Link Pattern for Cards
+**Learning:** Using `onClick` on a container `div` creates poor accessibility. The "Stretched Link" pattern (using `::after` on the primary action to cover the container) is a robust solution that preserves semantic structure while maintaining a large click target.
+**Action:** When implementing clickable cards, remove container click handlers. Use `after:absolute after:inset-0` on the primary link/button, and ensure secondary interactive elements have `relative z-10`.
