@@ -1,4 +1,4 @@
-import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, validateEmail, validateWebUrl } from "./security";
+import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH, validateEmail, validateWebUrl } from "./security";
 
 console.log("🛡️ Running Security Verification...");
 
@@ -36,7 +36,7 @@ try {
     validatePassed = false;
 }
 
-// Invalid input (too long)
+// Invalid input (too long - default limit)
 const longString = "a".repeat(MAX_INPUT_LENGTH + 1);
 try {
     validateInput(longString, "Long Test");
@@ -50,6 +50,40 @@ try {
         validatePassed = false;
     }
 }
+
+// Test validateInput with custom length
+console.log("\n🧪 Testing validateInput with custom length...");
+try {
+    validateInput("abc", "Short", 5);
+    console.log("✅ validateInput passed for input within custom limit");
+} catch (e) {
+    console.error(`❌ validateInput threw unexpected error for valid input within custom limit: ${e}`);
+    validatePassed = false;
+}
+
+try {
+    validateInput("abcdef", "Short", 5);
+    console.error("❌ validateInput failed to throw for input exceeding custom limit");
+    validatePassed = false;
+} catch (e: any) {
+    if (e.message.includes("exceeds maximum allowed length")) {
+        console.log("✅ validateInput correctly threw error for input exceeding custom limit");
+    } else {
+        console.error(`❌ validateInput threw wrong error: ${e.message}`);
+        validatePassed = false;
+    }
+}
+
+// Test MAX_TEXT_LENGTH
+const longText = "a".repeat(MAX_TEXT_LENGTH + 1);
+try {
+    validateInput(longText, "Large Text", MAX_TEXT_LENGTH);
+    console.error("❌ validateInput failed to throw for MAX_TEXT_LENGTH exceeded");
+    validatePassed = false;
+} catch (e: any) {
+    console.log("✅ validateInput correctly threw error for MAX_TEXT_LENGTH exceeded");
+}
+
 
 if (validatePassed) console.log("✅ All validateInput tests passed.");
 

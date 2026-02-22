@@ -27,3 +27,8 @@
 **Vulnerability:** Repositories were persisting user input (emails, URLs) without validation, allowing invalid data formats and potential injection vectors (e.g., `javascript:` URLs).
 **Learning:** Relying solely on frontend validation is insufficient as it can be bypassed. Backend/Repository layer must enforce data integrity and security constraints.
 **Prevention:** Implement strict input validation (e.g., regex for email, protocol check for URLs) in the repository `save` methods before executing database queries.
+
+## 2026-06-02 - Missing Input Length Validation (DoS Risk)
+**Vulnerability:** Repositories allowed unlimited string length for text fields (e.g., `notesMd`, `descriptionMd`), enabling potential Denial of Service (DoS) attacks via memory exhaustion or database bloat.
+**Learning:** Default validation often overlooks maximum length constraints, assuming "reasonable" user behavior. Attackers can exploit this by sending massive payloads.
+**Prevention:** Enforce strict maximum length limits (e.g., 50k chars for large text) in the repository layer using `validateInput` with a `maxLength` parameter before database insertion.
