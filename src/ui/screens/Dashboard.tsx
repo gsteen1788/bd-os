@@ -44,9 +44,9 @@ export function Dashboard() {
     const loadContextData = async () => {
         try {
             const [opps, protemoi, contacts] = await Promise.all([
-                opportunityRepository.findAll(),
+                opportunityRepository.findAllSummaries(),
                 protemoiRepository.findAll(),
-                contactRepository.findAll()
+                contactRepository.findAllSummaries()
             ]);
 
             setOpportunities(opps);
