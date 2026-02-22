@@ -70,6 +70,9 @@ export function MeetingPrep() {
         contactRepository.findAll().then(setAllContacts);
     }, [viewMode]);
 
+    // Optimization: Memoize grouped history
+    const groupedMeetings = useMemo(() => groupItemsByWeek(meetings, 'startAt'), [meetings]);
+
     // Optimization: Pre-compute lookups
     const oppsMap = useMemo(() => new Map(allOpps.map(o => [o.id, o])), [allOpps]);
     const relsMap = useMemo(() => new Map(allRels.map(r => [r.id, r])), [allRels]);
@@ -458,19 +461,16 @@ export function MeetingPrep() {
                 <div className="p-6 overflow-y-auto flex-1 custom-scrollbar min-h-0">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {viewMode === "HISTORY" ? (
-                            (() => {
-                                const groups = groupItemsByWeek(meetings, 'startAt');
-                                return Object.keys(groups).map(weekLabel => (
-                                    <div key={weekLabel} className="col-span-full">
-                                        <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-white/5 pb-1">
-                                            {weekLabel}
-                                        </h3>
-                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                            {groups[weekLabel].map(m => renderMeetingCard(m))}
-                                        </div>
+                            Object.keys(groupedMeetings).map(weekLabel => (
+                                <div key={weekLabel} className="col-span-full">
+                                    <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3 mt-4 border-b border-white/5 pb-1">
+                                        {weekLabel}
+                                    </h3>
+                                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                        {groupedMeetings[weekLabel].map(m => renderMeetingCard(m))}
                                     </div>
-                                ));
-                            })()
+                                </div>
+                            ))
                         ) : (
                             meetings.map(m => renderMeetingCard(m))
                         )}
