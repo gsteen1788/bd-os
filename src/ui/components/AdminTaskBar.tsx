@@ -234,17 +234,17 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                                 onComplete(task);
                                             }}
                                             title="Mark Complete"
-                                            aria-label="Mark Complete"
+                                            aria-label={`Mark "${task.title}" as complete`}
                                         />
                                     ) : (
                                         <button
-                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-40 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRevert(task);
                                             }}
                                             title="Revert to Pending"
-                                            aria-label="Revert to Pending"
+                                            aria-label={`Revert "${task.title}" to pending`}
                                         >
                                             ↩
                                         </button>
@@ -294,16 +294,16 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                             onKeyDown={handleKeyDown}
                         />
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit" aria-label="Cancel editing">
+                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit" aria-label={`Cancel editing "${editingTask.title}"`}>
                                 ×
                             </button>
                         )}
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task" aria-label="Delete task">
+                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task" aria-label={`Delete task "${editingTask.title}"`}>
                                 🗑️
                             </button>
                         )}
-                        <button className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"} aria-label={editingTask ? "Save changes" : "Create task"}>
+                        <button className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"} aria-label={editingTask ? `Save changes to "${editingTask.title}"` : "Create new task"}>
                             {editingTask ? '✓' : '+'}
                         </button>
                     </div>

@@ -61,7 +61,7 @@ export const MitCard = memo(function MitCard({
                                 onComplete(mit);
                             }}
                             title="Mark as Complete"
-                            aria-label="Mark as Complete"
+                            aria-label={`Mark "${mit.title}" as complete`}
                         >
                             ✓
                         </button>
@@ -73,7 +73,7 @@ export const MitCard = memo(function MitCard({
                                 onRevert(mit);
                             }}
                             title="Revert to Pending"
-                            aria-label="Revert to Pending"
+                            aria-label={`Revert "${mit.title}" to pending`}
                         >
                             ↩
                         </button>

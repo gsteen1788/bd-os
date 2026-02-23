@@ -9,3 +9,7 @@
 ## 2024-05-24 - Discoverability of Primary Actions
 **Learning:** `opacity-0` cleaner UI sacrifices discoverability on touch devices and for users who don't explore with hover.
 **Action:** Prefer `opacity-40` (or similar low opacity) for persistent actions, ensuring they are visible but subtle, and always include `focus-visible` styles for keyboard navigation.
+
+## 2024-05-25 - Context in List Actions
+**Learning:** Repetitive buttons in lists (e.g., "Complete", "Edit") confuse screen reader users without item context.
+**Action:** Always include the item name in `aria-label` for list actions (e.g., `aria-label="Complete ${itemName}"`).
