@@ -15,3 +15,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 **Learning:** When optimizing list views by fetching only summary data (e.g., `findAllSummaries` excluding large text fields), always verify the **edit/save** flow.
 If the UI uses the summary object to populate an edit form, saving it back might overwrite the missing fields (like `notesMd`) with `null` or `undefined`.
 **Action:** Always fetch the full entity by ID before applying updates in the save handler, or ensure the backend `save` method performs a partial update (which `tauri-sql` repositories here do NOT support; they do full UPSERT).
+
+## 2025-02-24 - [Base Repository Mapping Bug]
+**Learning:** The abstract `SqliteRepository` implementation of `findById` was returning raw database rows (snake_case) instead of mapped entities (camelCase), causing silent failures or missing data in the UI for any component relying on `findById`.
+**Action:** Refactored `SqliteRepository` to enforce `protected abstract mapRow(row: any): T;` and updated `findById` to use it. When extending base repositories, always verify that generic methods (like `findById`) properly use the mapping logic defined in subclasses.

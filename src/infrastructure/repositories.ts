@@ -11,6 +11,7 @@ import { DB_NAME } from "./db";
 
 abstract class SqliteRepository<T> implements Repository<T> {
     protected abstract tableName: string;
+    protected abstract mapRow(row: any): T;
 
     protected async getDb(): Promise<Database> {
         return await Database.load(DB_NAME);
@@ -18,8 +19,8 @@ abstract class SqliteRepository<T> implements Repository<T> {
 
     async findById(id: UUID): Promise<T | null> {
         const db = await this.getDb();
-        const result = await db.select<T[]>(`SELECT * FROM ${this.tableName} WHERE id = $1`, [id]);
-        return result[0] || null;
+        const result = await db.select<any[]>(`SELECT * FROM ${this.tableName} WHERE id = $1`, [id]);
+        return result[0] ? this.mapRow(result[0]) : null;
     }
 
     async delete(id: UUID): Promise<void> {
@@ -57,7 +58,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
         );
     }
 
-    private mapRow(row: any): Organization {
+    protected mapRow(row: any): Organization {
         return {
             id: row.id,
             name: row.name,
@@ -96,7 +97,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
 export class SqliteContactRepository extends SqliteRepository<Contact> implements ContactRepository {
     protected tableName = "contacts";
 
-    private mapRow(row: any): Contact {
+    protected mapRow(row: any): Contact {
         return {
             id: row.id,
             organizationId: row.organization_id,
@@ -216,7 +217,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
 export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> implements OpportunityRepository {
     protected tableName = "opportunities";
 
-    private mapRow(row: any): Opportunity {
+    protected mapRow(row: any): Opportunity {
         return {
             id: row.id,
             name: row.name,
@@ -333,7 +334,7 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         return rows.map(r => this.mapRow(r));
     }
 
-    private mapRow(row: any): Meeting {
+    protected mapRow(row: any): Meeting {
         return {
             id: row.id,
             title: row.title,
@@ -382,7 +383,7 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
 export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> implements ProtemoiRepository {
     protected tableName = "protemoi_entries";
 
-    private mapRow(row: any): ProtemoiEntry {
+    protected mapRow(row: any): ProtemoiEntry {
         return {
             id: row.id,
             contactId: row.contact_id,
@@ -437,7 +438,7 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
 export class SqliteTaskRepository extends SqliteRepository<Task> implements TaskRepository {
     protected tableName = "tasks";
 
-    private mapRow(row: any): Task {
+    protected mapRow(row: any): Task {
         return {
             id: row.id,
             title: row.title,
@@ -566,10 +567,43 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         return this.populateLinks(tasks);
     }
 
+    async findPendingSummaries(): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT
+                id, title, status, type, due_date,
+                linked_entity_type, linked_entity_id, week_review_id, tag,
+                big_impact_description, in_control_description, growth_oriented_description, duration_minutes,
+                created_at, updated_at
+             FROM tasks
+             WHERE status != 'DONE' AND status != 'CANCELED'
+             ORDER BY due_date ASC`
+        );
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
+    }
+
     async findHistory(limit: number): Promise<Task[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM tasks WHERE status = 'DONE' ORDER BY updated_at DESC LIMIT $1",
+            [limit]
+        );
+        const tasks = rows.map(r => this.mapRow(r));
+        return this.populateLinks(tasks);
+    }
+
+    async findHistorySummaries(limit: number): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT
+                id, title, status, type, due_date,
+                linked_entity_type, linked_entity_id, week_review_id, tag,
+                big_impact_description, in_control_description, growth_oriented_description, duration_minutes,
+                created_at, updated_at
+             FROM tasks
+             WHERE status = 'DONE'
+             ORDER BY updated_at DESC LIMIT $1`,
             [limit]
         );
         const tasks = rows.map(r => this.mapRow(r));
@@ -604,7 +638,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
 export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> implements TrackerGoalRepository {
     protected tableName = "tracker_goals";
 
-    private mapRow(row: any): TrackerGoal {
+    protected mapRow(row: any): TrackerGoal {
         return {
             id: row.id,
             metric: row.metric,
@@ -638,7 +672,7 @@ export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> i
 export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> implements WeekReviewRepository {
     protected tableName = "week_reviews"; // Ensure this table exists? Wait, user didn't ask for week reviews table, but it's referenced. I should check schema.
 
-    private mapRow(row: any): WeekReview {
+    protected mapRow(row: any): WeekReview {
         return {
             id: row.id,
             weekStartDate: row.week_start_date,
