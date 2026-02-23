@@ -16,6 +16,14 @@ const checks = [
     { pattern: /validateInput\(entity\.notesMd, "Meeting Notes", MAX_TEXT_LENGTH\)/, name: "Meeting Notes" },
     { pattern: /validateInput\(entity\.title, "Task Title"\)/, name: "Task Title" },
     { pattern: /validateInput\(entity\.descriptionMd, "Description", MAX_TEXT_LENGTH\)/, name: "Task Description" },
+    // New checks
+    { pattern: /validateInput\(entity\.nextStepText, "Next Step", MAX_TEXT_LENGTH\)/, name: "Protemoi Next Step" },
+    { pattern: /validateInput\(entity\.relationshipStage, "Relationship Stage"\)/, name: "Protemoi Relationship Stage" },
+    { pattern: /validateInput\(entity\.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH\)/, name: "Task Big Impact" },
+    { pattern: /validateInput\(entity\.inControlDescription, "In Control", MAX_TEXT_LENGTH\)/, name: "Task In Control" },
+    { pattern: /validateInput\(entity\.growthOrientedDescription, "Growth Oriented", MAX_TEXT_LENGTH\)/, name: "Task Growth Oriented" },
+    { pattern: /validateInput\(entity\.metric, "Metric"\)/, name: "Tracker Goal Metric" },
+    { pattern: /validateInput\(entity\.reflectionMd, "Reflection", MAX_TEXT_LENGTH\)/, name: "Week Review Reflection" },
 ];
 
 let passed = true;
