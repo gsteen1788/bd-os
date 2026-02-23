@@ -144,11 +144,19 @@ export class MockTaskRepository extends MockRepository<Task> implements TaskRepo
     async findPending(): Promise<Task[]> {
         return this.items.filter(t => t.status !== 'DONE' && t.status !== 'CANCELED');
     }
+    async findPendingSummaries(): Promise<Task[]> {
+        const tasks = await this.findPending();
+        return tasks.map(t => ({ ...t, descriptionMd: undefined }));
+    }
     async findHistory(limit: number): Promise<Task[]> {
         return this.items
             .filter(t => t.status === 'DONE')
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
             .slice(0, limit);
+    }
+    async findHistorySummaries(limit: number): Promise<Task[]> {
+        const tasks = await this.findHistory(limit);
+        return tasks.map(t => ({ ...t, descriptionMd: undefined }));
     }
     async findByLinkedEntity(type: string, id: string): Promise<Task[]> {
         return this.items.filter(t =>

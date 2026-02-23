@@ -44,7 +44,9 @@ export interface ProtemoiRepository {
 
 export interface TaskRepository extends Repository<Task> {
     findPending(): Promise<Task[]>;
+    findPendingSummaries(): Promise<Task[]>;
     findHistory(limit: number): Promise<Task[]>;
+    findHistorySummaries(limit: number): Promise<Task[]>;
     findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]>;
     findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]>;
 }

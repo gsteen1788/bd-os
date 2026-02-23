@@ -70,8 +70,9 @@ export function Dashboard() {
     const loadTasks = useCallback(async () => {
         try {
             // Optimization: Avoid double fetch when viewMode is HISTORY by reusing the history promise
-            const historyPromise = taskRepository.findHistory(50);
-            const pendingOrHistoryPromise = viewMode === "PENDING" ? taskRepository.findPending() : historyPromise;
+            // Use Summaries to avoid loading large descriptions
+            const historyPromise = taskRepository.findHistorySummaries(50);
+            const pendingOrHistoryPromise = viewMode === "PENDING" ? taskRepository.findPendingSummaries() : historyPromise;
 
             const [tasks, history] = await Promise.all([
                 pendingOrHistoryPromise,
@@ -94,9 +95,18 @@ export function Dashboard() {
         setShowMITModal(true);
     };
 
-    const handleEdit = useCallback((task: Task) => {
-        setEditingMIT(task);
-        setShowMITModal(true);
+    const handleEdit = useCallback(async (task: Task) => {
+        try {
+            // Always fetch full task to ensure description is present (summaries exclude it)
+            const fullTask = await taskRepository.findById(task.id);
+            if (fullTask) {
+                setEditingMIT(fullTask);
+                setShowMITModal(true);
+            }
+        } catch (e) {
+            console.error("Failed to load full task for editing", e);
+            alert("Failed to load task details.");
+        }
     }, []);
 
     const handleCompleteMIT = useCallback(async (task: Task) => {
@@ -168,10 +178,15 @@ export function Dashboard() {
 
     const handleUpdateAdminTask = async (task: Task) => {
         try {
-            await taskRepository.save({
+            // Fetch latest to preserve descriptionMd if missing in 'task' (summary)
+            const existing = await taskRepository.findById(task.id);
+            const taskToSave = {
                 ...task,
+                descriptionMd: existing?.descriptionMd ?? task.descriptionMd,
                 updatedAt: new Date().toISOString()
-            });
+            };
+
+            await taskRepository.save(taskToSave);
             loadTasks();
         } catch (e) {
             console.error("Failed to update Admin Task", e);
