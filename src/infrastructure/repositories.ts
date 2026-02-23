@@ -401,6 +401,10 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
     }
 
     async save(entity: ProtemoiEntry): Promise<void> {
+        // Security validation
+        validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+        validateInput(entity.relationshipStage, "Relationship Stage");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO protemoi_entries (id, contact_id, organization_id, protemoi_type, relationship_stage, next_step_text, next_step_due_date, last_touch_date, next_touch_date, importance_score, is_internal, created_at, updated_at)
@@ -498,6 +502,9 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         // Security validation
         validateInput(entity.title, "Task Title");
         validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
+        validateInput(entity.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH);
+        validateInput(entity.inControlDescription, "In Control", MAX_TEXT_LENGTH);
+        validateInput(entity.growthOrientedDescription, "Growth Oriented", MAX_TEXT_LENGTH);
 
         const db = await this.getDb();
         await db.execute(
@@ -614,6 +621,9 @@ export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> i
     }
 
     async save(entity: TrackerGoal): Promise<void> {
+        // Security validation
+        validateInput(entity.metric, "Metric");
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO tracker_goals (id, metric, target, updated_at) VALUES ($1, $2, $3, $4)
@@ -650,6 +660,9 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
     }
 
     async save(entity: WeekReview): Promise<void> {
+        // Security validation
+        validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
+
         const db = await this.getDb();
         await db.execute(
             `INSERT INTO week_reviews (id, week_start_date, week_end_date, reflection_md, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)
