@@ -13,3 +13,7 @@
 ## 2026-02-08 - Stretched Link Pattern for Cards
 **Learning:** Using `onClick` on a container `div` creates poor accessibility. The "Stretched Link" pattern (using `::after` on the primary action to cover the container) is a robust solution that preserves semantic structure while maintaining a large click target.
 **Action:** When implementing clickable cards, remove container click handlers. Use `after:absolute after:inset-0` on the primary link/button, and ensure secondary interactive elements have `relative z-10`.
+
+## 2026-02-24 - Status Indicator Accessibility
+**Learning:** Purely visual status indicators (like "B", "I", "G" badges) with `title` attributes are inaccessible to keyboard users unless they are focusable.
+**Action:** Always add `tabIndex={0}` and visible focus styles to status badges that convey meaning via tooltips, ensuring keyboard users can discover the information.

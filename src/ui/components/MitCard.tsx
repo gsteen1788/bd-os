@@ -1,6 +1,9 @@
 import { memo } from 'react';
 import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 
+// Performance optimization: Create formatter once
+const dateFormatter = new Intl.DateTimeFormat();
+
 interface MitCardProps {
     mit: Task;
     viewMode: "PENDING" | "HISTORY";
@@ -63,7 +66,7 @@ export const MitCard = memo(function MitCard({
                             title="Mark as Complete"
                             aria-label={`Mark "${mit.title}" as complete`}
                         >
-                            ✓
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                     ) : (
                         <button
@@ -75,32 +78,35 @@ export const MitCard = memo(function MitCard({
                             title="Revert to Pending"
                             aria-label={`Revert "${mit.title}" to pending`}
                         >
-                            ↩
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" /><path d="M3 5v7h7" /></svg>
                         </button>
                     )}
 
                     <div className="relative z-10 flex gap-2 mr-8">
                         <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:rounded-full ${mit.bigImpactDescription ? 'bg-primary/20 text-primary border-primary/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.bigImpactDescription || 'Big Impact'}
                             role="img"
                             aria-label="Big Impact"
+                            tabIndex={0}
                         >
                             B
                         </div>
                         <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.inControlDescription ? 'bg-success/20 text-success border-success/30' : 'bg-base-300 text-muted border-transparent'}`}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:rounded-full ${mit.inControlDescription ? 'bg-success/20 text-success border-success/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.inControlDescription || 'In Control'}
                             role="img"
                             aria-label="In Control"
+                            tabIndex={0}
                         >
                             I
                         </div>
                         <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${mit.growthOrientedDescription ? 'bg-warning/20 text-warning border-warning/30' : 'bg-base-300 text-muted border-transparent'}`}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:rounded-full ${mit.growthOrientedDescription ? 'bg-warning/20 text-warning border-warning/30' : 'bg-base-300 text-muted border-transparent'}`}
                             title={mit.growthOrientedDescription || 'Growth Oriented'}
                             role="img"
                             aria-label="Growth Oriented"
+                            tabIndex={0}
                         >
                             G
                         </div>
@@ -170,7 +176,7 @@ export const MitCard = memo(function MitCard({
                         {mit.durationMinutes && (
                             <span className="badge badge-sm badge-ghost font-mono">{mit.durationMinutes}m</span>
                         )}
-                        <span>Completed: {new Date(mit.updatedAt).toLocaleDateString()}</span>
+                        <span>Completed: {dateFormatter.format(new Date(mit.updatedAt))}</span>
                     </div>
                 )}
             </div>
