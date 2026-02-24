@@ -134,6 +134,18 @@ export class MockProtemoiRepository implements ProtemoiRepository {
     async findAll(): Promise<ProtemoiEntry[]> {
         return [...this.items];
     }
+    async findAllSummaries(): Promise<ProtemoiEntry[]> {
+        return this.items.map(p => ({
+            ...p,
+            nextStepText: undefined as any,
+            relationshipStage: undefined as any,
+            protemoiType: undefined as any,
+            importanceScore: undefined,
+            lastTouchDate: undefined,
+            nextTouchDate: undefined,
+            nextStepDueDate: undefined
+        }));
+    }
     async delete(id: UUID): Promise<void> {
         const index = this.items.findIndex(p => p.id === id);
         if (index >= 0) this.items.splice(index, 1);

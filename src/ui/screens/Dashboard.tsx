@@ -48,7 +48,7 @@ export function Dashboard() {
         try {
             const [opps, protemoi, contacts] = await Promise.all([
                 opportunityRepository.findAllSummaries(),
-                protemoiRepository.findAll(),
+                protemoiRepository.findAllSummaries(),
                 contactRepository.findAllSummaries()
             ]);
 
