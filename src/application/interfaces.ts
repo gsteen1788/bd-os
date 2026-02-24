@@ -40,6 +40,7 @@ export interface ProtemoiRepository {
     save(entry: ProtemoiEntry): Promise<void>;
     delete(id: UUID): Promise<void>;
     findAll(): Promise<ProtemoiEntry[]>;
+    findAllSummaries(): Promise<ProtemoiEntry[]>;
 }
 
 export interface TaskRepository extends Repository<Task> {
