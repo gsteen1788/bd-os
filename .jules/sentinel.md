@@ -32,3 +32,8 @@
 **Vulnerability:** Repositories allowed unlimited string length for text fields (e.g., `notesMd`, `descriptionMd`), enabling potential Denial of Service (DoS) attacks via memory exhaustion or database bloat.
 **Learning:** Default validation often overlooks maximum length constraints, assuming "reasonable" user behavior. Attackers can exploit this by sending massive payloads.
 **Prevention:** Enforce strict maximum length limits (e.g., 50k chars for large text) in the repository layer using `validateInput` with a `maxLength` parameter before database insertion.
+
+## 2026-02-24 - Inconsistent Validation Coverage in Contact Repository
+**Vulnerability:** While major fields like `notesMd` were validated, several secondary fields in `Contact` (`other`, `currentFocus`, `children`, etc.) were completely unvalidated, leaving gaps for DoS attacks.
+**Learning:** Partial security implementation is common; developers often secure the "obvious" fields but forget the less prominent ones. Automated verification scripts must be comprehensive.
+**Prevention:** Audit all entity fields against the repository implementation and ensure the verification script checks for *every* string field, not just a sample.

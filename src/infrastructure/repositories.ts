@@ -154,6 +154,13 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         validateInput(entity.storiesAnecdotes, "Stories & Anecdotes", MAX_TEXT_LENGTH);
         validateInput(entity.careerHistory, "Career History", MAX_TEXT_LENGTH);
         validateInput(entity.hobbiesInterests, "Hobbies & Interests", MAX_TEXT_LENGTH);
+        validateInput(entity.other, "Other", MAX_TEXT_LENGTH);
+        validateInput(entity.currentFocus, "Current Focus", MAX_TEXT_LENGTH);
+        validateInput(entity.children, "Children");
+        validateInput(entity.maritalStatus, "Marital Status");
+        validateInput(entity.education, "Education", MAX_TEXT_LENGTH);
+        validateInput(entity.location, "Location");
+        validateInput(entity.phone, "Phone");
         validateEmail(entity.email);
         validateWebUrl(entity.linkedinUrl);
 
