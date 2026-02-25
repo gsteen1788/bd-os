@@ -33,10 +33,22 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+        >
             <div className="bg-base-100 rounded-xl shadow-2xl w-full max-w-sm border border-[hsl(var(--color-border))] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-4 border-b border-[hsl(var(--color-border))] bg-base-200/50">
-                    <h3 className="text-lg font-bold">Task Completed!</h3>
+                <div className="p-4 border-b border-[hsl(var(--color-border))] bg-base-200/50 flex justify-between items-center">
+                    <h3 id="modal-title" className="text-lg font-bold">Task Completed!</h3>
+                    <button
+                        onClick={onClose}
+                        className="btn btn-sm btn-ghost btn-circle text-muted hover:text-main"
+                        aria-label="Close modal"
+                    >
+                        ✕
+                    </button>
                 </div>
 
                 <div className="p-6 flex flex-col gap-4">
@@ -59,6 +71,21 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
                                 if (e.key === 'Enter') handleSubmit();
                             }}
                         />
+                        <div className="flex flex-wrap gap-2 justify-center mt-3">
+                            {[15, 30, 45, 60].map((mins) => (
+                                <button
+                                    key={mins}
+                                    className="btn btn-xs btn-outline hover:btn-primary transition-colors"
+                                    onClick={() => {
+                                        setDuration(mins.toString());
+                                        inputRef.current?.focus();
+                                    }}
+                                    aria-label={`Set duration to ${mins} minutes`}
+                                >
+                                    {mins}m
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
