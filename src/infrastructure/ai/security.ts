@@ -37,6 +37,14 @@ export const validateInput = (input: string | null | undefined, fieldName: strin
     if (input.length > maxLength) {
         throw new Error(`${fieldName} exceeds maximum allowed length of ${maxLength} characters.`);
     }
+
+    // Check for dangerous control characters (excluding Tab, LF, CR)
+    // Range: 0-8, 11-12, 14-31, 127
+    // \x00-\x08\x0B\x0C\x0E-\x1F\x7F
+    const controlCharsRegex = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
+    if (controlCharsRegex.test(input)) {
+        throw new Error(`${fieldName} contains invalid control characters.`);
+    }
 };
 
 /**

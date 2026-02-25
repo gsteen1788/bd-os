@@ -37,3 +37,8 @@
 **Vulnerability:** While major fields like `notesMd` were validated, several secondary fields in `Contact` (`other`, `currentFocus`, `children`, etc.) were completely unvalidated, leaving gaps for DoS attacks.
 **Learning:** Partial security implementation is common; developers often secure the "obvious" fields but forget the less prominent ones. Automated verification scripts must be comprehensive.
 **Prevention:** Audit all entity fields against the repository implementation and ensure the verification script checks for *every* string field, not just a sample.
+
+## 2026-06-03 - Dangerous Control Characters in Input
+**Vulnerability:** Input validation in `src/infrastructure/ai/security.ts` did not check for dangerous control characters (e.g., Null byte `\x00`, Escape `\x1B`), allowing potential log injection or terminal control attacks.
+**Learning:** Standard validation (length, type) often overlooks low-level character integrity. Attackers can use invisible control characters to manipulate logs or downstream systems.
+**Prevention:** Implement a whitelist of allowed characters or a blacklist of dangerous control characters (ASCII 0-31 excluding common whitespace) in the input validation layer.
