@@ -19,3 +19,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 ## 2025-02-24 - [Base Repository Mapping Bug]
 **Learning:** The abstract `SqliteRepository` implementation of `findById` was returning raw database rows (snake_case) instead of mapped entities (camelCase), causing silent failures or missing data in the UI for any component relying on `findById`.
 **Action:** Refactored `SqliteRepository` to enforce `protected abstract mapRow(row: any): T;` and updated `findById` to use it. When extending base repositories, always verify that generic methods (like `findById`) properly use the mapping logic defined in subclasses.
+
+## 2025-03-03 - [Date Formatting Bottleneck]
+**Learning:** `toLocaleDateString` is significantly slower (approx. 40x slower in benchmarks) than reusing an `Intl.DateTimeFormat` instance when formatting dates in large loops (e.g., grouping 10k items).
+**Action:** When formatting dates inside loops or frequent render paths, instantiate `Intl.DateTimeFormat` once and reuse it. Consider caching formatted strings (e.g., by timestamp) if inputs are repetitive (like week start dates).

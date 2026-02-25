@@ -9,6 +9,8 @@ export function getWeekStart(date: Date): Date {
 
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
+    const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+    const cache = new Map<number, string>();
 
     items.forEach(item => {
         const dateVal = item[dateKey];
@@ -16,8 +18,15 @@ export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string
 
         const date = new Date(dateVal as string | number | Date);
         const weekStart = getWeekStart(date);
-        // Format: "Week of Jan 14, 2024"
-        const key = `Week of ${weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+        const time = weekStart.getTime();
+
+        let dateStr = cache.get(time);
+        if (!dateStr) {
+            dateStr = formatter.format(weekStart);
+            cache.set(time, dateStr);
+        }
+
+        const key = `Week of ${dateStr}`;
 
         if (!groups[key]) {
             groups[key] = [];
