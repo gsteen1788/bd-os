@@ -37,6 +37,14 @@ export const validateInput = (input: string | null | undefined, fieldName: strin
     if (input.length > maxLength) {
         throw new Error(`${fieldName} exceeds maximum allowed length of ${maxLength} characters.`);
     }
+
+    // Check for dangerous control characters (prevent injection attacks)
+    // Allowed: \t (09), \n (0A), \r (0D)
+    // Disallowed: 00-08, 0B-0C, 0E-1F, 7F
+    // eslint-disable-next-line no-control-regex
+    if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(input)) {
+        throw new Error(`${fieldName} contains invalid control characters.`);
+    }
 };
 
 /**

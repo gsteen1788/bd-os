@@ -37,3 +37,8 @@
 **Vulnerability:** While major fields like `notesMd` were validated, several secondary fields in `Contact` (`other`, `currentFocus`, `children`, etc.) were completely unvalidated, leaving gaps for DoS attacks.
 **Learning:** Partial security implementation is common; developers often secure the "obvious" fields but forget the less prominent ones. Automated verification scripts must be comprehensive.
 **Prevention:** Audit all entity fields against the repository implementation and ensure the verification script checks for *every* string field, not just a sample.
+
+## 2026-06-03 - Missing Control Character Validation
+**Vulnerability:** Input fields accepted dangerous control characters (e.g., \x00, \x1F), which could lead to injection attacks or data corruption in downstream systems (AI, Database).
+**Learning:** Standard string validation often overlooks invisible control characters. Documentation might claim validation exists when it doesn't.
+**Prevention:** Explicitly validate against a blacklist of control characters (allowing only safe ones like Tab, CR, LF) in the central input validation utility.
