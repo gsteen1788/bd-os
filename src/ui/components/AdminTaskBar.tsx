@@ -212,8 +212,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         {displayTasks.map(task => (
                             <div
                                 key={task.id}
-                                className={`group flex flex-col justify-between p-3 bg-base-100 rounded-lg border min-w-[200px] max-w-[200px] min-h-[90px] hover:shadow-lg transition-all relative cursor-pointer ${editingTask?.id === task.id ? 'border-primary ring-1 ring-primary' : 'border-[hsl(var(--color-border))] hover:border-secondary/30'}`}
-                                onClick={() => setEditingTask(task)}
+                                className={`group flex flex-col justify-between p-3 bg-base-100 rounded-lg border min-w-[200px] max-w-[200px] min-h-[90px] hover:shadow-lg transition-all relative focus-within:ring-2 focus-within:ring-primary focus-within:rounded-lg ${editingTask?.id === task.id ? 'border-primary ring-1 ring-primary' : 'border-[hsl(var(--color-border))] hover:border-secondary/30'}`}
                             >
                                 <div className="flex justify-between items-start gap-2">
                                     <div className="flex flex-col gap-1 w-full min-w-0">
@@ -222,12 +221,19 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                                 {task.tag.replace('_', ' ')}
                                             </span>
                                         )}
-                                        <span className={`text-xs font-semibold line-clamp-2 leading-tight ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`} title={task.title}>{task.title}</span>
+                                        <button
+                                            className={`text-xs font-semibold text-left line-clamp-2 leading-tight focus:outline-none cursor-pointer after:absolute after:inset-0 after:content-[''] ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`}
+                                            title={task.title}
+                                            onClick={() => setEditingTask(task)}
+                                            aria-label={`Edit task: ${task.title}`}
+                                        >
+                                            {task.title}
+                                        </button>
                                     </div>
                                     {viewMode === "PENDING" ? (
                                         <input
                                             type="checkbox"
-                                            className="checkbox checkbox-xs checkbox-secondary rounded-sm border-[hsl(var(--color-border))]"
+                                            className="checkbox checkbox-xs checkbox-secondary rounded-sm border-[hsl(var(--color-border))] relative z-10"
                                             checked={false} // Always false until clicked
                                             onChange={(e) => {
                                                 e.stopPropagation();
@@ -238,7 +244,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                         />
                                     ) : (
                                         <button
-                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-40 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-40 group-hover:opacity-100 focus:opacity-100 transition-opacity relative z-10"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRevert(task);
