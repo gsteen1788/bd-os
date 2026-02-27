@@ -75,3 +75,35 @@ export const validateWebUrl = (url?: string | null): void => {
         throw new Error("Invalid URL format");
     }
 };
+
+/**
+ * Validates that the provided string is a safe URI (e.g. for image sources).
+ * Rejects dangerous protocols like javascript: or data:
+ * Allows http/https (via validateWebUrl) and assumes other strings might be local paths.
+ */
+export const validateSafeUri = (uri?: string | null): void => {
+    if (!uri) return;
+
+    const trimmed = uri.trim();
+    if (trimmed.length === 0) return;
+
+    // Check for dangerous schemes at the start
+    // We check for these specifically to block XSS vectors
+    const dangerousSchemes = [
+        /^javascript:/i,
+        /^vbscript:/i,
+        /^data:/i,
+        /^file:/i  // Often restricted in web contexts, though Tauri might use custom protocols
+    ];
+
+    for (const scheme of dangerousSchemes) {
+        if (scheme.test(trimmed)) {
+            throw new Error("Dangerous URI scheme detected");
+        }
+    }
+
+    // If it looks like a web URL, strictly validate it as such
+    if (/^https?:\/\//i.test(trimmed)) {
+        validateWebUrl(trimmed);
+    }
+};
