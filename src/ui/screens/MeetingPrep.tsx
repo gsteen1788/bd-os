@@ -160,13 +160,14 @@ export function MeetingPrep() {
                     </div>
                     {m.status !== "COMPLETED" && (
                         <button
-                            className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity text-success"
+                            className="btn btn-sm btn-ghost opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-opacity text-success"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
                                 setMeetingToComplete(m);
                             }}
                             title="Mark as Complete"
+                            aria-label={`Mark "${m.title}" as complete`}
                         >
                             ✓
                         </button>
@@ -565,11 +566,11 @@ export function MeetingPrep() {
                     <div className="flex items-center gap-4">
                         <button className="btn-ghost" onClick={handleBack}>← Back</button>
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
+                            <button className="flex items-center gap-2 group cursor-pointer text-left w-full" onClick={openEditModal} aria-label="Edit meeting details">
                                 <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
-                                <span className="opacity-0 group-hover:opacity-100 text-xs text-muted">✎</span>
+                                <span className="opacity-40 group-hover:opacity-100 focus:opacity-100 text-xs text-muted transition-opacity">✎</span>
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
-                            </div>
+                            </button>
                             <div className="text-xs text-muted flex gap-2">
                                 <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
                                 {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
@@ -891,7 +892,13 @@ function RiskManager({ risks, onChange }: { risks: Risk[], onChange: (r: Risk[])
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 {risks.map(r => (
                     <div key={r.id} className="p-3 bg-base-200 rounded border border-warning/20 relative group">
-                        <button className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 text-muted hover:text-error" onClick={() => remove(r.id)}>✕</button>
+                        <button
+                            className="absolute top-1 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 text-muted hover:text-error transition-opacity"
+                            onClick={() => remove(r.id)}
+                            aria-label={`Remove risk: ${r.description}`}
+                        >
+                            ✕
+                        </button>
                         <div className="font-bold text-sm text-warning mb-1">⚠️ {r.description}</div>
                         <div className="text-xs text-muted">🛡️ {r.mitigation || "No mitigation planned"}</div>
                     </div>
@@ -937,7 +944,13 @@ function QuestionManager({ title, questions, onChange }: { title: string, questi
                 {questions.map(q => (
                     <li key={q.id} className="p-2 bg-base-200 rounded flex justify-between items-center group">
                         <span>{q.text}</span>
-                        <button className="opacity-0 group-hover:opacity-100 text-muted hover:text-error px-2" onClick={() => remove(q.id)}>✕</button>
+                        <button
+                            className="opacity-40 group-hover:opacity-100 focus:opacity-100 text-muted hover:text-error px-2 transition-opacity"
+                            onClick={() => remove(q.id)}
+                            aria-label={`Remove question: ${q.text}`}
+                        >
+                            ✕
+                        </button>
                     </li>
                 ))}
                 {questions.length === 0 && <li className="text-muted text-sm italic">No questions added.</li>}
@@ -975,7 +988,13 @@ function QAManager({ title, qas, onChange }: { title: string, qas: QA[], onChang
             <div className="flex flex-col gap-3">
                 {qas.map(item => (
                     <div key={item.id} className="p-3 bg-base-200 rounded relative group">
-                        <button className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-muted hover:text-error" onClick={() => remove(item.id)}>✕</button>
+                        <button
+                            className="absolute top-2 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 text-muted hover:text-error transition-opacity"
+                            onClick={() => remove(item.id)}
+                            aria-label={`Remove QA item: ${item.question}`}
+                        >
+                            ✕
+                        </button>
                         <div className="font-bold text-sm mb-1">Q: {item.question}</div>
                         <div className="text-sm text-muted">A: {item.answer}</div>
                     </div>
