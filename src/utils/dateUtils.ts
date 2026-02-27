@@ -1,3 +1,21 @@
+
+// Shared formatters to avoid re-instantiation overhead in loops/renders
+const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+const defaultDateFormatter = new Intl.DateTimeFormat(undefined); // Default locale date
+
+export function formatShortDate(date: string | number | Date): string {
+    return shortDateFormatter.format(new Date(date));
+}
+
+export function formatTime(date: string | number | Date): string {
+    return timeFormatter.format(new Date(date));
+}
+
+export function formatDate(date: string | number | Date): string {
+    return defaultDateFormatter.format(new Date(date));
+}
+
 export function getWeekStart(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
@@ -9,7 +27,6 @@ export function getWeekStart(date: Date): Date {
 
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
-    const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
     const cache = new Map<number, string>();
 
     items.forEach(item => {
@@ -22,7 +39,7 @@ export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string
 
         let dateStr = cache.get(time);
         if (!dateStr) {
-            dateStr = formatter.format(weekStart);
+            dateStr = shortDateFormatter.format(weekStart);
             cache.set(time, dateStr);
         }
 

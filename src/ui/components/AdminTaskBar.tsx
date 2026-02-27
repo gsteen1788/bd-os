@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact, TaskLink } from "../../domain/entities";
 import { EntityType, TaskTag } from "../../domain/enums";
+import { formatShortDate } from "../../utils/dateUtils";
 
 interface AdminTaskBarProps {
     tasks: Task[];
@@ -23,6 +24,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
     const [filterTag, setFilterTag] = useState<TaskTag | "ALL">("ALL");
 
     const displayTasks = (viewMode === "PENDING" ? tasks : history).filter(t => filterTag === "ALL" || t.tag === filterTag);
+    const now = new Date();
 
     // Creation/Editing State
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -258,8 +260,8 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                 </div>
                                 <div className="flex justify-between items-end mt-1">
                                     <div className="flex flex-col gap-0.5">
-                                        <span className={`text-[10px] ${new Date(task.dueDate || '') < new Date() ? 'text-error' : 'text-muted'}`}>
-                                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'No Date'}
+                                        <span className={`text-[10px] ${task.dueDate && new Date(task.dueDate) < now ? 'text-error' : 'text-muted'}`}>
+                                            {task.dueDate ? formatShortDate(task.dueDate) : 'No Date'}
                                         </span>
                                         {viewMode === "DONE" && task.durationMinutes && (
                                             <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
