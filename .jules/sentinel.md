@@ -42,3 +42,8 @@
 **Vulnerability:** Input fields accepted dangerous control characters (e.g., \x00, \x1F), which could lead to injection attacks or data corruption in downstream systems (AI, Database).
 **Learning:** Standard string validation often overlooks invisible control characters. Documentation might claim validation exists when it doesn't.
 **Prevention:** Explicitly validate against a blacklist of control characters (allowing only safe ones like Tab, CR, LF) in the central input validation utility.
+
+## 2026-06-05 - Inadequate URI Validation (Stored XSS)
+**Vulnerability:** The `Organization.logoUrl` field was validated only by checking if it started with "http", which allowed malicious schemes like `javascript:alert(1)` to bypass validation and be stored.
+**Learning:** Ad-hoc or "good enough" string checks (like `startsWith`) are often insufficient for security. XSS vectors are creative and can utilize many protocols.
+**Prevention:** Use a dedicated validation function (e.g., `validateSafeUri`) that explicitly blocks known dangerous schemes (javascript, data, vbscript) before allowing file paths or URLs.

@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl, validateInput, MAX_TEXT_LENGTH } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, validateSafeUri, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -40,9 +40,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
         validateInput(entity.name, "Organization Name");
         validateInput(entity.industry, "Industry");
         validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
-        if (entity.logoUrl && entity.logoUrl.startsWith("http")) {
-            validateWebUrl(entity.logoUrl);
-        }
+        validateSafeUri(entity.logoUrl);
 
         const db = await this.getDb();
         await db.execute(
