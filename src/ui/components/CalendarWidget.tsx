@@ -1,3 +1,4 @@
+import { formatTime as _formatTime, formatCalendarDate as _formatCalendarDate } from "../../utils/dateUtils";
 import { useState, useEffect } from 'react';
 import { graphService, GraphEvent } from '../../services/graphService';
 import { OutlookConnect } from './OutlookConnect';
@@ -65,11 +66,11 @@ export const CalendarWidget = () => {
     };
 
     const formatTime = (isoString: string) => {
-        return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return _formatTime(isoString);
     };
 
     const formatDate = (isoString: string) => {
-        return new Date(isoString).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        return _formatCalendarDate(isoString);
     };
 
     return (

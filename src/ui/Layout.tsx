@@ -1,3 +1,4 @@
+import { formatDate } from "../utils/dateUtils";
 import { ReactNode, useState } from "react";
 import { SettingsModal } from "./components/SettingsModal";
 import { AppIcons } from "./icons/Icons";
@@ -205,7 +206,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                                 {results.meetings.map(m => (
                                                     <div key={m.id} onClick={() => { onTabChange("meetings"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
                                                         <div className="font-medium">{m.title}</div>
-                                                        <div className="text-xs text-muted">{m.startAt ? new Date(m.startAt).toLocaleDateString() : 'Unscheduled'}</div>
+                                                        <div className="text-xs text-muted">{m.startAt ? formatDate(m.startAt) : 'Unscheduled'}</div>
                                                     </div>
                                                 ))}
                                             </div>

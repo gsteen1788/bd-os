@@ -43,3 +43,48 @@ export function sortGroupsByDateDesc(groups: Record<string, any[]>): string[] {
         return 0;
     });
 }
+
+// Cached formatters for better performance in render loops
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat
+const dateFormatter = new Intl.DateTimeFormat();
+const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const calendarDateFormatter = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+const time24hFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+
+export function formatDate(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return dateFormatter.format(d);
+}
+
+export function formatTime(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return timeFormatter.format(d);
+}
+
+export function formatShortDate(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return shortDateFormatter.format(d);
+}
+
+export function formatCalendarDate(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return calendarDateFormatter.format(d);
+}
+
+export function formatTime24h(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return time24hFormatter.format(d);
+}
+
+export function formatDateTime(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Invalid Date";
+    return dateTimeFormatter.format(d);
+}

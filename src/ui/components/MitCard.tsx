@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/dateUtils";
 import { memo } from 'react';
 import { Task, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 
@@ -170,7 +171,7 @@ export const MitCard = memo(function MitCard({
                         {mit.durationMinutes && (
                             <span className="badge badge-sm badge-ghost font-mono">{mit.durationMinutes}m</span>
                         )}
-                        <span>Completed: {new Date(mit.updatedAt).toLocaleDateString()}</span>
+                        <span>Completed: {formatDate(mit.updatedAt)}</span>
                     </div>
                 )}
             </div>

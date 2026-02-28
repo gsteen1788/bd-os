@@ -23,3 +23,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 ## 2025-03-03 - [Date Formatting Bottleneck]
 **Learning:** `toLocaleDateString` is significantly slower (approx. 40x slower in benchmarks) than reusing an `Intl.DateTimeFormat` instance when formatting dates in large loops (e.g., grouping 10k items).
 **Action:** When formatting dates inside loops or frequent render paths, instantiate `Intl.DateTimeFormat` once and reuse it. Consider caching formatted strings (e.g., by timestamp) if inputs are repetitive (like week start dates).
+
+## 2024-05-24 - Intl.DateTimeFormat caching
+**Learning:** `Date.prototype.toLocaleDateString()` and `toLocaleTimeString()` have significant performance overhead in render loops (like lists and dashboards) because they instantiate new `Intl.DateTimeFormat` objects internally on every call.
+**Action:** Always use pre-configured and cached `Intl.DateTimeFormat` instances (exported as helpers in `src/utils/dateUtils.ts`) instead of `toLocaleString` methods when rendering multiple dates.

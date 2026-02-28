@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/dateUtils";
 import { useEffect, useState } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
@@ -1019,7 +1020,7 @@ export function ProtemoiBoard() {
                                             <div key={m.id} className="text-xs p-2 bg-base-100 rounded flex justify-between items-center bg-opacity-50">
                                                 <div>
                                                     <div className="font-bold">{m.title}</div>
-                                                    <div className="text-muted">{new Date(m.startAt!).toLocaleDateString()}</div>
+                                                    <div className="text-muted">{formatDate(m.startAt!)}</div>
                                                 </div>
                                                 <span className={`badge badge-xs ${m.status === "COMPLETED" ? "badge-success" : "badge-ghost"}`}>{m.status}</span>
                                             </div>

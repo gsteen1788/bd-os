@@ -1,3 +1,4 @@
+import { formatDate, formatTime, formatTime24h, formatDateTime } from "../../utils/dateUtils";
 import { useState, useEffect, useMemo } from "react";
 import { meetingRepository, contactRepository, protemoiRepository, opportunityRepository } from '../../infrastructure/repositories';
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
@@ -173,7 +174,7 @@ export function MeetingPrep() {
                     )}
                 </div>
                 <div className="text-muted text-sm mt-1">
-                    {new Date(m.startAt!).toLocaleDateString()} at {new Date(m.startAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDate(m.startAt!)} at {formatTime(m.startAt!)}
                 </div>
                 <div className="mt-4 flex justify-between items-center text-xs text-dim">
                     <span>{m.location || "No location"}</span>
@@ -247,7 +248,7 @@ export function MeetingPrep() {
         if (selectedMeeting.startAt) {
             const date = new Date(selectedMeeting.startAt);
             setEditDate(date.toISOString().split('T')[0]);
-            setEditTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+            setEditTime(formatTime24h(date));
         }
         setEditLocation(selectedMeeting.location || "");
         setIsEditOpen(true);
@@ -571,7 +572,7 @@ export function MeetingPrep() {
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
                             </div>
                             <div className="text-xs text-muted flex gap-2">
-                                <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
+                                <span>{formatDateTime(selectedMeeting.startAt!)}</span>
                                 {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
                             </div>
                         </div>
