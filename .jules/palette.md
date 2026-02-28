@@ -13,3 +13,6 @@
 ## 2024-05-25 - Context in List Actions
 **Learning:** Repetitive buttons in lists (e.g., "Complete", "Edit") confuse screen reader users without item context.
 **Action:** Always include the item name in `aria-label` for list actions (e.g., `aria-label="Complete ${itemName}"`).
+## 2026-02-28 - Emojis and Screen Readers
+**Learning:** Adding `role="img"` and `aria-label` to a `div` that contains both an emoji AND dynamic text will cause screen readers to treat the entire container as an image, reading only the `aria-label` and ignoring the dynamic text. This is a critical accessibility regression.
+**Action:** When adding accessibility to emojis mixed with text, wrap ONLY the emoji in a `<span role="img" aria-label="...">` rather than applying the attributes to the parent container.
