@@ -3,6 +3,7 @@ import { graphService, GraphEvent } from '../../services/graphService';
 import { OutlookConnect } from './OutlookConnect';
 import { authService } from '../../services/authService';
 import { Modal } from './Modal';
+import { formatTime as utilFormatTime, formatShortDate } from '../../utils/dateUtils';
 
 export const CalendarWidget = () => {
     const [events, setEvents] = useState<GraphEvent[]>([]);
@@ -65,11 +66,11 @@ export const CalendarWidget = () => {
     };
 
     const formatTime = (isoString: string) => {
-        return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return utilFormatTime(isoString);
     };
 
     const formatDate = (isoString: string) => {
-        return new Date(isoString).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        return formatShortDate(isoString, true);
     };
 
     return (

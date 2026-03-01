@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact, TaskLink } from "../../domain/entities";
 import { EntityType, TaskTag } from "../../domain/enums";
+import { formatShortDate } from "../../utils/dateUtils";
 
 interface AdminTaskBarProps {
     tasks: Task[];
@@ -259,7 +260,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                 <div className="flex justify-between items-end mt-1">
                                     <div className="flex flex-col gap-0.5">
                                         <span className={`text-[10px] ${new Date(task.dueDate || '') < new Date() ? 'text-error' : 'text-muted'}`}>
-                                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'No Date'}
+                                            {task.dueDate ? formatShortDate(task.dueDate) : 'No Date'}
                                         </span>
                                         {viewMode === "DONE" && task.durationMinutes && (
                                             <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
