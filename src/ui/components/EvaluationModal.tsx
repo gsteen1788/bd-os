@@ -64,21 +64,23 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
 
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12 gap-6 text-center group relative">
-                        {/* Customize Icon Button (Visible on Hover) */}
-                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                        {/* Customize Icon Button (Visible on Hover/Focus) */}
+                        <div className="absolute top-4 right-4 opacity-40 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex gap-2">
                             {customIcon && (
                                 <button
                                     onClick={handleResetIcon}
-                                    className="text-xs text-muted hover:text-error underline"
+                                    className="text-xs text-muted hover:text-error underline focus-visible:ring-2 focus-visible:ring-primary rounded px-1"
                                     title="Reset to default"
+                                    aria-label="Reset Oracle icon to default"
                                 >
                                     Reset
                                 </button>
                             )}
                             <button
                                 onClick={handleSelectIcon}
-                                className="p-1 rounded bg-base-200 hover:bg-base-300 text-muted hover:text-main transition-colors border border-[hsl(var(--color-border))]"
+                                className="p-1 rounded bg-base-200 hover:bg-base-300 text-muted hover:text-main transition-colors border border-[hsl(var(--color-border))] focus-visible:ring-2 focus-visible:ring-primary"
                                 title="Change Oracle Icon for this theme"
+                                aria-label="Change Oracle icon for this theme"
                             >
                                 ✏️
                             </button>
