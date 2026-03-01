@@ -45,14 +45,14 @@ class AuthService {
     }
 
     private loadFromStorage() {
-        const stored = localStorage.getItem('ms_auth_state');
+        const stored = sessionStorage.getItem('ms_auth_state');
         if (stored) {
             this.state = JSON.parse(stored);
         }
     }
 
     private saveToStorage() {
-        localStorage.setItem('ms_auth_state', JSON.stringify(this.state));
+        sessionStorage.setItem('ms_auth_state', JSON.stringify(this.state));
     }
 
     /**
