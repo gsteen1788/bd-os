@@ -23,3 +23,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 ## 2025-03-03 - [Date Formatting Bottleneck]
 **Learning:** `toLocaleDateString` is significantly slower (approx. 40x slower in benchmarks) than reusing an `Intl.DateTimeFormat` instance when formatting dates in large loops (e.g., grouping 10k items).
 **Action:** When formatting dates inside loops or frequent render paths, instantiate `Intl.DateTimeFormat` once and reuse it. Consider caching formatted strings (e.g., by timestamp) if inputs are repetitive (like week start dates).
+
+## 2026-03-01 - [Component Re-render Bottleneck via Date Formatting]
+**Learning:** `toLocaleDateString` and `toLocaleTimeString` are surprisingly expensive when called on every render cycle for multiple items (like a list of 100+ tasks or events). `Intl.DateTimeFormat` avoids that overhead, but it doesn't gracefully handle invalid dates like `Date.prototype.toLocaleDateString` does, crashing the app with `RangeError: Invalid time value` if not handled correctly.
+**Action:** Replace `toLocaleDateString` and `toLocaleTimeString` in React render logic with global, cached `Intl.DateTimeFormat` helpers. Explicitly check for invalid dates via `isNaN(date.getTime())` before passing to the formatter to prevent UI crashes.

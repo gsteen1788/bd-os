@@ -7,7 +7,7 @@ import { ProtemoiEntry, Contact, Organization, Meeting } from "../../domain/enti
 import { protemoiRepository, contactRepository, organizationRepository, meetingRepository } from "../../infrastructure/repositories";
 import { evaluateNextStep, EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { EvaluationModal } from "../components/EvaluationModal";
-
+import { formatDate } from "../../utils/dateUtils";
 
 type ProtemoiWithDetails = ProtemoiEntry & {
     contact?: Contact;
@@ -1019,7 +1019,7 @@ export function ProtemoiBoard() {
                                             <div key={m.id} className="text-xs p-2 bg-base-100 rounded flex justify-between items-center bg-opacity-50">
                                                 <div>
                                                     <div className="font-bold">{m.title}</div>
-                                                    <div className="text-muted">{new Date(m.startAt!).toLocaleDateString()}</div>
+                                                    <div className="text-muted">{formatDate(m.startAt!)}</div>
                                                 </div>
                                                 <span className={`badge badge-xs ${m.status === "COMPLETED" ? "badge-success" : "badge-ghost"}`}>{m.status}</span>
                                             </div>

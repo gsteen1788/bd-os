@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { meetingRepository, contactRepository, protemoiRepository, opportunityRepository } from '../../infrastructure/repositories';
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
-import { groupItemsByWeek } from "../../utils/dateUtils";
+import { groupItemsByWeek, formatDate, formatTime } from "../../utils/dateUtils";
 import { Modal } from "../components/Modal";
 
 type TemplateType = "QUICK" | "DETAILED";
@@ -173,7 +173,7 @@ export function MeetingPrep() {
                     )}
                 </div>
                 <div className="text-muted text-sm mt-1">
-                    {new Date(m.startAt!).toLocaleDateString()} at {new Date(m.startAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDate(m.startAt!)} at {formatTime(m.startAt!)}
                 </div>
                 <div className="mt-4 flex justify-between items-center text-xs text-dim">
                     <span>{m.location || "No location"}</span>
@@ -247,7 +247,7 @@ export function MeetingPrep() {
         if (selectedMeeting.startAt) {
             const date = new Date(selectedMeeting.startAt);
             setEditDate(date.toISOString().split('T')[0]);
-            setEditTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+            setEditTime(formatTime(date, false));
         }
         setEditLocation(selectedMeeting.location || "");
         setIsEditOpen(true);
