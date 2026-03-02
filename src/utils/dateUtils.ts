@@ -1,3 +1,10 @@
+// Cached formatters for performance
+const defaultDateFormatter = new Intl.DateTimeFormat();
+const defaultTimeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+const timeFormatter24 = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const shortWeekdayDateFormatter = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
 export function getWeekStart(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
@@ -7,10 +14,12 @@ export function getWeekStart(date: Date): Date {
     return d;
 }
 
+// Optimization: Bolt ⚡ - Cache week format strings at the module level
+// to avoid Map instantiation and Intl.DateTimeFormat overhead on every call.
+const weekFormatCache = new Map<number, string>();
+
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
-    const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
-    const cache = new Map<number, string>();
 
     items.forEach(item => {
         const dateVal = item[dateKey];
@@ -20,10 +29,11 @@ export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string
         const weekStart = getWeekStart(date);
         const time = weekStart.getTime();
 
-        let dateStr = cache.get(time);
+        let dateStr = weekFormatCache.get(time);
         if (!dateStr) {
-            dateStr = formatter.format(weekStart);
-            cache.set(time, dateStr);
+            // Reusing shortDateFormatter from bottom of file
+            dateStr = shortDateFormatter.format(weekStart);
+            weekFormatCache.set(time, dateStr);
         }
 
         const key = `Week of ${dateStr}`;
@@ -43,13 +53,6 @@ export function sortGroupsByDateDesc(groups: Record<string, any[]>): string[] {
         return 0;
     });
 }
-
-// Cached formatters for performance
-const defaultDateFormatter = new Intl.DateTimeFormat();
-const defaultTimeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
-const timeFormatter24 = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-const shortDateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
-const shortWeekdayDateFormatter = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
 export function formatDate(dateVal: string | number | Date): string {
     if (!dateVal) return '';

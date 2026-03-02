@@ -27,3 +27,7 @@ If the UI uses the summary object to populate an edit form, saving it back might
 ## 2026-03-01 - [Component Re-render Bottleneck via Date Formatting]
 **Learning:** `toLocaleDateString` and `toLocaleTimeString` are surprisingly expensive when called on every render cycle for multiple items (like a list of 100+ tasks or events). `Intl.DateTimeFormat` avoids that overhead, but it doesn't gracefully handle invalid dates like `Date.prototype.toLocaleDateString` does, crashing the app with `RangeError: Invalid time value` if not handled correctly.
 **Action:** Replace `toLocaleDateString` and `toLocaleTimeString` in React render logic with global, cached `Intl.DateTimeFormat` helpers. Explicitly check for invalid dates via `isNaN(date.getTime())` before passing to the formatter to prevent UI crashes.
+
+## 2026-03-02 - [Intl.DateTimeFormat Instantiation in Utility Functions]
+**Learning:** Instantiating `Intl.DateTimeFormat` and `Map` caches inside frequently called utility functions (like `groupItemsByWeek`) defeats the purpose of caching and introduces unnecessary overhead, especially when these functions are called during React render cycles (e.g. inside `useMemo` or list rendering).
+**Action:** Move cache structures (`Map`) and `Intl.DateTimeFormat` instances to the module scope so they persist and are reused across all function invocations over the application's lifetime.
