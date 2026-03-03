@@ -7,10 +7,11 @@ export function getWeekStart(date: Date): Date {
     return d;
 }
 
+const groupItemsFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const groupItemsCache = new Map<number, string>();
+
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
-    const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
-    const cache = new Map<number, string>();
 
     items.forEach(item => {
         const dateVal = item[dateKey];
@@ -20,10 +21,10 @@ export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string
         const weekStart = getWeekStart(date);
         const time = weekStart.getTime();
 
-        let dateStr = cache.get(time);
+        let dateStr = groupItemsCache.get(time);
         if (!dateStr) {
-            dateStr = formatter.format(weekStart);
-            cache.set(time, dateStr);
+            dateStr = groupItemsFormatter.format(weekStart);
+            groupItemsCache.set(time, dateStr);
         }
 
         const key = `Week of ${dateStr}`;
