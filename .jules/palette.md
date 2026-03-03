@@ -17,3 +17,7 @@
 ## 2026-02-25 - Ad-Hoc Modal Accessibility Gaps
 **Learning:** Several modals (e.g., `TaskCompletionModal`) are implemented as custom one-off components rather than reusing the accessible `Modal` component. This leads to missing `role="dialog"`, `aria-modal="true"`, and keyboard accessibility features (like Esc to close).
 **Action:** When touching any modal component, verify it implements proper ARIA roles and keyboard handling, or refactor to use the shared `Modal` component if feasible.
+
+## 2026-03-02 - Modal Keyboard Accessibility and Scroll Locking
+**Learning:** Some custom modals lack proper keyboard accessibility (like closing on Escape) and allow the background to scroll when open.
+**Action:** When adding modals or fixing existing ones, implement an `Escape` key listener to trigger `onClose()` and manage `document.body.style.overflow` (setting to `hidden` on mount and `""` on unmount to restore default styles) for better user experience.

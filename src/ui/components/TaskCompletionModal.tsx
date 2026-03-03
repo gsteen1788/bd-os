@@ -13,6 +13,22 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
         if (isOpen) {
             setDuration("");
             setTimeout(() => {
