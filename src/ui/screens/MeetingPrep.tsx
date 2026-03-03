@@ -572,7 +572,7 @@ export function MeetingPrep() {
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
                             </div>
                             <div className="text-xs text-muted flex gap-2">
-                                <span>{new Date(selectedMeeting.startAt!).toLocaleString()}</span>
+                                <span>{formatDate(selectedMeeting.startAt!)} {formatTime(selectedMeeting.startAt!)}</span>
                                 {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
                             </div>
                         </div>
