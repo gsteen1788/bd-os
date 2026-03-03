@@ -814,10 +814,10 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
         <div>
             <div className="flex flex-wrap gap-2 mb-2">
                 {attendees.map(a => (
-                    <div key={a.id} className="badge gap-2 py-3 px-3 border-none" style={{ backgroundColor: getPrefColor(a.thinkingPreference), color: getPrefTextColor(a.thinkingPreference) }}>
+                    <div key={a.id} className="badge badge-lg p-3 relative flex items-center gap-2 group border-none" style={{ backgroundColor: getPrefColor(a.thinkingPreference), color: getPrefTextColor(a.thinkingPreference) }}>
                         <span className="font-semibold">{a.name}</span>
                         {a.thinkingPreference && <span className="text-xs opacity-75">({a.thinkingPreference[0]})</span>}
-                        <button className="hover:font-bold ml-1" onClick={() => removeAttendee(a.id)}>×</button>
+                        <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 hover:font-bold ml-1" aria-label={`Remove attendee ${a.name}`} onClick={() => removeAttendee(a.id)}>✕</button>
                     </div>
                 ))}
             </div>
