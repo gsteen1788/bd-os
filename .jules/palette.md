@@ -21,3 +21,7 @@
 ## 2026-03-02 - Modal Keyboard Accessibility and Scroll Locking
 **Learning:** Some custom modals lack proper keyboard accessibility (like closing on Escape) and allow the background to scroll when open.
 **Action:** When adding modals or fixing existing ones, implement an `Escape` key listener to trigger `onClose()` and manage `document.body.style.overflow` (setting to `hidden` on mount and `""` on unmount to restore default styles) for better user experience.
+
+## 2026-03-03 - Icon-only Buttons Accessibility
+**Learning:** Icon-only buttons (like `+`, `×`, or emojis) are completely opaque to screen readers if they don't have an `aria-label`. The user experience is significantly degraded when the action is not clear.
+**Action:** Always provide a descriptive `aria-label` to buttons that only contain icons or symbols. If the button is part of a list or group, make the label specific (e.g., `aria-label={"Add " + title}`).
