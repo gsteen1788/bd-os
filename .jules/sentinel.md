@@ -47,3 +47,7 @@
 **Vulnerability:** The `Organization.logoUrl` field was validated only by checking if it started with "http", which allowed malicious schemes like `javascript:alert(1)` to bypass validation and be stored.
 **Learning:** Ad-hoc or "good enough" string checks (like `startsWith`) are often insufficient for security. XSS vectors are creative and can utilize many protocols.
 **Prevention:** Use a dedicated validation function (e.g., `validateSafeUri`) that explicitly blocks known dangerous schemes (javascript, data, vbscript) before allowing file paths or URLs.
+## 2024-05-24 - [Repository save methods missing validations]
+**Vulnerability:** Several domain entity fields (e.g., `status`, `stage`, `type`, `tag`, `linkedEntityType`) were not being passed through the centralized `validateInput` utility in their respective `save` methods within `src/infrastructure/repositories.ts` prior to insertion into the SQLite database.
+**Learning:** This exposes the database to potential DoS attacks (via extremely long inputs exceeding memory or schema constraints) and allows potentially malicious control characters to be persisted into the database if the input wasn't strictly vetted elsewhere.
+**Prevention:** Always ensure that every string field of a domain entity, regardless of whether it represents an Enum-like value or a relationship type, is validated using `validateInput` in repository `save` methods to guarantee length limits and sanitize control characters at the persistence boundary.

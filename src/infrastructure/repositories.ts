@@ -258,6 +258,9 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         validateInput(entity.name, "Opportunity Name");
         validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+        validateInput(entity.stage, "Stage");
+        validateInput(entity.status, "Status");
+        validateInput(entity.currency, "Currency");
 
         const db = await this.getDb();
         await db.execute(
@@ -308,6 +311,7 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         validateInput(entity.title, "Meeting Title");
         validateInput(entity.location, "Location");
         validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
+        validateInput(entity.status, "Status");
 
         const db = await this.getDb();
         await db.execute(
@@ -410,6 +414,7 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         // Security validation
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
         validateInput(entity.relationshipStage, "Relationship Stage");
+        validateInput(entity.protemoiType, "Protemoi Type");
 
         const db = await this.getDb();
         await db.execute(
@@ -521,6 +526,10 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         validateInput(entity.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH);
         validateInput(entity.inControlDescription, "In Control", MAX_TEXT_LENGTH);
         validateInput(entity.growthOrientedDescription, "Growth Oriented", MAX_TEXT_LENGTH);
+        validateInput(entity.status, "Status");
+        validateInput(entity.type, "Type");
+        validateInput(entity.linkedEntityType, "Linked Entity Type");
+        validateInput(entity.tag, "Tag");
 
         const db = await this.getDb();
         await db.execute(
