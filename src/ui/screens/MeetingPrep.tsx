@@ -933,7 +933,7 @@ function QuestionManager({ title, questions, onChange }: { title: string, questi
     const remove = (id: string) => onChange(questions.filter(q => q.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`}>+</button>}>
             <ul className="flex flex-col gap-2">
                 {questions.map(q => (
                     <li key={q.id} className="p-2 bg-base-200 rounded flex justify-between items-center group">
@@ -972,7 +972,7 @@ function QAManager({ title, qas, onChange }: { title: string, qas: QA[], onChang
     const remove = (id: string) => onChange(qas.filter(x => x.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`}>+</button>}>
             <div className="flex flex-col gap-3">
                 {qas.map(item => (
                     <div key={item.id} className="p-3 bg-base-200 rounded relative group">
