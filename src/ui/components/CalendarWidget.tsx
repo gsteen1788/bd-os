@@ -65,12 +65,12 @@ export const CalendarWidget = () => {
         }
     };
 
-    const formatTime = (isoString: string) => {
-        return utilFormatTime(isoString);
+    const formatTime = (dateObj: string | Date) => {
+        return utilFormatTime(dateObj);
     };
 
-    const formatDate = (isoString: string) => {
-        return formatShortDate(isoString, true);
+    const formatDate = (dateObj: string | Date) => {
+        return formatShortDate(dateObj, true);
     };
 
     return (
@@ -146,11 +146,15 @@ export const CalendarWidget = () => {
                                     <p className="text-sm text-dim italic text-center py-4">No upcoming events found.</p>
                                 ) : (
                                     <div className="space-y-2">
-                                        {events.map((event) => (
+                                        {events.map((event) => {
+                                            // ⚡ Bolt Optimization: Instantiate Date once per event
+                                            // Prevents 3 separate ISO-string parses per mapped item
+                                            const eventDate = new Date(event.start.dateTime);
+                                            return (
                                             <div key={event.id} className="group p-3 rounded-lg border border-[hsl(var(--color-border))] hover:border-primary/50 bg-base-100 transition-all flex gap-3 items-start">
                                                 <div className="flex flex-col items-center min-w-[3rem] p-1 bg-base-200 rounded border border-[hsl(var(--color-border))]">
-                                                    <span className="text-[10px] uppercase font-bold text-error">{formatDate(event.start.dateTime).split(',')[0]}</span>
-                                                    <span className="text-lg font-bold text-main">{new Date(event.start.dateTime).getDate()}</span>
+                                                    <span className="text-[10px] uppercase font-bold text-error">{formatDate(eventDate).split(',')[0]}</span>
+                                                    <span className="text-lg font-bold text-main">{eventDate.getDate()}</span>
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
@@ -159,12 +163,12 @@ export const CalendarWidget = () => {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs text-muted mt-1">
                                                         <span className="flex items-center gap-1">
-                                                            🕒 {formatTime(event.start.dateTime)}
+                                                            🕒 {formatTime(eventDate)}
                                                         </span>
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
+                                        )})}
                                     </div>
                                 )}
                             </div>
