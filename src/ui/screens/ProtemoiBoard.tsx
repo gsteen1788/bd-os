@@ -686,6 +686,7 @@ export function ProtemoiBoard() {
                                             <button
                                                 className="btn btn-square btn-ghost"
                                                 title="Edit Selected Company"
+                                                aria-label="Edit Selected Company"
                                                 disabled={!editingEntry.organizationId}
                                                 onClick={startEditingOrg}
                                             >
@@ -695,6 +696,7 @@ export function ProtemoiBoard() {
                                             <button
                                                 className="btn btn-square"
                                                 title="Add New Company"
+                                                aria-label="Add New Company"
                                                 onClick={() => {
                                                     setEditingOrgId(null);
                                                     setNewOrgName("");
