@@ -159,6 +159,8 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         validateInput(entity.education, "Education", MAX_TEXT_LENGTH);
         validateInput(entity.location, "Location");
         validateInput(entity.phone, "Phone");
+        validateInput(entity.thinkingPreference, "Thinking Preference");
+        validateInput(entity.primaryBuyInPriority, "Buy-in Priority");
         validateEmail(entity.email);
         validateWebUrl(entity.linkedinUrl);
 
@@ -261,11 +263,13 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         validateInput(entity.stage, "Stage");
         validateInput(entity.status, "Status");
         validateInput(entity.currency, "Currency");
+        validateInput(entity.primarySponsor, "Primary Sponsor");
+        validateInput(entity.obstacle, "Obstacle", MAX_TEXT_LENGTH);
 
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, primary_sponsor, obstacle, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
              ON CONFLICT(id) DO UPDATE SET 
                 name=excluded.name, 
                 organization_id=excluded.organization_id,
@@ -276,8 +280,10 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
                 value_estimate=excluded.value_estimate,
                 probability=excluded.probability,
                 currency=excluded.currency,
+                primary_sponsor=excluded.primary_sponsor,
+                obstacle=excluded.obstacle,
                 updated_at=excluded.updated_at`,
-            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.currency, entity.createdAt, entity.updatedAt]
+            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.currency, entity.primarySponsor, entity.obstacle, entity.createdAt, entity.updatedAt]
         );
     }
 

@@ -25,6 +25,10 @@ const checks = [
     { pattern: /validateInput\(entity\.title, "Task Title"\)/, name: "Task Title" },
     { pattern: /validateInput\(entity\.descriptionMd, "Description", MAX_TEXT_LENGTH\)/, name: "Task Description" },
     // New checks
+    { pattern: /validateInput\(entity\.thinkingPreference, "Thinking Preference"\)/, name: "Contact Thinking Preference" },
+    { pattern: /validateInput\(entity\.primaryBuyInPriority, "Buy-in Priority"\)/, name: "Contact Buy-in Priority" },
+    { pattern: /validateInput\(entity\.primarySponsor, "Primary Sponsor"\)/, name: "Opportunity Primary Sponsor" },
+    { pattern: /validateInput\(entity\.obstacle, "Obstacle", MAX_TEXT_LENGTH\)/, name: "Opportunity Obstacle" },
     { pattern: /validateInput\(entity\.nextStepText, "Next Step", MAX_TEXT_LENGTH\)/, name: "Protemoi Next Step" },
     { pattern: /validateInput\(entity\.relationshipStage, "Relationship Stage"\)/, name: "Protemoi Relationship Stage" },
     { pattern: /validateInput\(entity\.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH\)/, name: "Task Big Impact" },
