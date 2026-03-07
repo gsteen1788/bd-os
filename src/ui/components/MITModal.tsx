@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Modal } from "./Modal";
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
 import { Task, UUID, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
@@ -83,9 +83,12 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             const protemoi = await protemoiRepository.findAll();
             const contacts = await contactRepository.findAllSummaries();
 
+            // Optimization: Bolt ⚡ - O(1) lookup instead of O(N*M) nested loop
+            const contactMap = new Map(contacts.map(c => [c.id, c]));
+
             // Join relationship with contact/org name
             const rels = protemoi.map(p => {
-                const contact = contacts.find(c => c.id === p.contactId);
+                const contact = contactMap.get(p.contactId);
                 return contact ? { entry: p, contact } : null;
             }).filter(Boolean) as { entry: ProtemoiEntry, contact: Contact }[];
 
@@ -231,12 +234,16 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
         setLinks(links.filter((_, i) => i !== index));
     };
 
+    // Optimization: Bolt ⚡ - Memoize maps for O(1) link name lookups during render
+    const opportunitiesMap = useMemo(() => new Map(opportunities.map(o => [o.id, o])), [opportunities]);
+    const relationshipsMap = useMemo(() => new Map(relationships.map(r => [r.entry.id, r])), [relationships]);
+
     const getLinkName = (link: TaskLink) => {
         if (link.entityType === 'OPPORTUNITY') {
-            const opp = opportunities.find(o => o.id === link.entityId);
+            const opp = opportunitiesMap.get(link.entityId);
             return opp ? opp.name : 'Unknown Opportunity';
         } else if (link.entityType === 'RELATIONSHIP') {
-            const rel = relationships.find(r => r.entry.id === link.entityId);
+            const rel = relationshipsMap.get(link.entityId);
             return rel ? rel.contact.displayName : 'Unknown Relationship';
         }
         return link.entityType;
