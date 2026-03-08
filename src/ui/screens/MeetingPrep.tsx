@@ -65,6 +65,7 @@ export function MeetingPrep() {
 
     useEffect(() => {
         loadMeetings();
+        // Reverting the findAllSummaries optimization since the UI components and types need full entities
         opportunityRepository.findAll().then(setAllOpps);
         protemoiRepository.findAll().then(setAllRels);
         contactRepository.findAll().then(setAllContacts);
@@ -322,8 +323,8 @@ export function MeetingPrep() {
 
                 if (targetOppId) {
                     try {
-                        const opps = await opportunityRepository.findAll();
-                        const opp = opps.find(o => o.id === targetOppId);
+                        // Optimization: Bolt ⚡ - O(1) fetch by ID instead of fetching all entities to find one
+                        const opp = await opportunityRepository.findById(targetOppId);
                         if (opp) {
                             await opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
@@ -332,8 +333,8 @@ export function MeetingPrep() {
                     }
                 } else if (targetRelId) {
                     try {
-                        const rels = await protemoiRepository.findAll();
-                        const rel = rels.find(r => r.id === targetRelId);
+                        // Optimization: Bolt ⚡ - O(1) fetch by ID instead of fetching all entities to find one
+                        const rel = await protemoiRepository.findById(targetRelId);
                         if (rel) {
                             await protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
@@ -672,6 +673,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
 
     useEffect(() => {
         // Load data for linking
+        // Reverting the findAllSummaries optimization since the UI components and types need full entities
         opportunityRepository.findAll().then(setOpportunities);
         protemoiRepository.findAll().then(setRelationships);
         contactRepository.findAll().then(setContacts);
@@ -757,6 +759,7 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
 
     useEffect(() => {
         if (isAddOpen && tab === "EXISTING") {
+            // Reverting the findAllSummaries optimization since the UI components and types need full entities
             contactRepository.findAll().then(setContacts);
         }
     }, [isAddOpen, tab]);

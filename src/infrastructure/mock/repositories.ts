@@ -123,6 +123,10 @@ import { mockProtemoi } from "./protemoi_data";
 export class MockProtemoiRepository implements ProtemoiRepository {
     private items = mockProtemoi;
 
+    async findById(id: UUID): Promise<ProtemoiEntry | null> {
+        return this.items.find(p => p.id === id) || null;
+    }
+
     async findByContactId(contactId: UUID): Promise<ProtemoiEntry | null> {
         return this.items.find(p => p.contactId === contactId) || null;
     }
