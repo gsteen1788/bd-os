@@ -442,6 +442,12 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         );
     }
 
+    async findById(id: UUID): Promise<ProtemoiEntry | null> {
+        const db = await this.getDb();
+        const res = await db.select<any[]>("SELECT * FROM protemoi_entries WHERE id = $1", [id]);
+        return res[0] ? this.mapRow(res[0]) : null;
+    }
+
     async findByContactId(contactId: UUID): Promise<ProtemoiEntry | null> {
         const db = await this.getDb();
         const res = await db.select<any[]>("SELECT * FROM protemoi_entries WHERE contact_id = $1", [contactId]);

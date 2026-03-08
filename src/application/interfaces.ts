@@ -36,6 +36,7 @@ export interface MeetingRepository extends Repository<Meeting> {
 }
 
 export interface ProtemoiRepository {
+    findById(id: UUID): Promise<ProtemoiEntry | null>;
     findByContactId(contactId: UUID): Promise<ProtemoiEntry | null>;
     save(entry: ProtemoiEntry): Promise<void>;
     delete(id: UUID): Promise<void>;
