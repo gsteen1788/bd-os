@@ -123,7 +123,9 @@ export function OpportunityBoard() {
     }, [editingOpp?.id]);
 
     const load = () => {
-        opportunityRepository.findAll().then(setOpportunities);
+        // Optimization: Bolt ⚡ - Fetch lightweight summaries instead of full entities (O(N) memory reduction).
+        // Avoids loading large text fields (e.g. descriptionMd) for all opportunities on the board.
+        opportunityRepository.findAllSummaries().then(setOpportunities);
     };
 
     useEffect(() => {
@@ -237,7 +239,22 @@ export function OpportunityBoard() {
                                         key={opp.id}
                                         type="button"
                                         className="card w-full text-left p-3 bg-base-100 hover:bg-base-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-                                        onClick={() => setEditingOpp(opp)}
+                                        onClick={async () => {
+                                            try {
+                                                // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
+                                                // Prevents data loss by ensuring we don't save a summary object over a full record.
+                                                const fullOpp = await opportunityRepository.findById(opp.id);
+                                                if (fullOpp) {
+                                                    setEditingOpp(fullOpp);
+                                                } else {
+                                                    console.error("Opportunity not found in database.");
+                                                    alert("Failed to load opportunity details.");
+                                                }
+                                            } catch (e) {
+                                                console.error("Failed to load full opportunity", e);
+                                                alert("Failed to load opportunity details.");
+                                            }
+                                        }}
                                     >
                                         <div style={{ fontWeight: "600" }}>
                                             {isAnonymized ? `Opportunity ${opportunities.indexOf(opp) + 1}` : opp.name}
