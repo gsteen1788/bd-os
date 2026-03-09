@@ -25,3 +25,7 @@
 ## 2026-03-03 - Icon-only Buttons Accessibility
 **Learning:** Icon-only buttons (like `+`, `×`, or emojis) are completely opaque to screen readers if they don't have an `aria-label`. The user experience is significantly degraded when the action is not clear.
 **Action:** Always provide a descriptive `aria-label` to buttons that only contain icons or symbols. If the button is part of a list or group, make the label specific (e.g., `aria-label={"Add " + title}`).
+
+## 2026-03-09 - Interactive Elements Should Be Buttons
+**Learning:** Using `div` elements with `onClick` handlers for interactive search results or lists makes them inaccessible to keyboard users and screen readers.
+**Action:** Always use semantic `<button>` elements (or native `<a>` for links) with `type="button"`, `w-full`, and `text-left` when replacing `div` click areas, ensuring proper focus states with `focus-visible:ring-2`.

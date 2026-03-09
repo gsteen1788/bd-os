@@ -171,10 +171,10 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                             <div className="mb-2">
                                                 <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Organizations</div>
                                                 {results.organizations.map(org => (
-                                                    <div key={org.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                    <button type="button" key={org.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="w-full text-left block p-2 hover:bg-white/5 rounded cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus:outline-none focus:bg-white/5">
                                                         <div className="font-medium">{org.name}</div>
                                                         <div className="text-xs text-muted">{org.industry}</div>
-                                                    </div>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
@@ -182,10 +182,10 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                             <div className="mb-2">
                                                 <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Contacts</div>
                                                 {results.contacts.map(c => (
-                                                    <div key={c.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                    <button type="button" key={c.id} onClick={() => { onTabChange("contacts"); setIsSearchOpen(false); }} className="w-full text-left block p-2 hover:bg-white/5 rounded cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus:outline-none focus:bg-white/5">
                                                         <div className="font-medium">{c.displayName}</div>
                                                         <div className="text-xs text-muted">{c.title}</div>
-                                                    </div>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
@@ -193,10 +193,10 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                             <div className="mb-2">
                                                 <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Opportunities</div>
                                                 {results.opportunities.map(o => (
-                                                    <div key={o.id} onClick={() => { onTabChange("opportunities"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                    <button type="button" key={o.id} onClick={() => { onTabChange("opportunities"); setIsSearchOpen(false); }} className="w-full text-left block p-2 hover:bg-white/5 rounded cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus:outline-none focus:bg-white/5">
                                                         <div className="font-medium">{o.name}</div>
                                                         <div className="text-xs text-muted">{o.stage} • {o.status}</div>
-                                                    </div>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
@@ -204,10 +204,10 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                             <div className="mb-2">
                                                 <div className="text-xs font-bold text-muted uppercase px-2 mb-1">Meetings</div>
                                                 {results.meetings.map(m => (
-                                                    <div key={m.id} onClick={() => { onTabChange("meetings"); setIsSearchOpen(false); }} className="p-2 hover:bg-white/5 rounded cursor-pointer transition-colors">
+                                                    <button type="button" key={m.id} onClick={() => { onTabChange("meetings"); setIsSearchOpen(false); }} className="w-full text-left block p-2 hover:bg-white/5 rounded cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary focus:outline-none focus:bg-white/5">
                                                         <div className="font-medium">{m.title}</div>
                                                         <div className="text-xs text-muted">{m.startAt ? formatDate(m.startAt) : 'Unscheduled'}</div>
-                                                    </div>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
