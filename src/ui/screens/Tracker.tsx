@@ -194,20 +194,22 @@ export function Tracker() {
                 {/* Date Controls */}
                 <div className="flex gap-4 items-center bg-white/5 p-2 rounded-lg border border-white/10">
                     <div className="flex flex-col gap-1">
-                        <label className="text-[10px] uppercase font-bold text-muted">From</label>
+                        <label htmlFor="tracker-start-date" className="text-[10px] uppercase font-bold text-muted">From</label>
                         <input
+                            id="tracker-start-date"
                             type="date"
-                            className="input input-xs bg-transparent border-none text-main focus:outline-none"
+                            className="input input-xs bg-transparent border-none text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                         />
                     </div>
                     <div className="w-px h-8 bg-white/10"></div>
                     <div className="flex flex-col gap-1">
-                        <label className="text-[10px] uppercase font-bold text-muted">To</label>
+                        <label htmlFor="tracker-end-date" className="text-[10px] uppercase font-bold text-muted">To</label>
                         <input
+                            id="tracker-end-date"
                             type="date"
-                            className="input input-xs bg-transparent border-none text-main focus:outline-none"
+                            className="input input-xs bg-transparent border-none text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)} // Logic handles reload
                         />
@@ -225,6 +227,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>BD Tasks #</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for BD Tasks #"
                                             value={goals['BD_TASKS']}
                                             onChange={(v) => handleGoalChange('BD_TASKS', v)}
                                         />
@@ -234,6 +237,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>BD Task Hrs</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for BD Task Hrs"
                                             value={goals['BD_HOURS_TASKS']}
                                             onChange={(v) => handleGoalChange('BD_HOURS_TASKS', v)}
                                         />
@@ -243,6 +247,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>Int BD Hrs</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for Internal BD Hrs"
                                             value={goals['BD_HOURS_INTERNAL']}
                                             onChange={(v) => handleGoalChange('BD_HOURS_INTERNAL', v)}
                                         />
@@ -252,6 +257,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>Ext BD Hrs</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for External BD Hrs"
                                             value={goals['BD_HOURS_CLIENT']}
                                             onChange={(v) => handleGoalChange('BD_HOURS_CLIENT', v)}
                                         />
@@ -261,6 +267,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>Total Hrs</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for Total Hrs"
                                             value={goals['BD_HOURS_TOTAL']}
                                             onChange={(v) => handleGoalChange('BD_HOURS_TOTAL', v)}
                                         />
@@ -270,6 +277,7 @@ export function Tracker() {
                                     <div className="flex flex-col items-center gap-2">
                                         <span>MITs</span>
                                         <GoalInput
+                                            ariaLabel="Target goal for MITs"
                                             value={goals['MITS_COMPLETED']}
                                             onChange={(v) => handleGoalChange('MITS_COMPLETED', v)}
                                         />
@@ -317,10 +325,11 @@ export function Tracker() {
     );
 }
 
-function GoalInput({ value, onChange }: { value: number | undefined, onChange: (val: string) => void }) {
+function GoalInput({ value, onChange, ariaLabel }: { value: number | undefined, onChange: (val: string) => void, ariaLabel: string }) {
     return (
         <div className="relative group">
             <input
+                aria-label={ariaLabel}
                 className="w-10 h-5 text-center text-[10px] font-bold bg-white/5 hover:bg-white/10 focus:bg-white/20 rounded border border-transparent focus:border-primary/50 outline-none transition-all placeholder-white/20 text-main"
                 placeholder="-"
                 defaultValue={value || ""}
