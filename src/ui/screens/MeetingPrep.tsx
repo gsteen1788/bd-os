@@ -679,11 +679,15 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
         contactRepository.findAll().then(setContacts);
     }, []);
 
+    // Bolt ⚡: O(1) lookup instead of O(N) array find
+    const relationshipsMap = useMemo(() => new Map(relationships.map(r => [r.id, r])), [relationships]);
+    const contactsMap = useMemo(() => new Map(contacts.map(c => [c.id, c])), [contacts]);
+
     // Helper to get name for relationship
     const getRelName = (pid: string) => {
-        const rel = relationships.find(r => r.id === pid);
+        const rel = relationshipsMap.get(pid);
         if (!rel) return "Unknown";
-        const c = contacts.find(co => co.id === rel.contactId);
+        const c = contactsMap.get(rel.contactId);
         return c ? c.displayName : "Unknown Person";
     };
 
