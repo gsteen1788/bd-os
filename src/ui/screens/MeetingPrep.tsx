@@ -153,7 +153,12 @@ export function MeetingPrep() {
     const renderMeetingCard = (m: Meeting) => {
         const linkName = getLinkName(m);
         return (
-            <div key={m.id} className={`card cursor-pointer hover:border-primary relative group ${m.status === "COMPLETED" ? "bg-base-200" : ""}`} onClick={() => setSelectedMeeting(m)}>
+            <button
+                type="button"
+                key={m.id}
+                className={`w-full text-left block card cursor-pointer hover:border-primary relative group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${m.status === "COMPLETED" ? "bg-base-200" : ""}`}
+                onClick={() => setSelectedMeeting(m)}
+            >
                 <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
                         {m.status === "COMPLETED" && <span className="text-success text-lg font-bold">✓</span>}
@@ -184,7 +189,7 @@ export function MeetingPrep() {
                         <span>{m.notesMd ? "📝 Prep Started" : "No Prep"}</span>
                     </div>
                 </div>
-            </div>
+            </button>
         );
     };
 

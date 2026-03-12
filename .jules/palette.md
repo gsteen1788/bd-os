@@ -33,3 +33,7 @@
 ## 2026-03-10 - Tabular Inputs and Disconnected Labels
 **Learning:** Table header inputs (like in `Tracker.tsx`) and floating labels lack proper screen reader association when implemented without `aria-label` or `htmlFor`/`id` bindings, respectively.
 **Action:** Always ensure inputs within tables have context-specific `aria-label`s passed down via props, and associate all `<label>` elements with their `<input>` counterparts using `htmlFor` and `id`.
+
+## 2026-03-11 - Interactive Meeting Cards Accessibility
+**Learning:** Using `div` elements with `onClick` handlers for meeting cards makes them inaccessible to keyboard users and screen readers.
+**Action:** Always use semantic `<button>` elements with `type="button"`, `w-full`, and `text-left` when creating interactive cards, ensuring proper focus states with `focus-visible:ring-2` and descriptive `aria-label`s.
