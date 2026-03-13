@@ -463,9 +463,9 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
     async findAllSummaries(): Promise<ProtemoiEntry[]> {
         const db = await this.getDb();
         // Select only fields needed for Dashboard filtering/linking
-        // Notably excludes: next_step_text (large), relationship_stage, protemoi_type, importance_score, dates
+        // Notably excludes: next_step_text (large), importance_score, dates
         const rows = await db.select<any[]>(
-            "SELECT id, contact_id, organization_id, is_internal, created_at, updated_at FROM protemoi_entries ORDER BY updated_at DESC"
+            "SELECT id, contact_id, organization_id, is_internal, relationship_stage, protemoi_type, created_at, updated_at FROM protemoi_entries ORDER BY updated_at DESC"
         );
         return rows.map(r => this.mapRow(r));
     }
