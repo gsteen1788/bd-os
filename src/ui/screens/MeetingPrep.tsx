@@ -500,9 +500,10 @@ export function MeetingPrep() {
                                 }
                             >
                                 <div className="flex flex-col gap-4">
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="new-meeting-name" className="flex flex-col gap-1">
                                         <span className="text-sm font-medium">Meeting Name</span>
                                         <input
+                                            id="new-meeting-name"
                                             className="input"
                                             autoFocus
                                             value={newMeetingTitle}
@@ -510,27 +511,30 @@ export function MeetingPrep() {
                                             placeholder="e.g. Q1 Business Review"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="new-meeting-date" className="flex flex-col gap-1">
                                         <span className="text-sm font-medium">Date</span>
                                         <input
+                                            id="new-meeting-date"
                                             type="date"
                                             className="input"
                                             value={newMeetingDate}
                                             onChange={e => setNewMeetingDate(e.target.value)}
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="new-meeting-time" className="flex flex-col gap-1">
                                         <span className="text-sm font-medium">Time</span>
                                         <input
+                                            id="new-meeting-time"
                                             type="time"
                                             className="input"
                                             value={newMeetingTime}
                                             onChange={e => setNewMeetingTime(e.target.value)}
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="new-meeting-location" className="flex flex-col gap-1">
                                         <span className="text-sm font-medium">Location</span>
                                         <input
+                                            id="new-meeting-location"
                                             className="input"
                                             value={newMeetingLocation}
                                             onChange={e => setNewMeetingLocation(e.target.value)}
@@ -606,23 +610,23 @@ export function MeetingPrep() {
                 {isEditOpen && (
                     <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Details">
                         <div className="flex flex-col gap-4">
-                            <label className="flex flex-col gap-1">
+                            <label htmlFor="edit-meeting-title" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Title</span>
-                                <input className="input" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                                <input id="edit-meeting-title" className="input" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
                             </label>
                             <div className="flex gap-4">
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="edit-meeting-date" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Date</span>
-                                    <input type="date" className="input" value={editDate} onChange={e => setEditDate(e.target.value)} />
+                                    <input id="edit-meeting-date" type="date" className="input" value={editDate} onChange={e => setEditDate(e.target.value)} />
                                 </label>
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="edit-meeting-time" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Time</span>
-                                    <input type="time" className="input" value={editTime} onChange={e => setEditTime(e.target.value)} />
+                                    <input id="edit-meeting-time" type="time" className="input" value={editTime} onChange={e => setEditTime(e.target.value)} />
                                 </label>
                             </div>
-                            <label className="flex flex-col gap-1">
+                            <label htmlFor="edit-meeting-location" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Location</span>
-                                <input className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
+                                <input id="edit-meeting-location" className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
                             </label>
                             <div className="flex justify-end gap-2 mt-4">
                                 <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
@@ -694,9 +698,10 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
     return (
         <div className="flex flex-col gap-4">
             <p className="text-sm text-muted">Great job! Capture the next steps and link to a bigger goal.</p>
-            <label className="flex flex-col gap-1">
+            <label htmlFor="next-steps-complete" className="flex flex-col gap-1">
                 <span className="font-bold text-sm">Next Steps (Required)</span>
                 <textarea
+                    id="next-steps-complete"
                     className="input w-full"
                     rows={3}
                     placeholder="e.g. Send proposal by Friday..."
@@ -858,13 +863,13 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
 
                         {tab === "NEW" && (
                             <div className="flex flex-col gap-3 min-h-[200px]">
-                                <label>
+                                <label htmlFor="new-attendee-name">
                                     <div className="label-text">Name</div>
-                                    <input className="input w-full" value={newName} onChange={e => setNewName(e.target.value)} autoFocus />
+                                    <input id="new-attendee-name" className="input w-full" value={newName} onChange={e => setNewName(e.target.value)} autoFocus />
                                 </label>
-                                <label>
+                                <label htmlFor="new-attendee-pref">
                                     <div className="label-text">Thinking Preference</div>
-                                    <select className="input w-full" value={newPref} onChange={e => setNewPref(e.target.value as any)}>
+                                    <select id="new-attendee-pref" className="input w-full" value={newPref} onChange={e => setNewPref(e.target.value as any)}>
                                         <option value="">Unknown</option>
                                         {ThinkingPreference.map(p => <option key={p} value={p}>{p}</option>)}
                                     </select>
@@ -910,13 +915,13 @@ function RiskManager({ risks, onChange }: { risks: Risk[], onChange: (r: Risk[])
             {isOpen && (
                 <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="What could go wrong?">
                     <div className="flex flex-col gap-4">
-                        <label>
+                        <label htmlFor="new-risk-desc">
                             <span className="text-sm font-bold block mb-1">Risk / What could wrong?</span>
-                            <input className="input w-full" placeholder="e.g. Key decision maker doesn't show" value={risk} onChange={e => setRisk(e.target.value)} autoFocus />
+                            <input id="new-risk-desc" className="input w-full" placeholder="e.g. Key decision maker doesn't show" value={risk} onChange={e => setRisk(e.target.value)} autoFocus />
                         </label>
-                        <label>
+                        <label htmlFor="new-risk-mitigation">
                             <span className="text-sm font-bold block mb-1">Mitigation</span>
-                            <textarea className="input w-full" rows={3} placeholder="e.g. Confirm attendence 2h prior" value={mitigation} onChange={e => setMitigation(e.target.value)} />
+                            <textarea id="new-risk-mitigation" className="input w-full" rows={3} placeholder="e.g. Confirm attendence 2h prior" value={mitigation} onChange={e => setMitigation(e.target.value)} />
                         </label>
                         <button className="btn btn-primary" onClick={add}>Add Risk</button>
                     </div>
@@ -994,13 +999,13 @@ function QAManager({ title, qas, onChange }: { title: string, qas: QA[], onChang
             {isOpen && (
                 <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={`Add ${title}`}>
                     <div className="flex flex-col gap-4">
-                        <label>
+                        <label htmlFor="new-qa-question">
                             <span className="font-bold text-sm block mb-1">Question</span>
-                            <input className="input w-full" value={q} onChange={e => setQ(e.target.value)} autoFocus />
+                            <input id="new-qa-question" className="input w-full" value={q} onChange={e => setQ(e.target.value)} autoFocus />
                         </label>
-                        <label>
+                        <label htmlFor="new-qa-answer">
                             <span className="font-bold text-sm block mb-1">Answer / Strategy</span>
-                            <textarea className="input w-full" rows={3} value={a} onChange={e => setA(e.target.value)} />
+                            <textarea id="new-qa-answer" className="input w-full" rows={3} value={a} onChange={e => setA(e.target.value)} />
                         </label>
                         <button className="btn btn-primary" onClick={add}>Add</button>
                     </div>
@@ -1054,17 +1059,17 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
 
             <Section title="Background Information">
                 <div className="flex flex-col gap-3">
-                    <label>Metrics <span className="text-muted text-xs block">What financial/numerical info is important?</span>
-                        <input className="input w-full" value={data.background.metrics} onChange={e => onChange("background.metrics", e.target.value)} />
+                    <label htmlFor="detailed-metrics">Metrics <span className="text-muted text-xs block">What financial/numerical info is important?</span>
+                        <input id="detailed-metrics" className="input w-full" value={data.background.metrics} onChange={e => onChange("background.metrics", e.target.value)} />
                     </label>
-                    <label>Strategic Goal <span className="text-muted text-xs block">What is the client looking to accomplish?</span>
-                        <input className="input w-full" value={data.background.goal} onChange={e => onChange("background.goal", e.target.value)} />
+                    <label htmlFor="detailed-goal">Strategic Goal <span className="text-muted text-xs block">What is the client looking to accomplish?</span>
+                        <input id="detailed-goal" className="input w-full" value={data.background.goal} onChange={e => onChange("background.goal", e.target.value)} />
                     </label>
-                    <label>Process <span className="text-muted text-xs block">What procedural elements are most important?</span>
-                        <input className="input w-full" value={data.background.process} onChange={e => onChange("background.process", e.target.value)} />
+                    <label htmlFor="detailed-process">Process <span className="text-muted text-xs block">What procedural elements are most important?</span>
+                        <input id="detailed-process" className="input w-full" value={data.background.process} onChange={e => onChange("background.process", e.target.value)} />
                     </label>
-                    <label>Relationships <span className="text-muted text-xs block">What relationship/political issues are important?</span>
-                        <input className="input w-full" value={data.background.relationships} onChange={e => onChange("background.relationships", e.target.value)} />
+                    <label htmlFor="detailed-relationships">Relationships <span className="text-muted text-xs block">What relationship/political issues are important?</span>
+                        <input id="detailed-relationships" className="input w-full" value={data.background.relationships} onChange={e => onChange("background.relationships", e.target.value)} />
                     </label>
                 </div>
             </Section>
@@ -1075,8 +1080,8 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
 
             <Section title="Goals & Framing">
                 <div className="flex flex-col gap-3">
-                    <label>Goals <input className="input w-full" value={data.goal} onChange={e => onChange("goal", e.target.value)} /></label>
-                    <label>Framing <textarea className="input w-full" rows={2} value={data.frameGoal} onChange={e => onChange("frameGoal", e.target.value)} /></label>
+                    <label htmlFor="detailed-goals">Goals <input id="detailed-goals" className="input w-full" value={data.goal} onChange={e => onChange("goal", e.target.value)} /></label>
+                    <label htmlFor="detailed-framing">Framing <textarea id="detailed-framing" className="input w-full" rows={2} value={data.frameGoal} onChange={e => onChange("frameGoal", e.target.value)} /></label>
                 </div>
             </Section>
 
@@ -1086,10 +1091,10 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
 
             <Section title="Participant Experience">
                 <div className="grid grid-cols-2 gap-4">
-                    <label>Analytics and Pricing <input className="input w-full" value={data.participantExperience.analytics} onChange={e => onChange("participantExperience.analytics", e.target.value)} /></label>
-                    <label>Wow Factor <input className="input w-full" value={data.participantExperience.wow} onChange={e => onChange("participantExperience.wow", e.target.value)} /></label>
-                    <label>Future Process <input className="input w-full" value={data.participantExperience.process} onChange={e => onChange("participantExperience.process", e.target.value)} /></label>
-                    <label>Term Relationships <input className="input w-full" value={data.participantExperience.relationships} onChange={e => onChange("participantExperience.relationships", e.target.value)} /></label>
+                    <label htmlFor="detailed-analytics">Analytics and Pricing <input id="detailed-analytics" className="input w-full" value={data.participantExperience.analytics} onChange={e => onChange("participantExperience.analytics", e.target.value)} /></label>
+                    <label htmlFor="detailed-wow">Wow Factor <input id="detailed-wow" className="input w-full" value={data.participantExperience.wow} onChange={e => onChange("participantExperience.wow", e.target.value)} /></label>
+                    <label htmlFor="detailed-future-process">Future Process <input id="detailed-future-process" className="input w-full" value={data.participantExperience.process} onChange={e => onChange("participantExperience.process", e.target.value)} /></label>
+                    <label htmlFor="detailed-term-relationships">Term Relationships <input id="detailed-term-relationships" className="input w-full" value={data.participantExperience.relationships} onChange={e => onChange("participantExperience.relationships", e.target.value)} /></label>
                 </div>
             </Section>
 
@@ -1114,9 +1119,9 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
 
             <Section title="Final Walk Through">
                 <div className="flex gap-4">
-                    <label className="flex-1">Date <input className="input w-full" type="date" value={data.finalWalkthrough.date} onChange={e => onChange("finalWalkthrough.date", e.target.value)} /></label>
-                    <label className="flex-1">Time <input className="input w-full" type="time" value={data.finalWalkthrough.time} onChange={e => onChange("finalWalkthrough.time", e.target.value)} /></label>
-                    <label className="flex-1">Location <input className="input w-full" value={data.finalWalkthrough.location} onChange={e => onChange("finalWalkthrough.location", e.target.value)} /></label>
+                    <label htmlFor="walkthrough-date" className="flex-1">Date <input id="walkthrough-date" className="input w-full" type="date" value={data.finalWalkthrough.date} onChange={e => onChange("finalWalkthrough.date", e.target.value)} /></label>
+                    <label htmlFor="walkthrough-time" className="flex-1">Time <input id="walkthrough-time" className="input w-full" type="time" value={data.finalWalkthrough.time} onChange={e => onChange("finalWalkthrough.time", e.target.value)} /></label>
+                    <label htmlFor="walkthrough-location" className="flex-1">Location <input id="walkthrough-location" className="input w-full" value={data.finalWalkthrough.location} onChange={e => onChange("finalWalkthrough.location", e.target.value)} /></label>
                 </div>
             </Section>
         </div>

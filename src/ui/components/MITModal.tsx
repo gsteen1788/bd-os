@@ -283,8 +283,9 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             >
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm font-bold text-muted uppercase tracking-wide">Task</label>
+                        <label htmlFor="mit-task-title" className="text-sm font-bold text-muted uppercase tracking-wide">Task</label>
                         <input
+                            id="mit-task-title"
                             className="input font-semibold text-lg"
                             placeholder="What is the one thing you must do?"
                             value={title}
@@ -295,8 +296,9 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-bold text-muted uppercase tracking-wide">Due Date</label>
+                            <label htmlFor="mit-due-date" className="text-sm font-bold text-muted uppercase tracking-wide">Due Date</label>
                             <input
+                                id="mit-due-date"
                                 className="input"
                                 type="date"
                                 value={dueDate}
@@ -306,8 +308,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
                         <div className="flex flex-col gap-2 relative">
                             <div className="flex justify-between items-center">
-                                <label className="text-sm font-bold text-muted uppercase tracking-wide">Linked Context</label>
-                                <button className="btn btn-xs btn-ghost text-primary" onClick={() => setIsLinkPickerOpen(!isLinkPickerOpen)}>+ Add Link</button>
+                                <label id="mit-linked-context-label" className="text-sm font-bold text-muted uppercase tracking-wide">Linked Context</label>
+                                <button className="btn btn-xs btn-ghost text-primary" onClick={() => setIsLinkPickerOpen(!isLinkPickerOpen)} aria-haspopup="listbox" aria-expanded={isLinkPickerOpen} aria-labelledby="mit-linked-context-label">+ Add Link</button>
                             </div>
 
                             <div className="flex flex-col gap-1 min-h-[3rem] p-2 bg-base-200 rounded border border-white/5">
@@ -451,11 +453,12 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                 <div id="big-impact-content" className={`overflow-hidden transition-all duration-300 ${bigImpact.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
+                                            aria-label="Big Impact Description"
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-primary/30 transition-all resize-none"
                                             placeholder="Why will this move the needle significantly?"
                                             value={bigImpact.text}
                                             onChange={e => setBigImpact({ ...bigImpact, text: e.target.value })}
-                                            autoFocus
+                                            autoFocus={bigImpact.active}
                                         />
                                     </div>
                                 </div>
@@ -496,6 +499,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                 <div id="in-control-content" className={`overflow-hidden transition-all duration-300 ${inControl.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
+                                            aria-label="In Control Description"
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-success/30 transition-all resize-none"
                                             placeholder="Are you relying on others or is this up to you?"
                                             value={inControl.text}
@@ -540,6 +544,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                 <div id="growth-oriented-content" className={`overflow-hidden transition-all duration-300 ${growthOriented.active ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="p-3 pt-0">
                                         <textarea
+                                            aria-label="Growth Oriented Description"
                                             className="input w-full text-sm min-h-[5rem] bg-base-200/50 focus:bg-base-100 border-[hsl(var(--color-border))] focus:border-warning/30 transition-all resize-none"
                                             placeholder="Does this move you toward your bigger goals?"
                                             value={growthOriented.text}

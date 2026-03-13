@@ -33,3 +33,7 @@
 ## 2026-03-10 - Tabular Inputs and Disconnected Labels
 **Learning:** Table header inputs (like in `Tracker.tsx`) and floating labels lack proper screen reader association when implemented without `aria-label` or `htmlFor`/`id` bindings, respectively.
 **Action:** Always ensure inputs within tables have context-specific `aria-label`s passed down via props, and associate all `<label>` elements with their `<input>` counterparts using `htmlFor` and `id`.
+
+## 2026-03-10 - Form Label Associations
+**Learning:** Relying on implicit label associations (nesting inputs inside `<label>`) isn't always robust, especially when components get complex or inputs aren't direct children. Screen readers may lose the association.
+**Action:** Always provide explicit `htmlFor` on `<label>` elements mapped to `id` on `<input>` / `<select>` / `<textarea>` elements, even when nested, to guarantee accessibility.
