@@ -65,10 +65,10 @@ export function MeetingPrep() {
 
     useEffect(() => {
         loadMeetings();
-        // Reverting the findAllSummaries optimization since the UI components and types need full entities
-        opportunityRepository.findAll().then(setAllOpps);
-        protemoiRepository.findAll().then(setAllRels);
-        contactRepository.findAll().then(setAllContacts);
+        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
+        opportunityRepository.findAllSummaries().then(setAllOpps);
+        protemoiRepository.findAllSummaries().then(setAllRels);
+        contactRepository.findAllSummaries().then(setAllContacts);
     }, [viewMode]);
 
     // Optimization: Memoize grouped history
@@ -673,10 +673,10 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
 
     useEffect(() => {
         // Load data for linking
-        // Reverting the findAllSummaries optimization since the UI components and types need full entities
-        opportunityRepository.findAll().then(setOpportunities);
-        protemoiRepository.findAll().then(setRelationships);
-        contactRepository.findAll().then(setContacts);
+        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
+        opportunityRepository.findAllSummaries().then(setOpportunities);
+        protemoiRepository.findAllSummaries().then(setRelationships);
+        contactRepository.findAllSummaries().then(setContacts);
     }, []);
 
     // Bolt ⚡: O(1) lookup instead of O(N) array find
@@ -763,8 +763,8 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
 
     useEffect(() => {
         if (isAddOpen && tab === "EXISTING") {
-            // Reverting the findAllSummaries optimization since the UI components and types need full entities
-            contactRepository.findAll().then(setContacts);
+            // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
+            contactRepository.findAllSummaries().then(setContacts);
         }
     }, [isAddOpen, tab]);
 

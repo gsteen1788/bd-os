@@ -142,8 +142,6 @@ export class MockProtemoiRepository implements ProtemoiRepository {
         return this.items.map(p => ({
             ...p,
             nextStepText: undefined as any,
-            relationshipStage: undefined as any,
-            protemoiType: undefined as any,
             importanceScore: undefined,
             lastTouchDate: undefined,
             nextTouchDate: undefined,
