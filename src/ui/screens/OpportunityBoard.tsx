@@ -311,9 +311,10 @@ export function OpportunityBoard() {
                                 </div>
                             )}
 
-                            <label className="flex flex-col gap-1">
+                            <label htmlFor="opp-deal-name" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Deal Name</span>
                                 <input
+                                    id="opp-deal-name"
                                     className="input w-full"
                                     value={editingOpp.name}
                                     onChange={e => setEditingOpp({ ...editingOpp, name: e.target.value })}
@@ -322,9 +323,10 @@ export function OpportunityBoard() {
                                 />
                             </label>
                             <div className="flex gap-4">
-                                <label className="flex flex-col gap-1 w-24">
+                                <label htmlFor="opp-currency" className="flex flex-col gap-1 w-24">
                                     <span className="text-xs text-muted">Currency</span>
                                     <select
+                                        id="opp-currency"
                                         className="input w-full"
                                         value={editingOpp.currency || "ZAR"}
                                         onChange={e => setEditingOpp({ ...editingOpp, currency: e.target.value as Currency })}
@@ -332,9 +334,10 @@ export function OpportunityBoard() {
                                         {Currency.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </label>
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="opp-value-estimate" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Value Estimate</span>
                                     <input
+                                        id="opp-value-estimate"
                                         type="text"
                                         className="input w-full"
                                         value={editingOpp.valueEstimate || ""}
@@ -345,9 +348,10 @@ export function OpportunityBoard() {
                                         placeholder="0"
                                     />
                                 </label>
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="opp-probability" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Probability (%)</span>
                                     <input
+                                        id="opp-probability"
                                         type="number"
                                         className="input w-full"
                                         value={editingOpp.probability || ""}
@@ -358,9 +362,10 @@ export function OpportunityBoard() {
                                     />
                                 </label>
                             </div>
-                            <label className="flex flex-col gap-1">
+                            <label htmlFor="opp-stage" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Stage</span>
                                 <select
+                                    id="opp-stage"
                                     className="input w-full"
                                     value={editingOpp.stage}
                                     onChange={e => setEditingOpp({ ...editingOpp, stage: e.target.value as any })}
@@ -377,18 +382,20 @@ export function OpportunityBoard() {
                             </label>
 
                             <div className="flex gap-4">
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="opp-primary-sponsor" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Primary Buyer / Sponsor</span>
                                     <input
+                                        id="opp-primary-sponsor"
                                         className="input w-full"
                                         value={editingOpp.primarySponsor || ""}
                                         onChange={e => setEditingOpp({ ...editingOpp, primarySponsor: e.target.value })}
                                         placeholder="Name of sponsor"
                                     />
                                 </label>
-                                <label className="flex flex-col gap-1 flex-1">
+                                <label htmlFor="opp-obstacle" className="flex flex-col gap-1 flex-1">
                                     <span className="text-xs text-muted">Obstacle / Risk</span>
                                     <input
+                                        id="opp-obstacle"
                                         className="input w-full"
                                         value={editingOpp.obstacle || ""}
                                         onChange={e => setEditingOpp({ ...editingOpp, obstacle: e.target.value })}
@@ -397,9 +404,10 @@ export function OpportunityBoard() {
                                 </label>
                             </div>
 
-                            <label className="flex flex-col gap-1">
+                            <label htmlFor="opp-next-step" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Next Step</span>
                                 <input
+                                    id="opp-next-step"
                                     className="input w-full"
                                     value={editingOpp.nextStepText}
                                     onChange={e => setEditingOpp({ ...editingOpp, nextStepText: e.target.value })}

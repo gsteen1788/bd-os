@@ -467,9 +467,10 @@ export function ProtemoiBoard() {
                     </select>
                 </div>
                 <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <label htmlFor="toggle-anonymise-rels" className="flex items-center gap-2 cursor-pointer select-none">
                         <span className="text-sm font-medium text-muted">Anonymise</span>
                         <input
+                            id="toggle-anonymise-rels"
                             type="checkbox"
                             className="toggle toggle-primary toggle-sm"
                             checked={isAnonymized}
@@ -666,9 +667,10 @@ export function ProtemoiBoard() {
                                 <div className="flex flex-col gap-3">
                                     {!showNewOrgInput ? (
                                         <div className="flex items-end gap-2">
-                                            <label className="flex flex-col gap-1 flex-1">
+                                            <label htmlFor="rel-org" className="flex flex-col gap-1 flex-1">
                                                 <span className="text-xs font-medium text-muted">Organization</span>
                                                 <select
+                                                    id="rel-org"
                                                     className="input"
                                                     value={editingEntry.organizationId || ""}
                                                     onChange={e => setEditingEntry({
@@ -764,9 +766,10 @@ export function ProtemoiBoard() {
                             <div className="p-4 bg-base-200 rounded-lg border border-[hsl(var(--color-border))]">
                                 <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Contact Details</h4>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-fullname" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Full Name</span>
                                         <input
+                                            id="rel-fullname"
                                             className="input"
                                             value={editingEntry.contact?.displayName || ""}
                                             onChange={e => setEditingEntry({
@@ -776,9 +779,10 @@ export function ProtemoiBoard() {
                                             placeholder="e.g. Jane Doe"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-thinking-style" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Thinking Style</span>
                                         <select
+                                            id="rel-thinking-style"
                                             className="input"
                                             value={editingEntry.contact?.thinkingPreference || ""}
                                             onChange={e => setEditingEntry({
@@ -790,9 +794,10 @@ export function ProtemoiBoard() {
                                             {ThinkingPreference.map(p => <option key={p} value={p}>{p}</option>)}
                                         </select>
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-email" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Email</span>
                                         <input
+                                            id="rel-email"
                                             className="input"
                                             value={editingEntry.contact?.email || ""}
                                             onChange={e => setEditingEntry({
@@ -802,9 +807,10 @@ export function ProtemoiBoard() {
                                             placeholder="jane@example.com"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-phone" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Phone</span>
                                         <input
+                                            id="rel-phone"
                                             className="input"
                                             value={editingEntry.contact?.phone || ""}
                                             onChange={e => setEditingEntry({
@@ -814,9 +820,10 @@ export function ProtemoiBoard() {
                                             placeholder="+1 234 567 890"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-linkedin" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">LinkedIn URL</span>
                                         <input
+                                            id="rel-linkedin"
                                             className="input"
                                             value={editingEntry.contact?.linkedinUrl || ""}
                                             onChange={e => setEditingEntry({
@@ -826,9 +833,10 @@ export function ProtemoiBoard() {
                                             placeholder="https://linkedin.com/in/..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-title" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Title</span>
                                         <input
+                                            id="rel-title"
                                             className="input"
                                             value={editingEntry.contact?.title || ""}
                                             onChange={e => setEditingEntry({
@@ -847,9 +855,10 @@ export function ProtemoiBoard() {
                                     <span className="opacity-50 text-xs">▼</span>
                                 </summary>
                                 <div className="p-4 grid grid-cols-2 gap-4 border-t border-white/5">
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-location" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Location</span>
                                         <input
+                                            id="rel-location"
                                             className="input"
                                             value={editingEntry.contact?.location || ""}
                                             onChange={e => setEditingEntry({
@@ -859,9 +868,10 @@ export function ProtemoiBoard() {
                                             placeholder="City, Country"
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-marital-status" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Marital Status</span>
                                         <input
+                                            id="rel-marital-status"
                                             className="input"
                                             value={editingEntry.contact?.maritalStatus || ""}
                                             onChange={e => setEditingEntry({
@@ -871,9 +881,10 @@ export function ProtemoiBoard() {
                                             placeholder="Married, Single..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-children" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Children</span>
                                         <input
+                                            id="rel-children"
                                             className="input"
                                             value={editingEntry.contact?.children || ""}
                                             onChange={e => setEditingEntry({
@@ -883,9 +894,10 @@ export function ProtemoiBoard() {
                                             placeholder="Names, ages..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-hobbies" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Hobbies</span>
                                         <textarea
+                                            id="rel-hobbies"
                                             className="input"
                                             rows={2}
                                             value={editingEntry.contact?.hobbiesInterests || ""}
@@ -896,9 +908,10 @@ export function ProtemoiBoard() {
                                             placeholder="Golf, Reading, Cooking..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-career" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Career & Professional Background</span>
                                         <textarea
+                                            id="rel-career"
                                             className="input"
                                             rows={3}
                                             value={editingEntry.contact?.careerHistory || ""}
@@ -909,9 +922,10 @@ export function ProtemoiBoard() {
                                             placeholder="Past roles, key achievements..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-education" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Education</span>
                                         <textarea
+                                            id="rel-education"
                                             className="input"
                                             rows={2}
                                             value={editingEntry.contact?.education || ""}
@@ -922,9 +936,10 @@ export function ProtemoiBoard() {
                                             placeholder="University, degrees..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-focus" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">What's on their mind right now?</span>
                                         <textarea
+                                            id="rel-focus"
                                             className="input"
                                             rows={2}
                                             value={editingEntry.contact?.currentFocus || ""}
@@ -935,9 +950,10 @@ export function ProtemoiBoard() {
                                             placeholder="Current focus, concerns, or interests..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-stories" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Stories & Anecdotes</span>
                                         <textarea
+                                            id="rel-stories"
                                             className="input"
                                             rows={3}
                                             value={editingEntry.contact?.storiesAnecdotes || ""}
@@ -948,9 +964,10 @@ export function ProtemoiBoard() {
                                             placeholder="Interesting stories or memorable moments..."
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-other" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Other</span>
                                         <textarea
+                                            id="rel-other"
                                             className="input"
                                             rows={2}
                                             value={editingEntry.contact?.other || ""}
@@ -967,9 +984,10 @@ export function ProtemoiBoard() {
                             <div className="p-4 bg-base-200 rounded-lg border border-white/5">
                                 <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Relationship Status</h4>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-stage" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Stage</span>
                                         <select
+                                            id="rel-stage"
                                             className="input"
                                             value={editingEntry.relationshipStage}
                                             onChange={e => setEditingEntry({ ...editingEntry, relationshipStage: e.target.value as any })}
@@ -977,9 +995,10 @@ export function ProtemoiBoard() {
                                             {getStagesForEntry(editingEntry.isInternal).map(s => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
                                         </select>
                                     </label>
-                                    <label className="flex flex-col gap-1">
+                                    <label htmlFor="rel-type" className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-muted">Type</span>
                                         <select
+                                            id="rel-type"
                                             className="input"
                                             value={editingEntry.protemoiType}
                                             onChange={e => setEditingEntry({ ...editingEntry, protemoiType: e.target.value as any })}
@@ -987,9 +1006,10 @@ export function ProtemoiBoard() {
                                             {getTypesForEntry(editingEntry.isInternal).map(t => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
                                         </select>
                                     </label>
-                                    <label className="flex flex-col gap-1 col-span-2">
+                                    <label htmlFor="rel-next-step" className="flex flex-col gap-1 col-span-2">
                                         <span className="text-xs font-medium text-muted">Next Step</span>
                                         <textarea
+                                            id="rel-next-step"
                                             className="input"
                                             rows={2}
                                             value={editingEntry.nextStepText || ""}

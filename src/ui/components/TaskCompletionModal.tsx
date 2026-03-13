@@ -73,10 +73,11 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
                     </p>
 
                     <div className="form-control w-full">
-                        <label className="label">
+                        <label htmlFor="task-duration-input" className="label">
                             <span className="label-text font-bold">How long did it take? (minutes)</span>
                         </label>
                         <input
+                            id="task-duration-input"
                             ref={inputRef}
                             type="number"
                             className="input input-bordered w-full"
