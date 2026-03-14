@@ -80,7 +80,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             const opps = await opportunityRepository.findAllSummaries();
             setOpportunities(opps);
 
-            const protemoi = await protemoiRepository.findAll();
+            // Optimization: Bolt ⚡ - Use summaries instead of full objects to reduce payload size and memory footprint
+            const protemoi = await protemoiRepository.findAllSummaries();
             const contacts = await contactRepository.findAllSummaries();
 
             // Optimization: Bolt ⚡ - O(1) lookup instead of O(N*M) nested loop

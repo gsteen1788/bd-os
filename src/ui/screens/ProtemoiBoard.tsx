@@ -192,7 +192,8 @@ export function ProtemoiBoard() {
 
     const load = async () => {
         try {
-            const protemoi = await protemoiRepository.findAll();
+            // Optimization: Bolt ⚡ - Fetch summaries to avoid loading potentially large nextStepText
+            const protemoi = await protemoiRepository.findAllSummaries();
             const contacts = await contactRepository.findAllSummaries();
             const orgs = await organizationRepository.findAllSummaries();
             setOrganizations(orgs);
@@ -529,22 +530,28 @@ export function ProtemoiBoard() {
                                             color: getPreferenceTextColor(entry.contact?.thinkingPreference)
                                         }}
                                         onClick={async () => {
-                                            // Fetch full contact details before editing to ensure we don't lose data
+                                            // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
+                                            // Prevents data loss by ensuring we don't save a summary object over a full record.
                                             try {
-                                                const fullContact = await contactRepository.findById(entry.contactId);
-                                                if (fullContact) {
+                                                const [fullProtemoi, fullContact] = await Promise.all([
+                                                    protemoiRepository.findById(entry.id),
+                                                    contactRepository.findById(entry.contactId)
+                                                ]);
+
+                                                if (fullProtemoi) {
                                                     setEditingEntry({
-                                                        ...entry,
-                                                        contact: fullContact,
-                                                        organizationId: fullContact.organizationId || entry.organizationId
+                                                        ...fullProtemoi,
+                                                        contact: fullContact || entry.contact,
+                                                        organizationId: fullContact?.organizationId || fullProtemoi.organizationId || entry.organizationId,
+                                                        organization: entry.organization
                                                     });
                                                 } else {
-                                                    setEditingEntry(entry);
+                                                    console.error("Relationship not found in database.");
+                                                    alert("Failed to load relationship details.");
                                                 }
                                             } catch (e) {
-                                                console.error("Failed to load contact details", e);
-                                                // Fallback
-                                                setEditingEntry(entry);
+                                                console.error("Failed to load relationship details", e);
+                                                alert("Failed to load relationship details.");
                                             }
                                         }}
                                     >
