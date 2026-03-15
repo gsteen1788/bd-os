@@ -189,6 +189,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
                         value={filterTag}
                         onChange={(e) => setFilterTag(e.target.value as TaskTag | "ALL")}
+                        aria-label="Filter tasks by tag"
                     >
                         <option value="ALL">ALL TAGS</option>
                         {TaskTag.map(tag => (
@@ -199,6 +200,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
                         value={viewMode}
                         onChange={(e) => setViewMode(e.target.value as "PENDING" | "DONE")}
+                        aria-label="Filter tasks by view mode"
                     >
                         <option value="PENDING">PENDING ({tasks.length})</option>
                         <option value="DONE">DONE ({history.length})</option>
@@ -299,6 +301,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
+                            aria-label={editingTask ? "Edit task title" : "New task title"}
                         />
                         {editingTask && (
                             <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit" aria-label={`Cancel editing "${editingTask.title}"`}>
@@ -320,6 +323,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                             className="input text-xs h-7 w-28 px-1"
                             value={dueDate}
                             onChange={e => setDueDate(e.target.value)}
+                            aria-label="Task due date"
                         />
 
                         {/* Tag Selector */}
@@ -327,6 +331,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                             className="select select-xs select-ghost h-7 min-h-0 text-[10px] uppercase font-bold text-muted/80 border border-[hsl(var(--color-border))] rounded px-2"
                             value={selectedTag || ""}
                             onChange={(e) => setSelectedTag(e.target.value ? e.target.value as TaskTag : null)}
+                            aria-label="Task tag"
                         >
                             <option value="">No Tag</option>
                             {TaskTag.map(tag => (
