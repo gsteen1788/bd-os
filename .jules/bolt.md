@@ -1,3 +1,7 @@
 ## 2024-03-05 - O(1) fetch lookup over O(N) array filter
 **Learning:** Optimizing a `.find` on an entire list array retrieved via `findAll` doesn't just reduce the iteration time but also avoids loading the entire array of potentially large records into memory. But one cannot indiscriminately switch `findAll` to `findAllSummaries` without properly redefining the expected component state types, else it leads to dirty `as any` casts and potential silent crashes when components expect a full entity property.
 **Action:** When updating a record in response to a UI interaction (like adding a linked item), always fetch the single record using `findById` and update it directly instead of fetching all records and filtering. Do not cast summary objects to full entity types using `as any`; ensure state correctly types down to summary objects if that optimization is to be used.
+
+## 2025-03-05 - O(1) duplicate checks inside range loops
+**Learning:** Checking for duplicates in a dynamically growing array (`weeks.find`) inside a `while` loop over a date range results in O(N^2) time complexity. This is especially prevalent when aggregating historical data (like in `Tracker.tsx`), where the date range could span years, causing noticeable main-thread blocking.
+**Action:** When accumulating unique items in a list inside a loop, always pair the list with a `Set` (e.g., `seenWeeks = new Set()`) for O(1) duplicate checking instead of using `.find()` or `.includes()` on the array itself.
