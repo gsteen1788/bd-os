@@ -37,3 +37,7 @@
 ## 2026-03-10 - Form Label Associations
 **Learning:** Relying on implicit label associations (nesting inputs inside `<label>`) isn't always robust, especially when components get complex or inputs aren't direct children. Screen readers may lose the association.
 **Action:** Always provide explicit `htmlFor` on `<label>` elements mapped to `id` on `<input>` / `<select>` / `<textarea>` elements, even when nested, to guarantee accessibility.
+
+## 2024-03-24 - Icon-only Button Discoverability
+**Learning:** Icon-only buttons (like "✕", "✎") with only `aria-label` are accessible to screen readers, but their action is often completely undiscoverable for sighted mouse users since native tooltips rely on the `title` attribute. Furthermore, interactive buttons dynamically inserted into lists often miss proper focus states, breaking keyboard navigation.
+**Action:** Always provide both `aria-label` (for screen readers) AND `title` (for mouse hover tooltips) on icon-only buttons, and ensure they have `focus-visible:ring-2` to support keyboard users.

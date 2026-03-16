@@ -573,7 +573,7 @@ export function MeetingPrep() {
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
                                 <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
-                                <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-xs text-muted" aria-label={`Edit ${selectedMeeting.title}`}>✎</button>
+                                <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-xs text-muted" aria-label={`Edit ${selectedMeeting.title}`} title={`Edit ${selectedMeeting.title}`}>✎</button>
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
                             </div>
                             <div className="text-xs text-muted flex gap-2">
@@ -829,7 +829,7 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
                     <div key={a.id} className="badge badge-lg p-3 relative flex items-center gap-2 group border-none" style={{ backgroundColor: getPrefColor(a.thinkingPreference), color: getPrefTextColor(a.thinkingPreference) }}>
                         <span className="font-semibold">{a.name}</span>
                         {a.thinkingPreference && <span className="text-xs opacity-75">({a.thinkingPreference[0]})</span>}
-                        <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 hover:font-bold ml-1" aria-label={`Remove attendee ${a.name}`} onClick={() => removeAttendee(a.id)}>✕</button>
+                        <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 hover:font-bold ml-1" aria-label={`Remove attendee ${a.name}`} title={`Remove attendee ${a.name}`} onClick={() => removeAttendee(a.id)}>✕</button>
                     </div>
                 ))}
             </div>
@@ -904,7 +904,7 @@ function RiskManager({ risks, onChange }: { risks: Risk[], onChange: (r: Risk[])
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 {risks.map(r => (
                     <div key={r.id} className="p-3 bg-base-200 rounded border border-warning/20 relative group">
-                        <button className="absolute top-1 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error" onClick={() => remove(r.id)} aria-label="Remove risk">✕</button>
+                        <button className="absolute top-1 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error" onClick={() => remove(r.id)} aria-label="Remove risk" title="Remove risk">✕</button>
                         <div className="font-bold text-sm text-warning mb-1">⚠️ {r.description}</div>
                         <div className="text-xs text-muted">🛡️ {r.mitigation || "No mitigation planned"}</div>
                     </div>
@@ -945,12 +945,12 @@ function QuestionManager({ title, questions, onChange }: { title: string, questi
     const remove = (id: string) => onChange(questions.filter(q => q.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
             <ul className="flex flex-col gap-2">
                 {questions.map(q => (
                     <li key={q.id} className="p-2 bg-base-200 rounded flex justify-between items-center group">
                         <span>{q.text}</span>
-                        <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error px-2" onClick={() => remove(q.id)} aria-label="Remove question">✕</button>
+                        <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error px-2" onClick={() => remove(q.id)} aria-label="Remove question" title="Remove question">✕</button>
                     </li>
                 ))}
                 {questions.length === 0 && <li className="text-muted text-sm italic">No questions added.</li>}
@@ -984,11 +984,11 @@ function QAManager({ title, qas, onChange }: { title: string, qas: QA[], onChang
     const remove = (id: string) => onChange(qas.filter(x => x.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
             <div className="flex flex-col gap-3">
                 {qas.map(item => (
                     <div key={item.id} className="p-3 bg-base-200 rounded relative group">
-                        <button className="absolute top-2 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error" onClick={() => remove(item.id)} aria-label="Remove Q&A">✕</button>
+                        <button className="absolute top-2 right-2 opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-muted hover:text-error" onClick={() => remove(item.id)} aria-label="Remove Q&A" title="Remove Q&A">✕</button>
                         <div className="font-bold text-sm mb-1">Q: {item.question}</div>
                         <div className="text-sm text-muted">A: {item.answer}</div>
                     </div>

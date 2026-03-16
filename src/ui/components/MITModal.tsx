@@ -324,7 +324,9 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                                         <span className="truncate text-xs flex-1 text-base-content/80">{getLinkName(link)}</span>
                                         <button
                                             onClick={() => removeLink(i)}
-                                            className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-white/10 text-muted hover:text-white transition-colors"
+                                            className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-white/10 text-muted hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus:opacity-100"
+                                            aria-label="Remove link"
+                                            title="Remove link"
                                         >
                                             ×
                                         </button>
