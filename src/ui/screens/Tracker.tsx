@@ -63,6 +63,8 @@ export function Tracker() {
 
             // Process Weeks
             const weeks: WeeklyStats[] = [];
+            // Optimization: Bolt ⚡ - O(1) duplicate check instead of O(N) array find
+            const seenWeeks = new Set<string>();
 
             // Generate weeks based on date range
             // Start from EndDate (most recent) and go backwards to StartDate
@@ -83,7 +85,8 @@ export function Tracker() {
                 const weekStr = weekStartOfCurrent.toISOString().split('T')[0];
 
                 // Avoid duplicates if we decrement by days but stay in same week (not happening here as we jump 7 days, but good to check)
-                if (!weeks.find(w => w.weekStart === weekStr)) {
+                if (!seenWeeks.has(weekStr)) {
+                    seenWeeks.add(weekStr);
 
                     // Bolt ⚡: O(1) lookup instead of filtering allTasks
                     const tasksInWeek = tasksByWeek[weekStr] || [];
