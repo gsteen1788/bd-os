@@ -153,8 +153,14 @@ export function MeetingPrep() {
     const renderMeetingCard = (m: Meeting) => {
         const linkName = getLinkName(m);
         return (
-            <div key={m.id} className={`card cursor-pointer hover:border-primary relative group ${m.status === "COMPLETED" ? "bg-base-200" : ""}`} onClick={() => setSelectedMeeting(m)}>
-                <div className="flex justify-between items-start">
+            <button
+                type="button"
+                key={m.id}
+                className={`card text-left w-full focus-visible:ring-2 focus-visible:ring-primary focus:outline-none cursor-pointer hover:border-primary relative group ${m.status === "COMPLETED" ? "bg-base-200" : ""}`}
+                onClick={() => setSelectedMeeting(m)}
+                aria-label={`Open meeting: ${m.title}`}
+            >
+                <div className="flex justify-between items-start w-full">
                     <div className="flex items-center gap-2">
                         {m.status === "COMPLETED" && <span className="text-success text-lg font-bold">✓</span>}
                         <h3 className={`font-bold text-lg ${m.status === "COMPLETED" ? "text-muted text-opacity-80" : ""}`}>{m.title}</h3>
@@ -174,17 +180,17 @@ export function MeetingPrep() {
                         </button>
                     )}
                 </div>
-                <div className="text-muted text-sm mt-1">
+                <div className="text-muted text-sm mt-1 w-full text-left">
                     {formatDate(m.startAt!)} at {formatTime(m.startAt!)}
                 </div>
-                <div className="mt-4 flex justify-between items-center text-xs text-dim">
+                <div className="mt-4 flex justify-between items-center text-xs text-dim w-full">
                     <span>{m.location || "No location"}</span>
                     <div className="flex gap-2">
                         {linkName && <span className="badge badge-outline text-2xs">{linkName}</span>}
                         <span>{m.notesMd ? "📝 Prep Started" : "No Prep"}</span>
                     </div>
                 </div>
-            </div>
+            </button>
         );
     };
 
@@ -571,12 +577,17 @@ export function MeetingPrep() {
                     <div className="flex items-center gap-4">
                         <button className="btn-ghost" onClick={handleBack}>← Back</button>
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 group cursor-pointer" onClick={openEditModal}>
-                                <h2 className="m-0 text-lg hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
-                                <button className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-xs text-muted" aria-label={`Edit ${selectedMeeting.title}`} title={`Edit ${selectedMeeting.title}`}>✎</button>
+                            <button
+                                type="button"
+                                className="flex items-center gap-2 group cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded"
+                                onClick={openEditModal}
+                                aria-label={`Edit meeting details for ${selectedMeeting.title}`}
+                            >
+                                <h2 className="m-0 text-lg group-hover:underline decoration-dashed truncate">{selectedMeeting.title}</h2>
+                                <span className="opacity-40 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-1 text-xs text-muted" aria-hidden="true" title={`Edit ${selectedMeeting.title}`}>✎</span>
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
-                            </div>
-                            <div className="text-xs text-muted flex gap-2">
+                            </button>
+                            <div className="text-xs text-muted flex gap-2 mt-1">
                                 <span>{formatDate(selectedMeeting.startAt!)} {formatTime(selectedMeeting.startAt!)}</span>
                                 {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
                             </div>
@@ -714,9 +725,9 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
             <div className="flex flex-col gap-2">
                 <span className="font-bold text-sm">Link to Outcome (Optional)</span>
                 <div className="tabs tabs-boxed bg-base-200">
-                    <a className={`tab ${linkType === "NONE" ? "tab-active" : ""}`} onClick={() => { setLinkType("NONE"); setLinkId(""); }}>None</a>
-                    <a className={`tab ${linkType === "OPPORTUNITY" ? "tab-active" : ""}`} onClick={() => { setLinkType("OPPORTUNITY"); setLinkId(""); }}>Opportunity</a>
-                    <a className={`tab ${linkType === "RELATIONSHIP" ? "tab-active" : ""}`} onClick={() => { setLinkType("RELATIONSHIP"); setLinkId(""); }}>Relationship</a>
+                    <button type="button" className={`tab ${linkType === "NONE" ? "tab-active" : ""}`} onClick={() => { setLinkType("NONE"); setLinkId(""); }}>None</button>
+                    <button type="button" className={`tab ${linkType === "OPPORTUNITY" ? "tab-active" : ""}`} onClick={() => { setLinkType("OPPORTUNITY"); setLinkId(""); }}>Opportunity</button>
+                    <button type="button" className={`tab ${linkType === "RELATIONSHIP" ? "tab-active" : ""}`} onClick={() => { setLinkType("RELATIONSHIP"); setLinkId(""); }}>Relationship</button>
                 </div>
 
                 {linkType === "OPPORTUNITY" && (
@@ -852,10 +863,15 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
                                 <input className="input" placeholder="Search contacts..." value={search} onChange={e => setSearch(e.target.value)} autoFocus />
                                 <div className="flex-1 overflow-y-auto flex flex-col gap-2 max-h-[300px]">
                                     {filteredContacts.map(c => (
-                                        <div key={c.id} className="p-2 hover:bg-white/5 rounded flex justify-between items-center cursor-pointer" onClick={() => handleAddExisting(c)}>
+                                        <button
+                                            type="button"
+                                            key={c.id}
+                                            className="p-2 hover:bg-white/5 rounded flex justify-between items-center cursor-pointer w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                            onClick={() => handleAddExisting(c)}
+                                        >
                                             <span>{c.displayName}</span>
                                             {c.thinkingPreference && <span className="text-xs badge badge-ghost">{c.thinkingPreference}</span>}
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
                             </div>
