@@ -41,3 +41,7 @@
 ## 2024-03-24 - Icon-only Button Discoverability
 **Learning:** Icon-only buttons (like "✕", "✎") with only `aria-label` are accessible to screen readers, but their action is often completely undiscoverable for sighted mouse users since native tooltips rely on the `title` attribute. Furthermore, interactive buttons dynamically inserted into lists often miss proper focus states, breaking keyboard navigation.
 **Action:** Always provide both `aria-label` (for screen readers) AND `title` (for mouse hover tooltips) on icon-only buttons, and ensure they have `focus-visible:ring-2` to support keyboard users.
+
+## 2026-03-17 - Interactive elements must be semantic
+**Learning:** Using `div` or `a` tags without `href` for interactive elements causes problems for keyboard navigation and screen readers.
+**Action:** Always replace `<div>` or `<a>` with `onClick` handlers using semantic `<button type="button">` elements. Add `w-full text-left` to maintain layout behavior, and `focus-visible:ring-2` to ensure proper focus indicators.
