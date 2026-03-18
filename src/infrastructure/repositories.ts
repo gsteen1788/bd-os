@@ -90,6 +90,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
         );
         return rows.map(r => this.mapRow(r));
     }
+
 }
 
 export class SqliteContactRepository extends SqliteRepository<Contact> implements ContactRepository {
@@ -219,6 +220,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         );
         return rows.map(r => this.mapRow(r));
     }
+
 }
 
 export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> implements OpportunityRepository {
@@ -307,6 +309,7 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         );
         return rows.map(r => this.mapRow(r));
     }
+
 }
 
 export class SqliteMeetingRepository extends SqliteRepository<Meeting> implements MeetingRepository {
@@ -672,6 +675,21 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM tasks WHERE status = 'DONE' AND updated_at >= $1 AND updated_at <= $2 ORDER BY updated_at DESC",
+            [fromDate, toDate]
+        );
+        return rows.map(r => this.mapRow(r));
+    }
+
+    async findHistorySummariesInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        const db = await this.getDb();
+        const rows = await db.select<any[]>(
+            `SELECT
+                id, title, status, type, due_date,
+                linked_entity_type, linked_entity_id, week_review_id, tag,
+                duration_minutes, created_at, updated_at
+             FROM tasks
+             WHERE status = 'DONE' AND updated_at >= $1 AND updated_at <= $2
+             ORDER BY updated_at DESC`,
             [fromDate, toDate]
         );
         return rows.map(r => this.mapRow(r));

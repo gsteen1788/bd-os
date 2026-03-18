@@ -5,3 +5,7 @@
 ## 2025-03-05 - O(1) duplicate checks inside range loops
 **Learning:** Checking for duplicates in a dynamically growing array (`weeks.find`) inside a `while` loop over a date range results in O(N^2) time complexity. This is especially prevalent when aggregating historical data (like in `Tracker.tsx`), where the date range could span years, causing noticeable main-thread blocking.
 **Action:** When accumulating unique items in a list inside a loop, always pair the list with a `Set` (e.g., `seenWeeks = new Set()`) for O(1) duplicate checking instead of using `.find()` or `.includes()` on the array itself.
+
+## 2026-03-18 - Fetch only required fields for stats aggregation
+**Learning:** When aggregating statistics (e.g., in Tracker screens), fetching full entities (like `Task`) using methods like `findHistoryInRange` retrieves heavy text fields (like Markdown descriptions) that are unnecessary and cause memory bloat and slow parsing.
+**Action:** Create dedicated summary fetchers (e.g., `findHistorySummariesInRange`) that select only the columns needed for the aggregations (id, title, duration, tag, status, dates) to avoid O(N) memory overhead for large text fields.

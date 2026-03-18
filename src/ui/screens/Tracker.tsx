@@ -42,7 +42,9 @@ export function Tracker() {
             rangeEnd.setDate(rangeEnd.getDate() + 7); // Buffer to ensure we cover the end week
 
             const [allTasks, allGoals] = await Promise.all([
-                taskRepository.findHistoryInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
+                // Optimization: Bolt ⚡ - Fetch lightweight summaries for stats calculation.
+                // Reduces memory overhead and parsing time by avoiding fetching large text fields (descriptionMd, etc.)
+                taskRepository.findHistorySummariesInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
                 trackerGoalRepository.findAll()
             ]);
 
