@@ -45,3 +45,7 @@
 ## 2026-03-17 - Interactive elements must be semantic
 **Learning:** Using `div` or `a` tags without `href` for interactive elements causes problems for keyboard navigation and screen readers.
 **Action:** Always replace `<div>` or `<a>` with `onClick` handlers using semantic `<button type="button">` elements. Add `w-full text-left` to maintain layout behavior, and `focus-visible:ring-2` to ensure proper focus indicators.
+
+## 2026-03-24 - Interactive Pills Must Use Buttons
+**Learning:** Using `span` elements with `role="button"` for dynamically removing items (like link pills) causes severe accessibility and usability issues. They lack default keyboard focusability, explicit Enter/Space activation, and discoverability without hover.
+**Action:** Always replace interactive `span` elements used for removals with semantic `<button type="button">`. Ensure they have `focus-visible` styles, a descriptive dynamic `aria-label` (e.g., `"Remove link ${link.name}"`), and a `title` for mouse users.

@@ -349,17 +349,18 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                             <div key={i} className="flex items-center gap-1 bg-black/5 rounded px-1 shrink-0 max-w-[100px]">
                                                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${link.type === 'OPPORTUNITY' ? 'bg-blue-400' : 'bg-orange-400'}`}></span>
                                                 <span className="truncate text-[10px]">{link.name}</span>
-                                                <span
-                                                    className="ml-1 opacity-50 hover:opacity-100 cursor-pointer"
+                                                <button
+                                                    type="button"
+                                                    className="ml-1 opacity-50 hover:opacity-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded px-0.5"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setSelectedLinks(selectedLinks.filter((_, idx) => idx !== i));
                                                     }}
-                                                    aria-label="Remove link"
-                                                    role="button"
+                                                    aria-label={`Remove link ${link.name}`}
+                                                    title={`Remove link ${link.name}`}
                                                 >
                                                     ×
-                                                </span>
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -396,7 +397,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                     </div>
                                     <div className="max-h-60 overflow-y-auto flex flex-col gap-1 custom-scrollbar p-1">
                                         {pickerTab === 'OPPORTUNITY' && opportunities.map(o => (
-                                            <button key={o.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group" onClick={() => {
+                                            <button type="button" key={o.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
                                                 if (selectedLinks.find(l => l.id === o.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'OPPORTUNITY', id: o.id, name: o.name }]);
                                                 setShowLinkPicker(false);
@@ -405,7 +406,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                             </button>
                                         ))}
                                         {pickerTab === 'REL_EXTERNAL' && relationships.filter(r => !r.entry.isInternal).map(r => (
-                                            <button key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group" onClick={() => {
+                                            <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
                                                 if (selectedLinks.find(l => l.id === r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
                                                 setShowLinkPicker(false);
@@ -414,7 +415,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                             </button>
                                         ))}
                                         {pickerTab === 'REL_INTERNAL' && relationships.filter(r => r.entry.isInternal).map(r => (
-                                            <button key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group" onClick={() => {
+                                            <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
                                                 if (selectedLinks.find(l => l.id === r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
                                                 setShowLinkPicker(false);
