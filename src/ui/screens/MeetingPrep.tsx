@@ -1040,11 +1040,11 @@ function QuickPrepForm({ data, onChange, setData }: { data: any, onChange: (path
             </Section>
 
             <Section title="Goal" helpText="What do you want to advance? Business development? Relationship? Both?">
-                <textarea className="input w-full" rows={2} value={data.goal} onChange={e => onChange("goal", e.target.value)} />
+                <textarea aria-label="Goal" className="input w-full" rows={2} value={data.goal} onChange={e => onChange("goal", e.target.value)} />
             </Section>
 
             <Section title="Frame The Goal For The Buyer" helpText="How would you open the meeting? Do this in a way that is in everyone's best interest.">
-                <textarea className="input w-full" rows={2} value={data.frameGoal} onChange={e => onChange("frameGoal", e.target.value)} />
+                <textarea aria-label="Frame The Goal For The Buyer" className="input w-full" rows={2} value={data.frameGoal} onChange={e => onChange("frameGoal", e.target.value)} />
             </Section>
 
             <Section title="What could go wrong?" helpText="Plan for potential changes in timing, attendees and anything else.">
@@ -1056,11 +1056,11 @@ function QuickPrepForm({ data, onChange, setData }: { data: any, onChange: (path
             <QuestionManager title="My questions" questions={data.myQuestions || []} onChange={val => setData((p: any) => ({ ...p, myQuestions: val }))} />
 
             <Section title="Asset or experience to bring" helpText="Any specific collateral, demo, or wow factor?">
-                <textarea className="input w-full" rows={2} value={data.assets} onChange={e => onChange("assets", e.target.value)} />
+                <textarea aria-label="Asset or experience to bring" className="input w-full" rows={2} value={data.assets} onChange={e => onChange("assets", e.target.value)} />
             </Section>
 
             <Section title="Desired next step" helpText="Meeting, intro, data share, decision...">
-                <textarea className="input w-full" rows={2} value={data.nextStep} onChange={e => onChange("nextStep", e.target.value)} />
+                <textarea aria-label="Desired next step" className="input w-full" rows={2} value={data.nextStep} onChange={e => onChange("nextStep", e.target.value)} />
             </Section>
         </div>
     );
@@ -1091,7 +1091,7 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
             </Section>
 
             <Section title="Positioning and key messages">
-                <textarea className="input w-full" rows={4} placeholder="Positioning Elements | Proof Points" value={data.positioning} onChange={e => onChange("positioning", e.target.value)} />
+                <textarea aria-label="Positioning and key messages" className="input w-full" rows={4} placeholder="Positioning Elements | Proof Points" value={data.positioning} onChange={e => onChange("positioning", e.target.value)} />
             </Section>
 
             <Section title="Goals & Framing">
@@ -1116,21 +1116,21 @@ function DetailedPrepForm({ data, onChange, setData }: { data: any, onChange: (p
 
             <Section title="Agenda design">
                 <p className="text-muted text-xs mb-2">Topic | Interactive? | Curiosity? | Thinking Styles | Timing | Owner</p>
-                <textarea className="input w-full" rows={5} placeholder="Use a simple list or markdown table for now..." value={data.agenda} onChange={e => onChange("agenda", e.target.value)} />
+                <textarea aria-label="Agenda design" className="input w-full" rows={5} placeholder="Use a simple list or markdown table for now..." value={data.agenda} onChange={e => onChange("agenda", e.target.value)} />
             </Section>
 
             <QAManager title="Tough Questions" qas={data.toughQuestions || []} onChange={val => setData((p: any) => ({ ...p, toughQuestions: val }))} />
 
             <Section title="Thinking Styles And Advancing Client Relationships">
-                <textarea className="input w-full" rows={3} placeholder="Client Name | Role | Path to Raving Fan | Thinking Style..." value={data.thinkingStyles} onChange={e => onChange("thinkingStyles", e.target.value)} />
+                <textarea aria-label="Thinking Styles And Advancing Client Relationships" className="input w-full" rows={3} placeholder="Client Name | Role | Path to Raving Fan | Thinking Style..." value={data.thinkingStyles} onChange={e => onChange("thinkingStyles", e.target.value)} />
             </Section>
 
             <Section title="Next steps Before Final Walk Through">
-                <textarea className="input w-full" rows={2} value={data.nextStep} onChange={e => onChange("nextStep", e.target.value)} placeholder="What | Due Date | Who" />
+                <textarea aria-label="Next steps Before Final Walk Through" className="input w-full" rows={2} value={data.nextStep} onChange={e => onChange("nextStep", e.target.value)} placeholder="What | Due Date | Who" />
             </Section>
 
             <Section title="Other Notes">
-                <textarea className="input w-full" rows={3} value={data.otherNotes} onChange={e => onChange("otherNotes", e.target.value)} />
+                <textarea aria-label="Other Notes" className="input w-full" rows={3} value={data.otherNotes} onChange={e => onChange("otherNotes", e.target.value)} />
             </Section>
 
             <Section title="Final Walk Through">
