@@ -1,4 +1,4 @@
-import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH, validateEmail, validateWebUrl } from "./security";
+import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH, validateEmail, validateWebUrl, validateSafeUri } from "./security";
 
 console.log("🛡️ Running Security Verification...");
 
@@ -156,7 +156,47 @@ urlTestCases.forEach(({ input, valid }) => {
 });
 if (urlPassed) console.log("✅ All validateWebUrl tests passed.");
 
-if (sanitizePassed && validatePassed && emailPassed && urlPassed) {
+
+// Test validateSafeUri
+console.log("\n🧪 Testing validateSafeUri...");
+let safeUriPassed = true;
+
+const safeUriTestCases = [
+    { input: "https://example.com/image.png", valid: true },
+    { input: "http://localhost:3000/logo.svg", valid: true },
+    { input: "/local/path/to/image.jpg", valid: true },
+    { input: "assets/logo.png", valid: true },
+    { input: null, valid: true },
+    { input: undefined, valid: true },
+    { input: "", valid: true },
+    { input: "javascript:alert(1)", valid: false },
+    { input: "vbscript:msgbox('hello')", valid: false },
+    { input: "data:text/html,<script>alert(1)</script>", valid: false },
+    { input: "file:///etc/passwd", valid: false },
+];
+
+safeUriTestCases.forEach(({ input, valid }) => {
+    try {
+        validateSafeUri(input);
+        if (!valid) {
+            console.error(`❌ validateSafeUri failed: accepted invalid URI "${input}"`);
+            safeUriPassed = false;
+        } else {
+            console.log(`✅ validateSafeUri passed for "${input}"`);
+        }
+    } catch (e) {
+        if (valid) {
+            console.error(`❌ validateSafeUri failed: rejected valid URI "${input}"`);
+            safeUriPassed = false;
+        } else {
+            console.log(`✅ validateSafeUri correctly rejected "${input}"`);
+        }
+    }
+});
+if (safeUriPassed) console.log("✅ All validateSafeUri tests passed.");
+
+
+if (sanitizePassed && validatePassed && emailPassed && urlPassed && safeUriPassed) {
     console.log("\n🎉 Security Verification Successful!");
 } else {
     console.error("\n💥 Security Verification Failed!");
