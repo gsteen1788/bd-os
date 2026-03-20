@@ -321,6 +321,8 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         validateInput(entity.location, "Location");
         validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
         validateInput(entity.status, "Status");
+        validateInput(entity.startAt, "Start Time");
+        validateInput(entity.endAt, "End Time");
 
         const db = await this.getDb();
         await db.execute(
@@ -424,6 +426,9 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
         validateInput(entity.relationshipStage, "Relationship Stage");
         validateInput(entity.protemoiType, "Protemoi Type");
+        validateInput(entity.nextStepDueDate, "Next Step Due Date");
+        validateInput(entity.lastTouchDate, "Last Touch Date");
+        validateInput(entity.nextTouchDate, "Next Touch Date");
 
         const db = await this.getDb();
         await db.execute(
@@ -545,6 +550,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         validateInput(entity.type, "Type");
         validateInput(entity.linkedEntityType, "Linked Entity Type");
         validateInput(entity.tag, "Tag");
+        validateInput(entity.dueDate, "Due Date");
 
         const db = await this.getDb();
         await db.execute(
@@ -588,6 +594,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
             const placeholders: string[] = [];
 
             entity.links.forEach((link, index) => {
+                validateInput(link.entityType, "Link Entity Type");
                 const i = index * 5;
                 placeholders.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4}, $${i + 5})`);
                 values.push(
@@ -750,6 +757,8 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
     async save(entity: WeekReview): Promise<void> {
         // Security validation
         validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
+        validateInput(entity.weekStartDate, "Week Start Date");
+        validateInput(entity.weekEndDate, "Week End Date");
 
         const db = await this.getDb();
         await db.execute(
