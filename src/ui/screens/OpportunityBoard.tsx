@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { OpportunityStage, Currency } from "../../domain/enums";
 import { opportunityRepository, meetingRepository } from "../../infrastructure/repositories";
 import { Opportunity, Meeting } from "../../domain/entities";
@@ -132,6 +132,17 @@ export function OpportunityBoard() {
         load();
     }, []);
 
+    // Optimization: Bolt ⚡ - Pre-group opportunities by stage to avoid O(S * E) loop filtering
+    const oppsByStage = useMemo(() => {
+        const map = new Map<string, Opportunity[]>();
+        for (const opp of opportunities) {
+            const list = map.get(opp.stage) || [];
+            list.push(opp);
+            map.set(opp.stage, list);
+        }
+        return map;
+    }, [opportunities]);
+
     const handleSave = async (opp: Opportunity) => {
         try {
             console.log("Saving opportunity ID:", opp.id);
@@ -195,7 +206,7 @@ export function OpportunityBoard() {
 
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto", height: "100%" }}>
                 {OpportunityStage.map(stage => {
-                    const stageOpps = opportunities.filter(o => o.stage === stage);
+                    const stageOpps = oppsByStage.get(stage) || [];
                     const info = STAGE_INFO[stage];
 
                     return (
