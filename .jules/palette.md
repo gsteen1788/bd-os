@@ -49,3 +49,6 @@
 ## 2026-03-24 - Interactive Pills Must Use Buttons
 **Learning:** Using `span` elements with `role="button"` for dynamically removing items (like link pills) causes severe accessibility and usability issues. They lack default keyboard focusability, explicit Enter/Space activation, and discoverability without hover.
 **Action:** Always replace interactive `span` elements used for removals with semantic `<button type="button">`. Ensure they have `focus-visible` styles, a descriptive dynamic `aria-label` (e.g., `"Remove link ${link.name}"`), and a `title` for mouse users.
+## 2026-03-31 - Missing aria-labels in generic wrappers
+**Learning:** Inputs and textareas that rely entirely on outer visual wrappers (like a generic `<Section>` component with a title) but lack explicit `<label>` elements or IDs are announced as unlabeled to screen readers.
+**Action:** When form elements like `<textarea>` or `<input>` are wrapped in generic UI components (e.g., `<Section>`) without a standard explicit `<label htmlFor="...">` association, always provide a descriptive `aria-label` directly on the input element to ensure screen reader accessibility.
