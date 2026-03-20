@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
@@ -227,6 +227,17 @@ export function ProtemoiBoard() {
         const isInternal = e.isInternal;
         return viewMode === "INTERNAL" ? isInternal : !isInternal;
     });
+
+    // Optimization: Bolt ⚡ - Pre-group filtered entries by stage to avoid O(S * E) loop filtering
+    const entriesByStage = useMemo(() => {
+        const map = new Map<string, ProtemoiWithDetails[]>();
+        for (const entry of filteredEntries) {
+            const list = map.get(entry.relationshipStage) || [];
+            list.push(entry);
+            map.set(entry.relationshipStage, list);
+        }
+        return map;
+    }, [filteredEntries]);
 
     const handleSave = async () => {
         if (!editingEntry) return;
@@ -484,7 +495,7 @@ export function ProtemoiBoard() {
 
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto" }}>
                 {activeStages.map(stage => {
-                    const stageEntries = filteredEntries.filter(e => e.relationshipStage === stage);
+                    const stageEntries = entriesByStage.get(stage) || [];
                     const info = RELATIONSHIP_STAGE_INFO[stage];
 
                     return (
