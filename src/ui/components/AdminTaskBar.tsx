@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact, TaskLink } from "../../domain/entities";
 import { EntityType, TaskTag } from "../../domain/enums";
 import { formatShortDate } from "../../utils/dateUtils";
@@ -23,7 +23,10 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
 
     const [filterTag, setFilterTag] = useState<TaskTag | "ALL">("ALL");
 
-    const displayTasks = (viewMode === "PENDING" ? tasks : history).filter(t => filterTag === "ALL" || t.tag === filterTag);
+    // Optimization: Bolt ⚡ - Memoize filtered tasks to prevent unnecessary recalculations on unrelated state changes
+    const displayTasks = useMemo(() => {
+        return (viewMode === "PENDING" ? tasks : history).filter(t => filterTag === "ALL" || t.tag === filterTag);
+    }, [viewMode, tasks, history, filterTag]);
 
     // Creation/Editing State
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -31,6 +34,13 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
     const [dueDate, setDueDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [selectedTag, setSelectedTag] = useState<TaskTag | null>(null);
     const [selectedLinks, setSelectedLinks] = useState<{ type: EntityType, id: string, name: string }[]>([]);
+
+    // Optimization: Bolt ⚡ - O(1) set lookup for link selection to avoid O(N) array finds in render and click loops
+    const selectedLinkIds = useMemo(() => new Set(selectedLinks.map(l => l.id)), [selectedLinks]);
+
+    // Optimization: Bolt ⚡ - Memoize partitioned relationships to prevent O(N) filtering on every render when link picker is open
+    const externalRelationships = useMemo(() => relationships.filter(r => !r.entry.isInternal), [relationships]);
+    const internalRelationships = useMemo(() => relationships.filter(r => r.entry.isInternal), [relationships]);
 
     // UI State
     const [showLinkPicker, setShowLinkPicker] = useState(false);
@@ -398,25 +408,25 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                     <div className="max-h-60 overflow-y-auto flex flex-col gap-1 custom-scrollbar p-1">
                                         {pickerTab === 'OPPORTUNITY' && opportunities.map(o => (
                                             <button type="button" key={o.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
-                                                if (selectedLinks.find(l => l.id === o.id)) return;
+                                                if (selectedLinkIds.has(o.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'OPPORTUNITY', id: o.id, name: o.name }]);
                                                 setShowLinkPicker(false);
                                             }}>
                                                 <span className="truncate w-full">{o.name}</span>
                                             </button>
                                         ))}
-                                        {pickerTab === 'REL_EXTERNAL' && relationships.filter(r => !r.entry.isInternal).map(r => (
+                                        {pickerTab === 'REL_EXTERNAL' && externalRelationships.map(r => (
                                             <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
-                                                if (selectedLinks.find(l => l.id === r.entry.id)) return;
+                                                if (selectedLinkIds.has(r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
                                                 setShowLinkPicker(false);
                                             }}>
                                                 <span className="truncate w-full">{r.contact.displayName}</span>
                                             </button>
                                         ))}
-                                        {pickerTab === 'REL_INTERNAL' && relationships.filter(r => r.entry.isInternal).map(r => (
+                                        {pickerTab === 'REL_INTERNAL' && internalRelationships.map(r => (
                                             <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
-                                                if (selectedLinks.find(l => l.id === r.entry.id)) return;
+                                                if (selectedLinkIds.has(r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
                                                 setShowLinkPicker(false);
                                             }}>
