@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact, TaskLink } from "../../domain/entities";
 import { EntityType, TaskTag } from "../../domain/enums";
 import { formatShortDate } from "../../utils/dateUtils";
@@ -23,7 +23,12 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
 
     const [filterTag, setFilterTag] = useState<TaskTag | "ALL">("ALL");
 
-    const displayTasks = (viewMode === "PENDING" ? tasks : history).filter(t => filterTag === "ALL" || t.tag === filterTag);
+    // Optimization: Memoize task filtering to prevent O(N) re-calculation on every render
+    const displayTasks = useMemo(() => {
+        const sourceList = viewMode === "PENDING" ? tasks : history;
+        if (filterTag === "ALL") return sourceList;
+        return sourceList.filter(t => t.tag === filterTag);
+    }, [viewMode, filterTag, tasks, history]);
 
     // Creation/Editing State
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -36,6 +41,17 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
     const [showLinkPicker, setShowLinkPicker] = useState(false);
     const [pickerTab, setPickerTab] = useState<"OPPORTUNITY" | "REL_EXTERNAL" | "REL_INTERNAL">("OPPORTUNITY");
     const pickerRef = useRef<HTMLDivElement>(null);
+
+    // Optimization: Pre-filter relationships to avoid O(R) filtering on every render when picker is open
+    const { externalRelationships, internalRelationships } = useMemo(() => {
+        const ext: typeof relationships = [];
+        const int: typeof relationships = [];
+        for (const r of relationships) {
+            if (r.entry.isInternal) int.push(r);
+            else ext.push(r);
+        }
+        return { externalRelationships: ext, internalRelationships: int };
+    }, [relationships]);
 
     // Close picker on outside click
     useEffect(() => {
@@ -405,7 +421,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                                 <span className="truncate w-full">{o.name}</span>
                                             </button>
                                         ))}
-                                        {pickerTab === 'REL_EXTERNAL' && relationships.filter(r => !r.entry.isInternal).map(r => (
+                                        {pickerTab === 'REL_EXTERNAL' && externalRelationships.map(r => (
                                             <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
                                                 if (selectedLinks.find(l => l.id === r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
@@ -414,7 +430,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                                 <span className="truncate w-full">{r.contact.displayName}</span>
                                             </button>
                                         ))}
-                                        {pickerTab === 'REL_INTERNAL' && relationships.filter(r => r.entry.isInternal).map(r => (
+                                        {pickerTab === 'REL_INTERNAL' && internalRelationships.map(r => (
                                             <button type="button" key={r.entry.id} className="w-full text-left text-xs px-2 py-2 min-h-[34px] flex items-center hover:bg-black/5 rounded text-main group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none" onClick={() => {
                                                 if (selectedLinks.find(l => l.id === r.entry.id)) return;
                                                 setSelectedLinks([...selectedLinks, { type: 'RELATIONSHIP', id: r.entry.id, name: r.contact.displayName }]);
