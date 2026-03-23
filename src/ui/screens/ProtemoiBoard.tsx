@@ -534,9 +534,10 @@ export function ProtemoiBoard() {
 
                             <div className="flex flex-col gap-3 p-4 custom-scrollbar" style={{ overflowY: "auto", flex: 1 }}>
                                 {stageEntries.map(entry => (
-                                    <div
+                                    <button
+                                        type="button"
                                         key={entry.id}
-                                        className="card hover:border-primary-hover cursor-pointer group relative overflow-hidden flex-shrink-0"
+                                        className="card hover:border-primary-hover cursor-pointer group relative overflow-hidden flex-shrink-0 w-full text-left focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                         style={{
                                             padding: "16px",
                                             minHeight: "120px", // Ensure minimum height for logo
@@ -623,7 +624,7 @@ export function ProtemoiBoard() {
                                                 {entry.nextStepText}
                                             </div>
                                         )}
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
