@@ -52,3 +52,7 @@
 ## 2026-03-31 - Missing aria-labels in generic wrappers
 **Learning:** Inputs and textareas that rely entirely on outer visual wrappers (like a generic `<Section>` component with a title) but lack explicit `<label>` elements or IDs are announced as unlabeled to screen readers.
 **Action:** When form elements like `<textarea>` or `<input>` are wrapped in generic UI components (e.g., `<Section>`) without a standard explicit `<label htmlFor="...">` association, always provide a descriptive `aria-label` directly on the input element to ensure screen reader accessibility.
+
+## 2024-05-18 - [Make Relationship Cards Keyboard Accessible]
+**Learning:** Found that the primary interactive items on the relationship board (`ProtemoiBoard`) were structured as `div` elements with `onClick` handlers, which broke native keyboard navigation and focus indication entirely.
+**Action:** Always prefer native semantic `<button type="button">` tags (with proper structural classes like `w-full text-left` to negate default browser button styling) instead of adding `onClick` and `cursor-pointer` to generic `div` containers. This implicitly handles focus, "Enter/Space" key interactions, and provides proper ARIA roles out of the box. Ensure appropriate visual styling using focus states like `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none`.
