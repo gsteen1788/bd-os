@@ -239,6 +239,17 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
     const opportunitiesMap = useMemo(() => new Map(opportunities.map(o => [o.id, o])), [opportunities]);
     const relationshipsMap = useMemo(() => new Map(relationships.map(r => [r.entry.id, r])), [relationships]);
 
+    // Optimization: Bolt ⚡ - Pre-filter relationships by internal/external once, rather than re-evaluating O(N) filters on every render loop inside the picker list.
+    const { externalRelationships, internalRelationships } = useMemo(() => {
+        const ext: typeof relationships = [];
+        const int: typeof relationships = [];
+        for (const r of relationships) {
+            if (r.entry.isInternal) int.push(r);
+            else ext.push(r);
+        }
+        return { externalRelationships: ext, internalRelationships: int };
+    }, [relationships]);
+
     const getLinkName = (link: TaskLink) => {
         if (link.entityType === 'OPPORTUNITY') {
             const opp = opportunitiesMap.get(link.entityId);
@@ -387,8 +398,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
                                         {pickerType === 'REL_EXTERNAL' && (
                                             <>
-                                                {relationships.filter(r => !r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No external relationships</span>}
-                                                {relationships.filter(r => !r.entry.isInternal).map(r => (
+                                                {externalRelationships.length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No external relationships</span>}
+                                                {externalRelationships.map(r => (
                                                     <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
                                                         <span className="w-2 h-2 rounded-full bg-orange-400 mr-2 opacity-70"></span>
                                                         {r.contact.displayName}
@@ -399,8 +410,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
                                         {pickerType === 'REL_INTERNAL' && (
                                             <>
-                                                {relationships.filter(r => r.entry.isInternal).length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No team members found</span>}
-                                                {relationships.filter(r => r.entry.isInternal).map(r => (
+                                                {internalRelationships.length === 0 && <span className="text-xs text-muted p-2 italic text-center text-opacity-50">No team members found</span>}
+                                                {internalRelationships.map(r => (
                                                     <button key={r.entry.id} className="btn btn-ghost btn-sm justify-start text-xs truncate font-normal h-9 min-h-0 px-2 hover:bg-base-200 rounded-md" onClick={() => addLink('RELATIONSHIP', r.entry.id)}>
                                                         <span className="w-2 h-2 rounded-full bg-purple-400 mr-2 opacity-70"></span>
                                                         {r.contact.displayName}

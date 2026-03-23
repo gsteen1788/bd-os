@@ -65,11 +65,14 @@ export function MeetingPrep() {
 
     useEffect(() => {
         loadMeetings();
+    }, [viewMode]);
+
+    useEffect(() => {
         // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
         opportunityRepository.findAllSummaries().then(setAllOpps);
         protemoiRepository.findAllSummaries().then(setAllRels);
         contactRepository.findAllSummaries().then(setAllContacts);
-    }, [viewMode]);
+    }, []);
 
     // Optimization: Memoize grouped history
     const groupedMeetings = useMemo(() => groupItemsByWeek(meetings, 'startAt'), [meetings]);

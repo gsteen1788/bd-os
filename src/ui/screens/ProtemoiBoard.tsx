@@ -223,10 +223,13 @@ export function ProtemoiBoard() {
         load();
     }, []);
 
-    const filteredEntries = entries.filter(e => {
+    // Optimization: Bolt ⚡ - Memoize intermediate filtering to preserve reference equality.
+    // Without this, filteredEntries is a new array on every render, which busts the cache
+    // of the downstream entriesByStage useMemo, rendering the optimization useless.
+    const filteredEntries = useMemo(() => entries.filter(e => {
         const isInternal = e.isInternal;
         return viewMode === "INTERNAL" ? isInternal : !isInternal;
-    });
+    }), [entries, viewMode]);
 
     // Optimization: Bolt ⚡ - Pre-group filtered entries by stage to avoid O(S * E) loop filtering
     const entriesByStage = useMemo(() => {
