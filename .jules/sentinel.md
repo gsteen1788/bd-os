@@ -55,3 +55,7 @@
 **Vulnerability:** The central security utility `validateSafeUri` (designed to prevent Stored XSS via malicious schemes like `javascript:`) lacked automated test coverage in `src/infrastructure/ai/security.test.ts`.
 **Learning:** Security functions that lack test coverage are vulnerable to regressions. If `validateSafeUri` were accidentally modified or bypassed in the future, the lack of tests would silently allow XSS vulnerabilities back into the application (e.g., via `Organization.logoUrl`).
 **Prevention:** Ensure that every security utility function exported from `security.ts` (especially those mitigating specific attack vectors like XSS) has dedicated and comprehensive unit tests.
+## 2024-05-25 - HTML Injection via External APIs
+**Vulnerability:** External APIs like Microsoft Graph allow specifying the `contentType` of an event body (e.g., `HTML`). If user input is passed into the `content` field without sanitization, it can lead to Stored XSS in the downstream system (e.g., the user's Outlook Calendar).
+**Learning:** Security boundaries extend beyond our application's immediate UI. Data sent to integrated third-party systems that render HTML must be sanitized before transmission, or the application acts as a confused deputy facilitating attacks on the user's other tools.
+**Prevention:** Always sanitize user input (e.g., using `sanitizeInput` to escape HTML entities) before embedding it into HTML-content fields of external API payloads, unless a specific, secure Markdown-to-HTML pipeline is used.
