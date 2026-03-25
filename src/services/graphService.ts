@@ -1,5 +1,6 @@
 import { authService } from './authService';
 import { getClient, Body } from '@tauri-apps/api/http';
+import { sanitizeInput } from '../infrastructure/ai/security';
 
 const GRAPH_BASE_URL = 'https://graph.microsoft.com/v1.0';
 
@@ -88,7 +89,7 @@ class GraphService {
             subject,
             body: {
                 contentType: 'HTML',
-                content: description || ''
+                content: sanitizeInput(description || '')
             },
             start: {
                 dateTime: start.toISOString(),
