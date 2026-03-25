@@ -599,16 +599,19 @@ export function ProtemoiBoard() {
                                         </div>
 
                                         {entry.contact?.linkedinUrl && (
-                                            <div
-                                                className="absolute bottom-3 right-3 w-6 h-6 p-1 rounded-full hover:bg-black/10 transition-colors z-20 cursor-pointer text-blue-600 hover:text-blue-700 bg-white/80"
+                                            <a
+                                                href={entry.contact.linkedinUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="absolute bottom-3 right-3 w-6 h-6 p-1 rounded-full hover:bg-black/10 transition-colors z-20 cursor-pointer text-blue-600 hover:text-blue-700 bg-white/80 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    window.open(entry.contact!.linkedinUrl!, "_blank", "noopener,noreferrer");
                                                 }}
                                                 title="Open LinkedIn Profile"
+                                                aria-label="Open LinkedIn Profile"
                                             >
                                                 <LinkedInIcon />
-                                            </div>
+                                            </a>
                                         )}
 
                                         {entry.nextStepText && (
