@@ -335,10 +335,16 @@ function GoalInput({ value, onChange, ariaLabel }: { value: number | undefined, 
         <div className="relative group">
             <input
                 aria-label={ariaLabel}
+                title={ariaLabel}
                 className="w-10 h-5 text-center text-[10px] font-bold bg-white/5 hover:bg-white/10 focus:bg-white/20 rounded border border-transparent focus:border-primary/50 outline-none transition-all placeholder-white/20 text-main"
                 placeholder="-"
                 defaultValue={value || ""}
                 onBlur={(e) => onChange(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                    }
+                }}
             />
         </div>
     );
