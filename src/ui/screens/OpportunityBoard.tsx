@@ -132,6 +132,16 @@ export function OpportunityBoard() {
         load();
     }, []);
 
+    // Optimization: Bolt ⚡ - Pre-calculate global index map for opportunities
+    // Reduces algorithmic complexity of generating anonymized labels from O(N^2) to O(N) during render cycles.
+    const opportunitiesIndexMap = useMemo(() => {
+        const map = new Map<string, number>();
+        opportunities.forEach((opp, index) => {
+            map.set(opp.id, index);
+        });
+        return map;
+    }, [opportunities]);
+
     // Optimization: Bolt ⚡ - Pre-group opportunities by stage to avoid O(S * E) loop filtering
     const oppsByStage = useMemo(() => {
         const map = new Map<string, Opportunity[]>();
@@ -268,7 +278,7 @@ export function OpportunityBoard() {
                                         }}
                                     >
                                         <div style={{ fontWeight: "600" }}>
-                                            {isAnonymized ? `Opportunity ${opportunities.indexOf(opp) + 1}` : opp.name}
+                                            {isAnonymized ? `Opportunity ${(opportunitiesIndexMap.get(opp.id) ?? -1) + 1}` : opp.name}
                                         </div>
                                         <div className="flex justify-between items-center" style={{ marginTop: "8px", fontSize: "12px" }}>
                                             <span className="text-muted">
