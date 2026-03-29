@@ -202,6 +202,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         Admin / Routine Tasks
                     </h4>
                     <select
+                        aria-label="Filter tasks by tag"
                         className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
                         value={filterTag}
                         onChange={(e) => setFilterTag(e.target.value as TaskTag | "ALL")}
@@ -212,6 +213,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         ))}
                     </select>
                     <select
+                        aria-label="Toggle view mode"
                         className="select select-xs select-ghost h-6 min-h-0 text-[10px] uppercase font-bold text-muted/50"
                         value={viewMode}
                         onChange={(e) => setViewMode(e.target.value as "PENDING" | "DONE")}

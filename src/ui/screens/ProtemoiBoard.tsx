@@ -472,6 +472,7 @@ export function ProtemoiBoard() {
                 <div className="flex items-center gap-4">
                     <h2 className="text-xl font-semibold m-0 tracking-tight">Relationship Board</h2>
                     <select
+                        aria-label="Toggle relationship scope"
                         className="input"
                         value={viewMode}
                         onChange={e => setViewMode(e.target.value as any)}

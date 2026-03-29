@@ -138,6 +138,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     </h1>
                     <div className="flex items-center gap-4" style={{ position: "relative" }} ref={searchRef}>
                         <input
+                            aria-label="Global search"
                             className="input"
                             type="text"
                             placeholder="Type to search..."
