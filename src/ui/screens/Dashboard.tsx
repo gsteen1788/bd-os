@@ -279,6 +279,7 @@ export function Dashboard() {
                         <span className="text-xl">📅</span>
                     </button>
                     <select
+                        aria-label="Toggle view mode"
                         className="input"
                         value={viewMode}
                         onChange={(e) => setViewMode(e.target.value as "PENDING" | "HISTORY")}

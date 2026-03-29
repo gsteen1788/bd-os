@@ -201,9 +201,10 @@ export function OpportunityBoard() {
             <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
                 <h2 className="text-xl font-semibold m-0 tracking-tight">Pipeline (Opportunities)</h2>
                 <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <label htmlFor="toggle-anonymise-opps" className="flex items-center gap-2 cursor-pointer select-none">
                         <span className="text-sm font-medium text-muted">Anonymise</span>
                         <input
+                            id="toggle-anonymise-opps"
                             type="checkbox"
                             className="toggle toggle-primary toggle-sm"
                             checked={isAnonymized}
