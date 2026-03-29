@@ -787,7 +787,14 @@ function AttendeesManager({ attendees, onChange }: { attendees: MeetingAttendee[
         }
     }, [isAddOpen, tab]);
 
-    const filteredContacts = contacts.filter(c => c.displayName.toLowerCase().includes(search.toLowerCase()));
+    // Optimization: Bolt ⚡ - Memoize contact search and hoist search.toLowerCase() outside the loop
+    // Prevents redundant O(N) string conversions during filtering, and avoids unnecessary re-filtering
+    // entirely when unrelated state (like newName or tab) changes during renders.
+    const filteredContacts = useMemo(() => {
+        if (!search) return contacts;
+        const lowerSearch = search.toLowerCase();
+        return contacts.filter(c => c.displayName.toLowerCase().includes(lowerSearch));
+    }, [contacts, search]);
 
     const handleAddExisting = (contact: Contact) => {
         onChange([...attendees, {
