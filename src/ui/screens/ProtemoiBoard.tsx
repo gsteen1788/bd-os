@@ -231,6 +231,16 @@ export function ProtemoiBoard() {
         return viewMode === "INTERNAL" ? isInternal : !isInternal;
     }), [entries, viewMode]);
 
+    // Optimization: Bolt ⚡ - Pre-calculate global index map for entries
+    // Reduces algorithmic complexity of generating anonymized labels from O(N^2) to O(N) during render cycles.
+    const entriesIndexMap = useMemo(() => {
+        const map = new Map<string, number>();
+        entries.forEach((entry, index) => {
+            map.set(entry.id, index);
+        });
+        return map;
+    }, [entries]);
+
     // Optimization: Bolt ⚡ - Pre-group filtered entries by stage to avoid O(S * E) loop filtering
     const entriesByStage = useMemo(() => {
         const map = new Map<string, ProtemoiWithDetails[]>();
@@ -588,12 +598,12 @@ export function ProtemoiBoard() {
                                             </div>
                                         )}
                                         <div style={{ fontWeight: "600", fontSize: "15px", marginBottom: "4px" }}>
-                                            {isAnonymized ? `Person ${entries.indexOf(entry) + 1}` : (entry.contact?.displayName || "Unknown Contact")}
+                                            {isAnonymized ? `Person ${(entriesIndexMap.get(entry.id) ?? -1) + 1}` : (entry.contact?.displayName || "Unknown Contact")}
                                         </div>
                                         <div className="text-xs uppercase tracking-wide mb-2 opacity-80" style={{ paddingRight: "40px" }}>
                                             {entry.organization?.name ? (
                                                 <div className="font-semibold truncate mb-0.5" title={isAnonymized ? "Anonymized Organization" : entry.organization.name}>
-                                                    {isAnonymized ? `Organization ${entries.indexOf(entry) + 1}` : entry.organization.name}
+                                                    {isAnonymized ? `Organization ${(entriesIndexMap.get(entry.id) ?? -1) + 1}` : entry.organization.name}
                                                 </div>
                                             ) : null}
                                             <div className="opacity-75">{entry.protemoiType?.replace(/_/g, " ")}</div>
