@@ -5,7 +5,7 @@ import {
 import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
-import { validateEmail, validateWebUrl, validateInput, validateSafeUri, MAX_TEXT_LENGTH } from "./ai/security";
+import { validateEmail, validateWebUrl, validateInput, validateSafeUri, validateDate, MAX_TEXT_LENGTH } from "./ai/security";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -321,8 +321,8 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         validateInput(entity.location, "Location");
         validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
         validateInput(entity.status, "Status");
-        validateInput(entity.startAt, "Start Time");
-        validateInput(entity.endAt, "End Time");
+        validateDate(entity.startAt, "Start Time");
+        validateDate(entity.endAt, "End Time");
 
         const db = await this.getDb();
         await db.execute(
@@ -426,9 +426,9 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
         validateInput(entity.relationshipStage, "Relationship Stage");
         validateInput(entity.protemoiType, "Protemoi Type");
-        validateInput(entity.nextStepDueDate, "Next Step Due Date");
-        validateInput(entity.lastTouchDate, "Last Touch Date");
-        validateInput(entity.nextTouchDate, "Next Touch Date");
+        validateDate(entity.nextStepDueDate, "Next Step Due Date");
+        validateDate(entity.lastTouchDate, "Last Touch Date");
+        validateDate(entity.nextTouchDate, "Next Touch Date");
 
         const db = await this.getDb();
         await db.execute(
@@ -550,7 +550,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         validateInput(entity.type, "Type");
         validateInput(entity.linkedEntityType, "Linked Entity Type");
         validateInput(entity.tag, "Tag");
-        validateInput(entity.dueDate, "Due Date");
+        validateDate(entity.dueDate, "Due Date");
 
         const db = await this.getDb();
         await db.execute(
@@ -757,8 +757,8 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
     async save(entity: WeekReview): Promise<void> {
         // Security validation
         validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
-        validateInput(entity.weekStartDate, "Week Start Date");
-        validateInput(entity.weekEndDate, "Week End Date");
+        validateDate(entity.weekStartDate, "Week Start Date");
+        validateDate(entity.weekEndDate, "Week End Date");
 
         const db = await this.getDb();
         await db.execute(
