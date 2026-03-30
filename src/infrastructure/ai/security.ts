@@ -34,6 +34,10 @@ export const sanitizeInput = (input: string): string => {
 export const validateInput = (input: string | null | undefined, fieldName: string = "Input", maxLength: number = MAX_INPUT_LENGTH): void => {
     if (!input) return;
 
+    if (typeof input !== 'string') {
+        throw new Error(`${fieldName} must be a string.`);
+    }
+
     if (input.length > maxLength) {
         throw new Error(`${fieldName} exceeds maximum allowed length of ${maxLength} characters.`);
     }
@@ -105,5 +109,32 @@ export const validateSafeUri = (uri?: string | null): void => {
     // If it looks like a web URL, strictly validate it as such
     if (/^https?:\/\//i.test(trimmed)) {
         validateWebUrl(trimmed);
+    }
+};
+
+/**
+ * Validates that the provided input is a valid date string or Date object.
+ * Prevents extremely long inputs and validates the parsed date.
+ * Allows null/undefined as valid (optional field).
+ */
+export const validateDate = (date?: string | Date | null, fieldName: string = "Date"): void => {
+    if (!date) return;
+
+    if (typeof date === 'string') {
+        // Prevent DoS from extremely long strings attempting to be parsed as dates
+        if (date.length > 100) {
+            throw new Error(`${fieldName} exceeds maximum length for a date string.`);
+        }
+
+        const timestamp = Date.parse(date);
+        if (isNaN(timestamp)) {
+            throw new Error(`Invalid date format for ${fieldName}`);
+        }
+    } else if (date instanceof Date) {
+        if (isNaN(date.getTime())) {
+            throw new Error(`Invalid Date object for ${fieldName}`);
+        }
+    } else {
+        throw new Error(`${fieldName} must be a valid date string or Date object`);
     }
 };

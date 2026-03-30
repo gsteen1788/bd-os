@@ -1,4 +1,4 @@
-import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH, validateEmail, validateWebUrl, validateSafeUri } from "./security";
+import { sanitizeInput, validateInput, MAX_INPUT_LENGTH, MAX_TEXT_LENGTH, validateEmail, validateWebUrl, validateSafeUri, validateDate } from "./security";
 
 console.log("🛡️ Running Security Verification...");
 
@@ -195,8 +195,45 @@ safeUriTestCases.forEach(({ input, valid }) => {
 });
 if (safeUriPassed) console.log("✅ All validateSafeUri tests passed.");
 
+// Test validateDate
+console.log("\n🧪 Testing validateDate...");
+let datePassed = true;
 
-if (sanitizePassed && validatePassed && emailPassed && urlPassed && safeUriPassed) {
+const dateTestCases = [
+    { input: "2023-10-01T12:00:00Z", valid: true },
+    { input: new Date(), valid: true },
+    { input: null, valid: true },
+    { input: undefined, valid: true },
+    { input: "", valid: true },
+    { input: "not-a-date", valid: false },
+    { input: "a".repeat(101), valid: false }, // exceed max length
+    { input: new Date("invalid"), valid: false },
+    { input: 1234567890 as any, valid: false }, // Invalid type
+];
+
+dateTestCases.forEach(({ input, valid }) => {
+    try {
+        validateDate(input);
+        if (!valid) {
+            console.error(`❌ validateDate failed: accepted invalid date`);
+            datePassed = false;
+        } else {
+            console.log(`✅ validateDate passed for valid input`);
+        }
+    } catch (e) {
+        if (valid) {
+            console.error(`❌ validateDate failed: rejected valid date`);
+            datePassed = false;
+        } else {
+            console.log(`✅ validateDate correctly rejected invalid input`);
+        }
+    }
+});
+
+if (datePassed) console.log("✅ All validateDate tests passed.");
+
+
+if (sanitizePassed && validatePassed && emailPassed && urlPassed && safeUriPassed && datePassed) {
     console.log("\n🎉 Security Verification Successful!");
 } else {
     console.error("\n💥 Security Verification Failed!");
