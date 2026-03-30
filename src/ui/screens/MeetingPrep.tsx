@@ -488,10 +488,19 @@ export function MeetingPrep() {
                         )}
 
                         {meetings.length === 0 && (
-                            <div className="col-span-full py-12 text-center text-muted">
-                                {viewMode === "UPCOMING"
-                                    ? "No upcoming meetings found. Create one to get started."
-                                    : "No completed meetings in history."}
+                            <div className="col-span-full flex flex-col items-center justify-center text-muted border-2 border-dashed border-base-300 rounded-xl m-4 py-12">
+                                <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '📅'}</div>
+                                <p className="text-xl font-medium">
+                                    {viewMode === "UPCOMING"
+                                        ? "No upcoming meetings found."
+                                        : "No completed meetings in history."}
+                                </p>
+                                {viewMode === "UPCOMING" && (
+                                    <>
+                                        <p className="text-sm mt-2">Create one to get started prepping.</p>
+                                        <button className="btn btn-outline mt-6" onClick={() => setIsNewMeetingOpen(true)}>Create Meeting</button>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
