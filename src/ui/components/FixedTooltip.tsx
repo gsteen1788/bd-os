@@ -9,7 +9,7 @@ interface FixedTooltipProps {
 export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
-    const triggerRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
     const tooltipId = useId();
 
     const updatePosition = () => {
@@ -39,15 +39,14 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
     };
 
     return (
-        <div
+        <button
+            type="button"
             ref={triggerRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleMouseEnter}
             onBlur={handleMouseLeave}
             onKeyDown={handleKeyDown}
-            tabIndex={0}
-            role="button"
             aria-describedby={tooltipId}
             className="inline-block outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-help"
         >
@@ -75,6 +74,6 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
                 </div>,
                 document.body
             )}
-        </div>
+        </button>
     );
 };
