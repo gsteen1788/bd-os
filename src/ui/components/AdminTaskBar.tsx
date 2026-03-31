@@ -228,75 +228,81 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                 {/* Task List (Horizontal Scroll) */}
                 <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar pb-2" style={{ maxHeight: '140px' }}>
                     <div className="flex gap-3 h-full items-stretch">
-                        {displayTasks.map(task => (
-                            <div
-                                key={task.id}
-                                className={`group flex flex-col justify-between p-3 bg-base-100 rounded-lg border min-w-[200px] max-w-[200px] min-h-[90px] hover:shadow-lg transition-all relative focus-within:ring-2 focus-within:ring-primary focus-within:rounded-lg ${editingTask?.id === task.id ? 'border-primary ring-1 ring-primary' : 'border-[hsl(var(--color-border))] hover:border-secondary/30'}`}
-                            >
-                                <div className="flex justify-between items-start gap-2">
-                                    <div className="flex flex-col gap-1 w-full min-w-0">
-                                        {task.tag && (
-                                            <span className={`text-[8px] font-bold px-1 py-0.5 rounded border self-start ${getTagColor(task.tag)}`}>
-                                                {task.tag.replace('_', ' ')}
+                        {displayTasks.map(task => {
+                            // Optimization: Bolt ⚡ - Pre-parse date to avoid parsing twice in the render loop (once for the < check, once inside formatShortDate)
+                            const parsedDueDate = task.dueDate ? new Date(task.dueDate) : null;
+                            const isOverdue = parsedDueDate ? parsedDueDate < new Date() : false;
+
+                            return (
+                                <div
+                                    key={task.id}
+                                    className={`group flex flex-col justify-between p-3 bg-base-100 rounded-lg border min-w-[200px] max-w-[200px] min-h-[90px] hover:shadow-lg transition-all relative focus-within:ring-2 focus-within:ring-primary focus-within:rounded-lg ${editingTask?.id === task.id ? 'border-primary ring-1 ring-primary' : 'border-[hsl(var(--color-border))] hover:border-secondary/30'}`}
+                                >
+                                    <div className="flex justify-between items-start gap-2">
+                                        <div className="flex flex-col gap-1 w-full min-w-0">
+                                            {task.tag && (
+                                                <span className={`text-[8px] font-bold px-1 py-0.5 rounded border self-start ${getTagColor(task.tag)}`}>
+                                                    {task.tag.replace('_', ' ')}
+                                                </span>
+                                            )}
+                                            <button
+                                                className={`text-xs font-semibold text-left line-clamp-2 leading-tight focus:outline-none cursor-pointer after:absolute after:inset-0 after:content-[''] ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`}
+                                                title={task.title}
+                                                onClick={() => setEditingTask(task)}
+                                                aria-label={`Edit task: ${task.title}`}
+                                            >
+                                                {task.title}
+                                            </button>
+                                        </div>
+                                        {viewMode === "PENDING" ? (
+                                            <input
+                                                type="checkbox"
+                                                className="checkbox checkbox-xs checkbox-secondary rounded-sm border-[hsl(var(--color-border))] relative z-10"
+                                                checked={false} // Always false until clicked
+                                                onChange={(e) => {
+                                                    e.stopPropagation();
+                                                    onComplete(task);
+                                                }}
+                                                title="Mark Complete"
+                                                aria-label={`Mark "${task.title}" as complete`}
+                                            />
+                                        ) : (
+                                            <button
+                                                className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-40 group-hover:opacity-100 focus:opacity-100 transition-opacity relative z-10"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onRevert(task);
+                                                }}
+                                                title="Revert to Pending"
+                                                aria-label={`Revert "${task.title}" to pending`}
+                                            >
+                                                ↩
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex justify-between items-end mt-1">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className={`text-[10px] ${isOverdue ? 'text-error' : 'text-muted'}`}>
+                                                {parsedDueDate ? formatShortDate(parsedDueDate) : 'No Date'}
                                             </span>
-                                        )}
-                                        <button
-                                            className={`text-xs font-semibold text-left line-clamp-2 leading-tight focus:outline-none cursor-pointer after:absolute after:inset-0 after:content-[''] ${task.status === 'DONE' ? 'line-through opacity-50' : ''}`}
-                                            title={task.title}
-                                            onClick={() => setEditingTask(task)}
-                                            aria-label={`Edit task: ${task.title}`}
-                                        >
-                                            {task.title}
-                                        </button>
-                                    </div>
-                                    {viewMode === "PENDING" ? (
-                                        <input
-                                            type="checkbox"
-                                            className="checkbox checkbox-xs checkbox-secondary rounded-sm border-[hsl(var(--color-border))] relative z-10"
-                                            checked={false} // Always false until clicked
-                                            onChange={(e) => {
-                                                e.stopPropagation();
-                                                onComplete(task);
-                                            }}
-                                            title="Mark Complete"
-                                            aria-label={`Mark "${task.title}" as complete`}
-                                        />
-                                    ) : (
-                                        <button
-                                            className="btn btn-xs btn-ghost text-warning p-0 w-6 h-6 flex items-center justify-center opacity-40 group-hover:opacity-100 focus:opacity-100 transition-opacity relative z-10"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onRevert(task);
-                                            }}
-                                            title="Revert to Pending"
-                                            aria-label={`Revert "${task.title}" to pending`}
-                                        >
-                                            ↩
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="flex justify-between items-end mt-1">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className={`text-[10px] ${new Date(task.dueDate || '') < new Date() ? 'text-error' : 'text-muted'}`}>
-                                            {task.dueDate ? formatShortDate(task.dueDate) : 'No Date'}
-                                        </span>
-                                        {viewMode === "DONE" && task.durationMinutes && (
-                                            <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
-                                        )}
-                                        {task.links && task.links.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 max-w-[120px]">
-                                                {task.links.map((link, i) => (
-                                                    <span key={i} className="text-[9px] opacity-70 truncate flex items-center gap-1 max-w-full">
-                                                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-400' : 'bg-orange-400'}`}></span>
-                                                        <span className="truncate">{getLinkDisplay(link)}</span>
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
+                                            {viewMode === "DONE" && task.durationMinutes && (
+                                                <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
+                                            )}
+                                            {task.links && task.links.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 max-w-[120px]">
+                                                    {task.links.map((link, i) => (
+                                                        <span key={i} className="text-[9px] opacity-70 truncate flex items-center gap-1 max-w-full">
+                                                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${link.entityType === 'OPPORTUNITY' ? 'bg-blue-400' : 'bg-orange-400'}`}></span>
+                                                            <span className="truncate">{getLinkDisplay(link)}</span>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         {displayTasks.length === 0 && (
                             <div className="flex items-center justify-center min-w-[200px] h-[80px] border border-dashed border-white/10 rounded-lg text-xs text-muted italic">
                                 No {viewMode === "PENDING" ? "pending" : "completed"} tasks

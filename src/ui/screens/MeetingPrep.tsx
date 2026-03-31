@@ -155,6 +155,8 @@ export function MeetingPrep() {
 
     const renderMeetingCard = (m: Meeting) => {
         const linkName = getLinkName(m);
+        // Optimization: Bolt ⚡ - Pre-parse date to avoid repeated string parsing in format utilities
+        const parsedDate = m.startAt ? new Date(m.startAt) : null;
         return (
             <button
                 type="button"
@@ -184,7 +186,7 @@ export function MeetingPrep() {
                     )}
                 </div>
                 <div className="text-muted text-sm mt-1 w-full text-left">
-                    {formatDate(m.startAt!)} at {formatTime(m.startAt!)}
+                    {parsedDate ? `${formatDate(parsedDate)} at ${formatTime(parsedDate)}` : "No Date"}
                 </div>
                 <div className="mt-4 flex justify-between items-center text-xs text-dim w-full">
                     <span>{m.location || "No location"}</span>
@@ -601,7 +603,11 @@ export function MeetingPrep() {
                                 {selectedMeeting.status === "COMPLETED" && <span className="text-success font-bold text-lg" title="Completed">✓</span>}
                             </button>
                             <div className="text-xs text-muted flex gap-2 mt-1">
-                                <span>{formatDate(selectedMeeting.startAt!)} {formatTime(selectedMeeting.startAt!)}</span>
+                                <span>{selectedMeeting.startAt ? (() => {
+                                    // Optimization: Bolt ⚡ - Pre-parse date to avoid repeated string parsing
+                                    const parsedDate = new Date(selectedMeeting.startAt);
+                                    return `${formatDate(parsedDate)} ${formatTime(parsedDate)}`;
+                                })() : ""}</span>
                                 {selectedMeeting.location && <span> | 📍 {selectedMeeting.location}</span>}
                             </div>
                         </div>
