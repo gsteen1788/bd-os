@@ -595,6 +595,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
 
             entity.links.forEach((link, index) => {
                 validateInput(link.entityType, "Link Entity Type");
+                validateInput(link.entityId, "Link Entity ID");
                 const i = index * 5;
                 placeholders.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4}, $${i + 5})`);
                 values.push(
