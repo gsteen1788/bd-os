@@ -507,27 +507,31 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         if (tasks.length === 0) return [];
         const db = await this.getDb();
 
-        // Use parameterized query to prevent SQL injection
-        const placeholders = tasks.map((_, i) => `$${i + 1}`).join(",");
         const taskIds = tasks.map(t => t.id);
+        const CHUNK_SIZE = 500; // Prevent SQLite max variable limit DoS
+        const linkMap = new Map<string, any[]>();
 
         try {
-            const links = await db.select<any[]>(
-                `SELECT * FROM task_links WHERE task_id IN (${placeholders})`,
-                taskIds
-            );
+            for (let i = 0; i < taskIds.length; i += CHUNK_SIZE) {
+                const chunk = taskIds.slice(i, i + CHUNK_SIZE);
+                const placeholders = chunk.map((_, idx) => `$${idx + 1}`).join(",");
 
-            const linkMap = new Map<string, any[]>();
-            links.forEach(l => {
-                if (!linkMap.has(l.task_id)) linkMap.set(l.task_id, []);
-                linkMap.get(l.task_id)!.push({
-                    id: l.id,
-                    taskId: l.task_id,
-                    entityType: l.entity_type,
-                    entityId: l.entity_id,
-                    createdAt: l.created_at
+                const links = await db.select<any[]>(
+                    `SELECT * FROM task_links WHERE task_id IN (${placeholders})`,
+                    chunk
+                );
+
+                links.forEach(l => {
+                    if (!linkMap.has(l.task_id)) linkMap.set(l.task_id, []);
+                    linkMap.get(l.task_id)!.push({
+                        id: l.id,
+                        taskId: l.task_id,
+                        entityType: l.entity_type,
+                        entityId: l.entity_id,
+                        createdAt: l.created_at
+                    });
                 });
-            });
+            }
 
             return tasks.map(t => ({
                 ...t,
