@@ -13,3 +13,6 @@
 ## 2026-02-08 - Stretched Link Pattern for Cards
 **Learning:** Using `onClick` on a container `div` creates poor accessibility. The "Stretched Link" pattern (using `::after` on the primary action to cover the container) is a robust solution that preserves semantic structure while maintaining a large click target.
 **Action:** When implementing clickable cards, remove container click handlers. Use `after:absolute after:inset-0` on the primary link/button, and ensure secondary interactive elements have `relative z-10`.
+## 2026-04-02 - Floating Widget Accessibility
+**Learning:** Floating, non-modal widgets with icon-only trigger and close buttons need explicit ARIA links (`aria-expanded`, `aria-controls`) and focus states (`focus-visible`) to be accessible for screen reader and keyboard users.
+**Action:** When implementing floating interactive widgets, always explicitly define structural ARIA relationships between the trigger button and the popup container, and ensure all interior buttons have `focus-visible` styles.
