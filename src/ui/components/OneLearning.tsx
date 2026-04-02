@@ -84,10 +84,12 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
         >
             {/* Popup Bubble */}
             {isOpen && (
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm mb-2 animate-in slide-in-from-bottom-5 fade-in duration-300 relative">
+                <div id="one-learning-popup" className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm mb-2 animate-in slide-in-from-bottom-5 fade-in duration-300 relative">
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:outline-none rounded-md"
+                        aria-label="Close learning tip"
+                        title="Close"
                     >
                         ✕
                     </button>
@@ -111,14 +113,14 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
                     <div className="mt-4 flex gap-2">
                         <button
                             onClick={fetchRandomLearning}
-                            className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors"
+                            className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                         >
                             Another one
                         </button>
                         <button
                             onClick={handleIngest}
                             disabled={ingesting}
-                            className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50"
+                            className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:outline-none"
                         >
                             {ingesting ? "Ingesting..." : "Refresh/Ingest"}
                         </button>
@@ -132,7 +134,9 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
             {/* Trigger Button */}
             <button
                 onClick={handleToggle}
-                className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 overflow-hidden ${isOpen
+                aria-expanded={isOpen}
+                aria-controls="one-learning-popup"
+                className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 overflow-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${isOpen
                     ? 'bg-gray-200 rotate-180'
                     : 'bg-transparent hover:scale-110'
                     }`}
