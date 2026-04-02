@@ -67,3 +67,8 @@
 **Vulnerability:** The `SqliteTaskRepository.save` method iterated over `entity.links` to insert into `task_links`, but only validated the `link.entityType` property using `validateInput`. The `link.entityId` property was passed directly to the query placeholders without validation, potentially allowing malformed or overly long strings.
 **Learning:** Developers often validate top-level fields of an entity but forget to apply the same strict validation utility (`validateInput`) to properties of nested objects or arrays (like relationships) before they reach the persistence layer.
 **Prevention:** When persisting entity relationships (e.g., iterating through `entity.links`), strictly ensure that every single string property of the nested objects (both `entityType` and `entityId`) is validated with `validateInput` before executing the SQL queries to prevent string injection or DoS via maliciously crafted array items.
+
+## 2026-04-02 - Denial of Service via SQLite Variable Limit
+**Vulnerability:** When a dynamic array of user-controlled or unbounded IDs was passed into a SQLite `IN ()` clause without chunking, the query crashed if the array length exceeded `SQLITE_MAX_VARIABLE_NUMBER` (usually 999).
+**Learning:** Parameterized queries for dynamic lists protect against SQL injection but introduce a DoS vector if the host database limits the maximum number of bound variables per query.
+**Prevention:** Always chunk dynamic arrays into smaller batches (e.g., 500) when passing them to an `IN` clause in SQLite to prevent database crashes.
