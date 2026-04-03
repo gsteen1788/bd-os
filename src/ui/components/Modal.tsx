@@ -39,7 +39,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
                 <div className="modal-header">
                     <h3 id="modal-title">{title}</h3>
                     <button
-                        className="btn-ghost"
+                        className="btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                         onClick={onClose}
                         style={{ padding: '4px 8px' }}
                         aria-label="Close modal"
