@@ -72,3 +72,7 @@
 **Vulnerability:** When a dynamic array of user-controlled or unbounded IDs was passed into a SQLite `IN ()` clause without chunking, the query crashed if the array length exceeded `SQLITE_MAX_VARIABLE_NUMBER` (usually 999).
 **Learning:** Parameterized queries for dynamic lists protect against SQL injection but introduce a DoS vector if the host database limits the maximum number of bound variables per query.
 **Prevention:** Always chunk dynamic arrays into smaller batches (e.g., 500) when passing them to an `IN` clause in SQLite to prevent database crashes.
+## 2026-04-03 - Missing Validation for IDs and Search Queries
+**Vulnerability:** Unbounded string inputs were accepted for entity IDs, foreign keys (like `organizationId`), and search queries in the repository layer.
+**Learning:** While parameterized queries prevent SQL injection, they do not protect against memory exhaustion or application crashes caused by processing massive strings (DoS attacks). Security boundaries must validate length for *all* strings, including IDs and ad-hoc queries.
+**Prevention:** Implement and enforce a `validateId` helper (wrapper around `validateInput` with a strict `maxLength`) for all entity IDs and foreign keys prior to database interactions. Apply length limits to `search(query)` inputs.

@@ -9,6 +9,10 @@ import { validateEmail, validateWebUrl, validateInput, validateSafeUri, validate
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
+const validateId = (id?: string | null, fieldName = "ID") => {
+    if (id) validateInput(id, fieldName, 100);
+};
+
 abstract class SqliteRepository<T> implements Repository<T> {
     protected abstract tableName: string;
     protected abstract mapRow(row: any): T;
@@ -18,12 +22,14 @@ abstract class SqliteRepository<T> implements Repository<T> {
     }
 
     async findById(id: UUID): Promise<T | null> {
+        validateId(id, "Entity ID");
         const db = await this.getDb();
         const result = await db.select<any[]>(`SELECT * FROM ${this.tableName} WHERE id = $1`, [id]);
         return result[0] ? this.mapRow(result[0]) : null;
     }
 
     async delete(id: UUID): Promise<void> {
+        validateId(id, "Entity ID");
         const db = await this.getDb();
         await db.execute(`DELETE FROM ${this.tableName} WHERE id = $1`, [id]);
     }
@@ -37,6 +43,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
 
     async save(entity: Organization): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
         validateInput(entity.name, "Organization Name");
         validateInput(entity.industry, "Industry");
         validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
@@ -83,6 +90,7 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
     }
 
     async search(query: string): Promise<Organization[]> {
+        validateInput(query, "Search Query", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM organizations WHERE name LIKE $1 ORDER BY updated_at DESC",
@@ -145,6 +153,8 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
 
     async save(entity: Contact): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
+        validateId(entity.organizationId, "Organization ID");
         validateInput(entity.firstName, "First Name");
         validateInput(entity.lastName, "Last Name");
         validateInput(entity.displayName, "Display Name");
@@ -213,6 +223,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
     }
 
     async search(query: string): Promise<Contact[]> {
+        validateInput(query, "Search Query", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM contacts WHERE display_name LIKE $1 OR email LIKE $1",
@@ -259,6 +270,8 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
 
     async save(entity: Opportunity): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
+        validateId(entity.organizationId, "Organization ID");
         validateInput(entity.name, "Opportunity Name");
         validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
@@ -302,6 +315,7 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async search(query: string): Promise<Opportunity[]> {
+        validateInput(query, "Search Query", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM opportunities WHERE name LIKE $1 OR description_md LIKE $1 OR next_step_text LIKE $1 ORDER BY updated_at DESC",
@@ -317,6 +331,10 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
 
     async save(entity: Meeting): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
+        validateId(entity.organizationId, "Organization ID");
+        validateId(entity.relatedOpportunityId, "Related Opportunity ID");
+        validateId(entity.relatedProtemoiId, "Related Protemoi ID");
         validateInput(entity.title, "Meeting Title");
         validateInput(entity.location, "Location");
         validateInput(entity.notesMd, "Meeting Notes", MAX_TEXT_LENGTH);
@@ -391,6 +409,7 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     }
 
     async search(query: string): Promise<Meeting[]> {
+        validateInput(query, "Search Query", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM meetings WHERE title LIKE $1 OR notes_md LIKE $1 OR location LIKE $1 ORDER BY start_at DESC",
@@ -423,6 +442,9 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
 
     async save(entity: ProtemoiEntry): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
+        validateId(entity.contactId, "Contact ID");
+        validateId(entity.organizationId, "Organization ID");
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
         validateInput(entity.relationshipStage, "Relationship Stage");
         validateInput(entity.protemoiType, "Protemoi Type");
@@ -545,6 +567,9 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
 
     async save(entity: Task): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
+        validateId(entity.linkedEntityId, "Linked Entity ID");
+        validateId(entity.weekReviewId, "Week Review ID");
         validateInput(entity.title, "Task Title");
         validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
         validateInput(entity.bigImpactDescription, "Big Impact", MAX_TEXT_LENGTH);
@@ -722,6 +747,7 @@ export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> i
 
     async save(entity: TrackerGoal): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
         validateInput(entity.metric, "Metric");
 
         const db = await this.getDb();
@@ -761,6 +787,7 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
 
     async save(entity: WeekReview): Promise<void> {
         // Security validation
+        validateId(entity.id, "Entity ID");
         validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
         validateDate(entity.weekStartDate, "Week Start Date");
         validateDate(entity.weekEndDate, "Week End Date");
