@@ -217,6 +217,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
     }
 
     async findByOrganizationId(orgId: UUID): Promise<Contact[]> {
+        validateId(orgId, "Organization ID");
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM contacts WHERE organization_id = $1", [orgId]);
         return rows.map(r => this.mapRow(r));
@@ -303,12 +304,14 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     }
 
     async findByOrganizationId(orgId: UUID): Promise<Opportunity[]> {
+        validateId(orgId, "Organization ID");
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM opportunities WHERE organization_id = $1", [orgId]);
         return rows.map(r => this.mapRow(r));
     }
 
     async findAllByStage(stage: string): Promise<Opportunity[]> {
+        validateInput(stage, "Stage", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM opportunities WHERE stage = $1", [stage]);
         return rows.map(r => this.mapRow(r));
@@ -362,11 +365,13 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
     }
 
     async findByOpportunityId(oppId: UUID): Promise<Meeting[]> {
+        validateId(oppId, "Opportunity ID");
         const db = await this.getDb();
         return db.select<Meeting[]>("SELECT * FROM meetings WHERE related_opportunity_id = $1", [oppId]);
     }
 
     async findByProtemoiId(protemoiId: UUID): Promise<Meeting[]> {
+        validateId(protemoiId, "Related Protemoi ID");
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM meetings WHERE related_protemoi_id = $1", [protemoiId]);
         return rows.map(r => this.mapRow(r));
@@ -479,6 +484,7 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
     }
 
     async findByContactId(contactId: UUID): Promise<ProtemoiEntry | null> {
+        validateId(contactId, "Contact ID");
         const db = await this.getDb();
         const res = await db.select<any[]>("SELECT * FROM protemoi_entries WHERE contact_id = $1", [contactId]);
         return res[0] ? this.mapRow(res[0]) : null;
@@ -623,8 +629,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
             const placeholders: string[] = [];
 
             entity.links.forEach((link, index) => {
-                validateInput(link.entityType, "Link Entity Type");
-                validateInput(link.entityId, "Link Entity ID");
+                validateInput(link.entityType, "Link Entity Type", 100);
+                validateId(link.entityId, "Link Entity ID");
                 const i = index * 5;
                 placeholders.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4}, $${i + 5})`);
                 values.push(
@@ -694,6 +700,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async findByLinkedEntity(entityType: string, entityId: UUID): Promise<Task[]> {
+        validateInput(entityType, "Linked Entity Type", 100);
+        validateId(entityId, "Linked Entity ID");
         const db = await this.getDb();
         // Check both legacy columns AND new table
         const rows = await db.select<any[]>(
@@ -709,6 +717,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async findHistoryInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        validateDate(fromDate, "From Date");
+        validateDate(toDate, "To Date");
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             "SELECT * FROM tasks WHERE status = 'DONE' AND updated_at >= $1 AND updated_at <= $2 ORDER BY updated_at DESC",
@@ -718,6 +728,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
     }
 
     async findHistorySummariesInRange(fromDate: string, toDate: string): Promise<Task[]> {
+        validateDate(fromDate, "From Date");
+        validateDate(toDate, "To Date");
         const db = await this.getDb();
         const rows = await db.select<any[]>(
             `SELECT
@@ -765,6 +777,7 @@ export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> i
     }
 
     async findByMetric(metric: string): Promise<TrackerGoal | null> {
+        validateInput(metric, "Metric", 100);
         const db = await this.getDb();
         const rows = await db.select<any[]>("SELECT * FROM tracker_goals WHERE metric = $1", [metric]);
         return rows[0] ? this.mapRow(rows[0]) : null;
