@@ -325,16 +325,16 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                             onKeyDown={handleKeyDown}
                         />
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main" onClick={handleCancel} title="Cancel Edit" aria-label={`Cancel editing "${editingTask.title}"`}>
+                            <button type="button" className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-muted hover:text-main focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={handleCancel} title="Cancel Edit" aria-label={`Cancel editing "${editingTask.title}"`}>
                                 ×
                             </button>
                         )}
                         {editingTask && (
-                            <button className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task" aria-label={`Delete task "${editingTask.title}"`}>
+                            <button type="button" className="btn btn-sm btn-ghost h-8 w-8 p-0 flex items-center justify-center text-error/50 hover:text-error focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none rounded-md" onClick={() => { onDelete(editingTask); setEditingTask(null); }} title="Delete Task" aria-label={`Delete task "${editingTask.title}"`}>
                                 🗑️
                             </button>
                         )}
-                        <button className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"} aria-label={editingTask ? `Save changes to "${editingTask.title}"` : "Create new task"}>
+                        <button type="button" className={`btn btn-sm h-8 w-8 p-0 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md ${editingTask ? 'btn-primary' : 'btn-secondary'}`} onClick={handleSave} title={editingTask ? "Save Changes" : "Create Task"} aria-label={editingTask ? `Save changes to "${editingTask.title}"` : "Create new task"}>
                             {editingTask ? '✓' : '+'}
                         </button>
                     </div>
