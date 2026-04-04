@@ -219,8 +219,11 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                 {/* Close X (Absolute) - Hidden in loading to avoid interruption or maybe keep it? Detailed implementation kept it. */}
                 {!isLoading && (
                     <button
-                        className="absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-main hover:bg-black/5 transition-colors z-20"
+                        type="button"
+                        className="absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-main hover:bg-black/5 transition-colors z-20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                         onClick={onClose}
+                        aria-label="Close evaluation modal"
+                        title="Close"
                     >
                         ✕
                     </button>
