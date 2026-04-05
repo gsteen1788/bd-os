@@ -30,6 +30,29 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
         return sourceList.filter(t => t.tag === filterTag);
     }, [viewMode, filterTag, tasks, history]);
 
+    // Optimization: Bolt ⚡ - Pre-calculate parsed dates, overdue status, and formatted strings
+    // Prevents O(N) string-to-Date parsing, current time instantiation, and Intl.DateTimeFormat calls
+    // on EVERY keystroke when typing in the controlled task input.
+    const taskDateInfo = useMemo(() => {
+        const now = new Date();
+
+        const overdue = new Map<string, boolean>();
+        const formatted = new Map<string, string>();
+
+        displayTasks.forEach(task => {
+            if (task.dueDate) {
+                const parsed = new Date(task.dueDate);
+                overdue.set(task.id, parsed < now);
+                formatted.set(task.id, formatShortDate(parsed));
+            } else {
+                overdue.set(task.id, false);
+                formatted.set(task.id, 'No Date');
+            }
+        });
+
+        return { overdueStatus: overdue, formattedDates: formatted };
+    }, [displayTasks]);
+
     // Creation/Editing State
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [title, setTitle] = useState("");
@@ -229,9 +252,8 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                 <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar pb-2" style={{ maxHeight: '140px' }}>
                     <div className="flex gap-3 h-full items-stretch">
                         {displayTasks.map(task => {
-                            // Optimization: Bolt ⚡ - Pre-parse date to avoid parsing twice in the render loop (once for the < check, once inside formatShortDate)
-                            const parsedDueDate = task.dueDate ? new Date(task.dueDate) : null;
-                            const isOverdue = parsedDueDate ? parsedDueDate < new Date() : false;
+                            const isOverdue = taskDateInfo.overdueStatus.get(task.id) || false;
+                            const displayDate = taskDateInfo.formattedDates.get(task.id) || 'No Date';
 
                             return (
                                 <div
@@ -283,7 +305,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                                     <div className="flex justify-between items-end mt-1">
                                         <div className="flex flex-col gap-0.5">
                                             <span className={`text-[10px] ${isOverdue ? 'text-error' : 'text-muted'}`}>
-                                                {parsedDueDate ? formatShortDate(parsedDueDate) : 'No Date'}
+                                                {displayDate}
                                             </span>
                                             {viewMode === "DONE" && task.durationMinutes && (
                                                 <span className="text-[10px] font-mono text-success">{task.durationMinutes}m</span>
