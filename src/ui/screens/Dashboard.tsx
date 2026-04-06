@@ -340,7 +340,7 @@ export function Dashboard() {
                     </div>
 
                     {mits.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-muted opacity-50 border-2 border-dashed border-base-300 rounded-xl m-4">
+                        <div className="flex-1 flex flex-col items-center justify-center text-muted border-2 border-dashed border-base-300 rounded-xl m-4">
                             <div className="text-6xl mb-6">{viewMode === 'HISTORY' ? '📜' : '🎯'}</div>
                             <p className="text-xl font-medium">{viewMode === 'HISTORY' ? 'No completed MITs found.' : 'No MITs defined yet.'}</p>
                             {viewMode === 'PENDING' && (
