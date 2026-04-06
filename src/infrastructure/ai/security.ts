@@ -57,6 +57,7 @@ export const validateInput = (input: string | null | undefined, fieldName: strin
  */
 export const validateEmail = (email?: string | null): void => {
     if (!email) return;
+    validateInput(email, "Email", MAX_INPUT_LENGTH);
     // Basic email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -70,6 +71,7 @@ export const validateEmail = (email?: string | null): void => {
  */
 export const validateWebUrl = (url?: string | null): void => {
     if (!url) return;
+    validateInput(url, "URL", MAX_INPUT_LENGTH);
     try {
         const u = new URL(url);
         if (!['http:', 'https:'].includes(u.protocol)) {
@@ -87,6 +89,7 @@ export const validateWebUrl = (url?: string | null): void => {
  */
 export const validateSafeUri = (uri?: string | null): void => {
     if (!uri) return;
+    validateInput(uri, "URI", MAX_INPUT_LENGTH);
 
     const trimmed = uri.trim();
     if (trimmed.length === 0) return;
