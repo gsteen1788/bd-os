@@ -76,3 +76,7 @@
 **Vulnerability:** Unbounded string inputs were accepted for entity IDs, foreign keys (like `organizationId`), and search queries in the repository layer.
 **Learning:** While parameterized queries prevent SQL injection, they do not protect against memory exhaustion or application crashes caused by processing massive strings (DoS attacks). Security boundaries must validate length for *all* strings, including IDs and ad-hoc queries.
 **Prevention:** Implement and enforce a `validateId` helper (wrapper around `validateInput` with a strict `maxLength`) for all entity IDs and foreign keys prior to database interactions. Apply length limits to `search(query)` inputs.
+## 2025-02-12 - Missing Length Limits in Validation Functions
+**Vulnerability:** Missing input length limits on validation functions (`validateEmail`, `validateWebUrl`, `validateSafeUri`).
+**Learning:** Functions that rely on regex or object instantiation (like `new URL()`) are susceptible to DoS or ReDoS if arbitrarily long strings are provided. Furthermore, control characters (`\x00`) could be injected before URI schemes if `trim()` is used without prior validation.
+**Prevention:** To prevent DoS attacks and bypasses, always call `validateInput` with a maximum length limit (e.g., `MAX_INPUT_LENGTH`) at the beginning of validation helpers before performing any regex tests or URI parsing.
