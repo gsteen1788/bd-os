@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { OpportunityStage, Currency } from "../../domain/enums";
 import { opportunityRepository, meetingRepository } from "../../infrastructure/repositories";
 import { Opportunity, Meeting } from "../../domain/entities";
@@ -74,6 +74,8 @@ export function OpportunityBoard() {
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const [editingOpp, setEditingOpp] = useState<Opportunity | null>(null);
     const [showMITModal, setShowMITModal] = useState(false);
+    const [dragOverStage, setDragOverStage] = useState<string | null>(null);
+    const isDragging = useRef(false);
     const [linkedMeetings, setLinkedMeetings] = useState<Meeting[]>([]);
     const [isAnonymized, setIsAnonymized] = useState(() => {
         return localStorage.getItem("bdos_anonymize_enabled") === "true";
@@ -250,11 +252,20 @@ export function OpportunityBoard() {
                     borderRadius: "12px",
                     display: "flex",
                     flexDirection: "column",
-                    flexShrink: 0
+                    flexShrink: 0,
+                    transition: "box-shadow 0.2s, outline 0.2s",
+                    outline: dragOverStage === stage ? "2px solid hsl(var(--color-primary))" : "2px solid transparent",
+                    boxShadow: dragOverStage === stage ? "0 0 16px hsla(var(--color-primary), 0.3)" : "none"
                 }}
-                onDragOver={(e) => e.preventDefault()}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    setDragOverStage(stage);
+                }}
+                onDragLeave={() => setDragOverStage(null)}
                 onDrop={(e) => {
                     e.preventDefault();
+                    setDragOverStage(null);
                     const oppId = e.dataTransfer.getData("text/plain");
                     if (oppId) {
                         handleDropOpportunity(oppId, stage);
@@ -295,11 +306,17 @@ export function OpportunityBoard() {
                             type="button"
                             draggable
                             onDragStart={(e) => {
+                                isDragging.current = true;
                                 e.dataTransfer.setData("text/plain", opp.id);
                                 e.dataTransfer.effectAllowed = "move";
                             }}
+                            onDragEnd={() => {
+                                setDragOverStage(null);
+                                setTimeout(() => { isDragging.current = false; }, 0);
+                            }}
                             className="card w-full text-left p-3 bg-base-100 hover:bg-base-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none cursor-grab active:cursor-grabbing"
                             onClick={async () => {
+                                if (isDragging.current) return;
                                 try {
                                     // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
                                     // Prevents data loss by ensuring we don't save a summary object over a full record.

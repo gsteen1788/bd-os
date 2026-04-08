@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
@@ -130,6 +130,8 @@ export function ProtemoiBoard() {
     const [newOrgName, setNewOrgName] = useState("");
     const [newOrgLogo, setNewOrgLogo] = useState("");
     const [showMITModal, setShowMITModal] = useState(false);
+    const [dragOverStage, setDragOverStage] = useState<string | null>(null);
+    const isDragging = useRef(false);
     const [linkedMeetings, setLinkedMeetings] = useState<Meeting[]>([]);
     const [isAnonymized, setIsAnonymized] = useState(() => {
         return localStorage.getItem("bdos_anonymize_enabled") === "true";
@@ -536,10 +538,25 @@ export function ProtemoiBoard() {
                     return (
                         <div 
                             key={stage} 
-                            style={{ minWidth: "320px", backgroundColor: "hsl(var(--color-bg-surface))", borderRadius: "12px", display: "flex", flexDirection: "column" }}
-                            onDragOver={(e) => e.preventDefault()}
+                            style={{ 
+                                minWidth: "320px", 
+                                backgroundColor: "hsl(var(--color-bg-surface))", 
+                                borderRadius: "12px", 
+                                display: "flex", 
+                                flexDirection: "column",
+                                transition: "box-shadow 0.2s, outline 0.2s",
+                                outline: dragOverStage === stage ? "2px solid hsl(var(--color-primary))" : "2px solid transparent",
+                                boxShadow: dragOverStage === stage ? "0 0 16px hsla(var(--color-primary), 0.3)" : "none"
+                            }}
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = "move";
+                                setDragOverStage(stage);
+                            }}
+                            onDragLeave={() => setDragOverStage(null)}
                             onDrop={(e) => {
                                 e.preventDefault();
+                                setDragOverStage(null);
                                 const entryId = e.dataTransfer.getData("text/plain");
                                 if (entryId) {
                                     handleDropEntry(entryId, stage);
@@ -582,17 +599,23 @@ export function ProtemoiBoard() {
                                         key={entry.id}
                                         draggable
                                         onDragStart={(e) => {
+                                            isDragging.current = true;
                                             e.dataTransfer.setData("text/plain", entry.id);
                                             e.dataTransfer.effectAllowed = "move";
+                                        }}
+                                        onDragEnd={() => {
+                                            setDragOverStage(null);
+                                            setTimeout(() => { isDragging.current = false; }, 0);
                                         }}
                                         className="card hover:border-primary-hover cursor-grab active:cursor-grabbing group relative overflow-hidden flex-shrink-0 w-full text-left focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                         style={{
                                             padding: "16px",
-                                            minHeight: "120px", // Ensure minimum height for logo
+                                            minHeight: "120px",
                                             backgroundColor: getPreferenceColor(entry.contact?.thinkingPreference),
                                             color: getPreferenceTextColor(entry.contact?.thinkingPreference)
                                         }}
                                         onClick={async () => {
+                                            if (isDragging.current) return;
                                             // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
                                             // Prevents data loss by ensuring we don't save a summary object over a full record.
                                             try {
