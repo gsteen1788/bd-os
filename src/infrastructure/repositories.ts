@@ -187,6 +187,9 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
                 ) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
                  ON CONFLICT(id) DO UPDATE SET 
+                 organization_id=excluded.organization_id,
+                 first_name=excluded.first_name,
+                 last_name=excluded.last_name,
                  display_name=excluded.display_name,
                  title=excluded.title,
                  email=excluded.email,
@@ -200,6 +203,9 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
                  career_history=excluded.career_history,
                  education=excluded.education,
                  linkedin_url=excluded.linkedin_url,
+                 notes_md=excluded.notes_md,
+                 thinking_preference=excluded.thinking_preference,
+                 primary_buy_in_priority=excluded.primary_buy_in_priority,
                  other=excluded.other,
                  updated_at=excluded.updated_at`,
                 [
@@ -250,6 +256,8 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
             valueEstimate: row.value_estimate,
             currency: row.currency,
             probability: row.probability,
+            primarySponsor: row.primary_sponsor,
+            obstacle: row.obstacle,
             createdAt: row.created_at,
             updatedAt: row.updated_at
         };
