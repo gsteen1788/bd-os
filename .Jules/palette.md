@@ -16,3 +16,7 @@
 ## 2026-04-02 - Floating Widget Accessibility
 **Learning:** Floating, non-modal widgets with icon-only trigger and close buttons need explicit ARIA links (`aria-expanded`, `aria-controls`) and focus states (`focus-visible`) to be accessible for screen reader and keyboard users.
 **Action:** When implementing floating interactive widgets, always explicitly define structural ARIA relationships between the trigger button and the popup container, and ensure all interior buttons have `focus-visible` styles.
+
+## 2026-04-15 - Tooltip Trigger Accessible Naming
+**Learning:** The `FixedTooltip` component was internally generating a `<button>` wrapper for its children without a way to provide an `aria-label`. This made icon-only trigger tooltips inaccessible to screen readers.
+**Action:** Expose an `ariaLabel` prop on `FixedTooltip` and utilize it in parent components like `OpportunityBoard` and `ProtemoiBoard` for any icon-only triggers.

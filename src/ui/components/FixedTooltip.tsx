@@ -4,9 +4,10 @@ import { createPortal } from "react-dom";
 interface FixedTooltipProps {
     content: React.ReactNode;
     children: React.ReactNode;
+    ariaLabel?: string;
 }
 
-export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children }) => {
+export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children, ariaLabel }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -48,6 +49,7 @@ export const FixedTooltip: React.FC<FixedTooltipProps> = ({ content, children })
             onBlur={handleMouseLeave}
             onKeyDown={handleKeyDown}
             aria-describedby={tooltipId}
+            aria-label={ariaLabel}
             className="inline-block outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-help"
         >
             {children}
