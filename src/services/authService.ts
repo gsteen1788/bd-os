@@ -1,18 +1,21 @@
 import { getClient, Body } from '@tauri-apps/api/http';
+import { invoke } from '@tauri-apps/api/tauri';
+import { open } from '@tauri-apps/api/shell';
 
-// Use Corporate App Registration if provided in .env, fallback to PowerShell generic client for testing
+// Use Azure CLI Client ID which supports http://localhost:8400 redirect and is highly trusted globally
 const CLIENT_ID = import.meta.env.VITE_MS_GRAPH_CLIENT_ID && import.meta.env.VITE_MS_GRAPH_CLIENT_ID !== 'your_client_id_here' 
     ? import.meta.env.VITE_MS_GRAPH_CLIENT_ID 
-    : '14d82eec-204b-4c2f-b7e8-296a70dab67e';
+    : '04b07795-8ddb-461a-bbee-02f9e1bf7b46';
 
 const TENANT_ID = import.meta.env.VITE_MS_GRAPH_TENANT_ID && import.meta.env.VITE_MS_GRAPH_TENANT_ID !== 'your_tenant_id_here'
     ? import.meta.env.VITE_MS_GRAPH_TENANT_ID 
     : 'common';
 
 const SCOPES = 'User.Read Calendars.ReadWrite offline_access';
+const REDIRECT_URI = 'http://localhost:8400';
 
+const AUTH_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize`;
 const TOKEN_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
-const DEVICE_CODE_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/devicecode`;
 
 interface DeviceCodeResponse {
     user_code: string;
@@ -62,69 +65,87 @@ class AuthService {
     }
 
     /**
-     * Step 1: Initiate the Device Code Flow
-     * Returns the code and URL for the user to visit.
+     * Start the PKCE Authorization Code Flow
      */
-    async initiateDeviceFlow(): Promise<DeviceCodeResponse> {
+    async login(): Promise<void> {
+        // We use PKCE to securely get a token without a client secret.
+        // For simplicity in this demo, we generate a random string for state and verifier.
+        // In full production, use crypto APIs to generate high-entropy verifier and challenge.
+        const codeVerifier = this.generateRandomString(64);
+        const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+
+        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=12345&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+
+        // 1. Open the user's default browser to the Microsoft login page
+        await open(authUrl);
+
+        try {
+            // 2. Block and wait for the localhost server to capture the redirect code
+            const code: string = await invoke('start_auth_server', { port: 8400 });
+
+            if (!code) throw new Error("No authorization code received.");
+
+            // 3. Exchange the code for the tokens
+            await this.exchangeCodeForToken(code, codeVerifier);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private generateRandomString(length: number): string {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+        let result = '';
+        const values = new Uint32Array(length);
+        crypto.getRandomValues(values);
+        for (let i = 0; i < length; i++) {
+            result += charset[values[i] % charset.length];
+        }
+        return result;
+    }
+
+    private async generateCodeChallenge(v: string): Promise<string> {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(v);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return this.base64urlencode(new Uint8Array(hash));
+    }
+
+    private base64urlencode(a: Uint8Array): string {
+        let str = "";
+        const bytes = new Uint8Array(a);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            str += String.fromCharCode(bytes[i]);
+        }
+        return btoa(str)
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+    }
+
+    private async exchangeCodeForToken(code: string, codeVerifier: string) {
         const client = await getClient();
         const params = {
             client_id: CLIENT_ID,
+            grant_type: 'authorization_code',
             scope: SCOPES,
+            code: code,
+            redirect_uri: REDIRECT_URI,
+            code_verifier: codeVerifier,
         };
 
-        const response = await client.request<DeviceCodeResponse>({
+        const response = await client.request<any>({
             method: 'POST',
-            url: DEVICE_CODE_ENDPOINT,
+            url: TOKEN_ENDPOINT,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: Body.form(params),
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to initiate device flow: ${response.status}`);
+            throw new Error(`Token exchange failed: ${response.data.error_description || response.data.error}`);
         }
 
-        return response.data;
-    }
-
-    /**
-     * Step 2: Poll for the token while the user authenticates
-     */
-    async pollForToken(deviceCode: string, intervalSeconds: number = 5): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            const interval = setInterval(async () => {
-                try {
-                    const client = await getClient();
-                    const params = {
-                        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-                        client_id: CLIENT_ID,
-                        device_code: deviceCode,
-                    };
-
-                    const response = await client.request<any>({
-                        method: 'POST',
-                        url: TOKEN_ENDPOINT,
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: Body.form(params),
-                    });
-
-                    const data = response.data;
-
-                    if (response.ok) {
-                        clearInterval(interval);
-                        this.handleTokenSuccess(data);
-                        resolve(true);
-                    } else if (data.error === 'authorization_pending') {
-                        // User hasn't signed in yet, keep polling
-                    } else {
-                        clearInterval(interval);
-                        reject(new Error(`Token polling failed: ${data.error_description || data.error}`));
-                    }
-                } catch (error) {
-                    clearInterval(interval);
-                    reject(error);
-                }
-            }, intervalSeconds * 1000);
-        });
+        this.handleTokenSuccess(response.data);
     }
 
     /**

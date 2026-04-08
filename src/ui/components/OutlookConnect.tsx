@@ -3,8 +3,7 @@ import { authService } from '../../services/authService';
 import { graphService } from '../../services/graphService';
 
 export const OutlookConnect = () => {
-    const [status, setStatus] = useState<'idle' | 'loading' | 'code_wait' | 'connected' | 'error'>('idle');
-    const [deviceCode, setDeviceCode] = useState<{ user_code: string; verification_uri: string } | null>(null);
+    const [status, setStatus] = useState<'idle' | 'loading' | 'browser_wait' | 'connected' | 'error'>('idle');
     const [userName, setUserName] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -28,18 +27,13 @@ export const OutlookConnect = () => {
     };
 
     const handleConnect = async () => {
-        setStatus('loading');
-        setDeviceCode(null);
+        setStatus('browser_wait');
         setErrorMessage(null);
         try {
-            const codeData = await authService.initiateDeviceFlow();
-            setDeviceCode(codeData);
-            setStatus('code_wait');
-
-            // Start polling
-            await authService.pollForToken(codeData.device_code);
-
+            await authService.login();
+            
             // Success
+            setStatus('loading');
             await checkConnection();
         } catch (error: any) {
             console.error('Connection failed', error);
@@ -81,39 +75,29 @@ export const OutlookConnect = () => {
         );
     }
 
-    if (status === 'code_wait' && deviceCode) {
+    if (status === 'browser_wait') {
         return (
-            <div className="space-y-6">
-                <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
-                    <p className="text-sm text-warning mb-2"><strong>Step 1:</strong> Copy the code below</p>
-                    <div className="flex items-center gap-2">
-                        <code className="flex-1 bg-base-100 p-3 rounded font-mono font-bold text-2xl text-center text-main tracking-widest border border-[hsl(var(--color-border))]">
-                            {deviceCode.user_code}
-                        </code>
-                        <button
-                            onClick={() => copyToClipboard(deviceCode.user_code)}
-                            className="p-3 bg-base-100 border border-[hsl(var(--color-border))] rounded hover:bg-base-200 text-primary"
-                            title="Copy to clipboard"
-                        >
-                            📋
-                        </button>
-                    </div>
+            <div className="space-y-6 text-center py-6">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl animate-bounce">🌐</span>
                 </div>
-
-                <div className="text-center">
-                    <p className="text-sm text-muted mb-3"><strong>Step 2:</strong> Sign in with Microsoft</p>
-                    <a
-                        href={deviceCode.verification_uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary w-full"
-                    >
-                        Open Login Page ↗
-                    </a>
-                    <p className="text-xs text-dim mt-4 animate-pulse">
-                        Waiting for you to complete sign in...
+                <div>
+                    <h4 className="text-lg font-bold text-main mb-2">Check your browser</h4>
+                    <p className="text-sm text-muted">
+                        We've opened a secure Microsoft login page in your default web browser.
+                        <br/><br/>
+                        Please complete the authentication there. This window will automatically update once you're done.
                     </p>
                 </div>
+                <div className="flex justify-center mt-6">
+                    <div className="loading loading-spinner loading-lg text-primary"></div>
+                </div>
+                <button
+                    onClick={() => setStatus('idle')}
+                    className="btn btn-ghost btn-sm mt-4"
+                >
+                    Cancel
+                </button>
             </div>
         );
     }
