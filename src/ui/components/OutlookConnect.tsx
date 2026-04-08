@@ -6,6 +6,7 @@ export const OutlookConnect = () => {
     const [status, setStatus] = useState<'idle' | 'loading' | 'code_wait' | 'connected' | 'error'>('idle');
     const [deviceCode, setDeviceCode] = useState<{ user_code: string; verification_uri: string } | null>(null);
     const [userName, setUserName] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         checkConnection();
@@ -29,6 +30,7 @@ export const OutlookConnect = () => {
     const handleConnect = async () => {
         setStatus('loading');
         setDeviceCode(null);
+        setErrorMessage(null);
         try {
             const codeData = await authService.initiateDeviceFlow();
             setDeviceCode(codeData);
@@ -39,8 +41,9 @@ export const OutlookConnect = () => {
 
             // Success
             await checkConnection();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Connection failed', error);
+            setErrorMessage(error.message || 'An unknown error occurred.');
             setStatus('error');
         }
     };
@@ -136,9 +139,16 @@ export const OutlookConnect = () => {
             </button>
 
             {status === 'error' && (
-                <p className="text-xs text-error font-medium bg-error/10 px-3 py-1 rounded">
-                    Connection failed. Please try again.
-                </p>
+                <div className="flex flex-col items-center">
+                    <p className="text-xs text-error font-medium bg-error/10 px-3 py-1 rounded text-center">
+                        Connection failed. Please try again or check your IT policy.
+                    </p>
+                    {errorMessage && (
+                        <p className="text-[10px] text-muted mt-2 text-center max-w-[200px] break-words">
+                            Error Details: {errorMessage}
+                        </p>
+                    )}
+                </div>
             )}
         </div>
     );

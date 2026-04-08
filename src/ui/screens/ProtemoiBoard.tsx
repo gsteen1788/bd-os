@@ -252,6 +252,27 @@ export function ProtemoiBoard() {
         return map;
     }, [filteredEntries]);
 
+    const handleDropEntry = async (entryId: string, newStage: string) => {
+        const entry = entries.find(e => e.id === entryId);
+        if (!entry) return;
+        if (entry.relationshipStage === newStage) return;
+
+        // Optimistic update
+        setEntries(prev => prev.map(e => e.id === entryId ? { ...e, relationshipStage: newStage as any } : e));
+
+        try {
+            const fullEntry = await protemoiRepository.findById(entryId);
+            if (fullEntry) {
+                const updated = { ...fullEntry, relationshipStage: newStage as any };
+                await protemoiRepository.save(updated);
+            }
+        } catch (e) {
+            console.error("Failed to move relationship", e);
+            alert("Failed to move relationship");
+            load(); // Revert on error
+        }
+    };
+
     const handleSave = async () => {
         if (!editingEntry) return;
 
@@ -513,7 +534,18 @@ export function ProtemoiBoard() {
                     const info = RELATIONSHIP_STAGE_INFO[stage];
 
                     return (
-                        <div key={stage} style={{ minWidth: "320px", backgroundColor: "hsl(var(--color-bg-surface))", borderRadius: "12px", display: "flex", flexDirection: "column" }}>
+                        <div 
+                            key={stage} 
+                            style={{ minWidth: "320px", backgroundColor: "hsl(var(--color-bg-surface))", borderRadius: "12px", display: "flex", flexDirection: "column" }}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                const entryId = e.dataTransfer.getData("text/plain");
+                                if (entryId) {
+                                    handleDropEntry(entryId, stage);
+                                }
+                            }}
+                        >
                             <div className="flex justify-between items-center p-4 border-b border-[hsl(var(--color-border))]">
                                 <div className="flex items-center gap-2">
                                     <h4 style={{ margin: 0, color: "hsl(var(--color-text-muted))", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>
@@ -548,7 +580,12 @@ export function ProtemoiBoard() {
                                     <button
                                         type="button"
                                         key={entry.id}
-                                        className="card hover:border-primary-hover cursor-pointer group relative overflow-hidden flex-shrink-0 w-full text-left focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                                        draggable
+                                        onDragStart={(e) => {
+                                            e.dataTransfer.setData("text/plain", entry.id);
+                                            e.dataTransfer.effectAllowed = "move";
+                                        }}
+                                        className="card hover:border-primary-hover cursor-grab active:cursor-grabbing group relative overflow-hidden flex-shrink-0 w-full text-left focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                                         style={{
                                             padding: "16px",
                                             minHeight: "120px", // Ensure minimum height for logo

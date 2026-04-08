@@ -29,6 +29,11 @@ const STAGE_INFO: Record<string, { goal: string; inStage: string; exit: string }
         inStage: "- Most stakeholders aligned, remaining work is final mechanics.",
         exit: "- Signed SOW, PO, or formal go-ahead.\n- Mobilization date agreed."
     },
+    "ONGOING_PROJECT": {
+        goal: "Successfully deliver the agreed scope and build client trust.",
+        inStage: "- Active project delivery phase.\n- Regular interactions with the client team.",
+        exit: "- Project completed and final deliverables accepted."
+    },
     "RETAIN_AND_EXPAND": {
         goal: "Turn delivery into a platform for more work and deeper trust.",
         inStage: "- Work is active or just completed.",
@@ -196,10 +201,166 @@ export function OpportunityBoard() {
         });
     };
 
+    const totalOppSize = opportunities.reduce((sum, opp) => {
+        const val = opp.valueEstimate || 0;
+        const prob = opp.probability || 0;
+        return sum + (val * (prob / 100));
+    }, 0);
+
+    const handleDropOpportunity = async (oppId: string, newStage: string) => {
+        const opp = opportunities.find(o => o.id === oppId);
+        if (!opp) return;
+        if (opp.stage === newStage) return;
+
+        // Optimistic update
+        setOpportunities(prev => prev.map(o => o.id === oppId ? { 
+            ...o, 
+            stage: newStage as any, 
+            probability: newStage === "ONGOING_PROJECT" ? 100 : o.probability 
+        } : o));
+
+        try {
+            const fullOpp = await opportunityRepository.findById(oppId);
+            if (fullOpp) {
+                const updated = { 
+                    ...fullOpp, 
+                    stage: newStage as any, 
+                    probability: newStage === "ONGOING_PROJECT" ? 100 : fullOpp.probability 
+                };
+                await opportunityRepository.save(updated);
+                load(); // Reload to refresh summaries fully
+            }
+        } catch (e) {
+            console.error("Failed to move opportunity", e);
+            alert("Failed to move opportunity");
+            load(); // Revert on error
+        }
+    };
+
+    const renderStageColumn = (stage: string) => {
+        const stageOpps = oppsByStage.get(stage) || [];
+        const info = STAGE_INFO[stage];
+
+        return (
+            <div 
+                key={stage} 
+                style={{
+                    minWidth: "280px",
+                    backgroundColor: "hsl(var(--color-bg-surface))",
+                    borderRadius: "12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    flexShrink: 0
+                }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                    e.preventDefault();
+                    const oppId = e.dataTransfer.getData("text/plain");
+                    if (oppId) {
+                        handleDropOpportunity(oppId, stage);
+                    }
+                }}
+            >
+                <div style={{ padding: "12px", borderBottom: "1px solid hsl(var(--color-border))" }}>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h4 style={{ margin: 0, fontSize: "12px", color: "hsl(var(--color-text-muted))" }}>{stage.replace(/_/g, " ")}</h4>
+                        {info && (
+                            <FixedTooltip content={
+                                <div className="flex flex-col gap-2">
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-primary block mb-0.5">Goal</span>
+                                        <div className="text-xs text-main">{renderTooltipContent(info.goal)}</div>
+                                    </div>
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-info block mb-0.5">You're in this stage when...</span>
+                                        <div className="text-xs text-muted">{renderTooltipContent(info.inStage)}</div>
+                                    </div>
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-success block mb-0.5">Exit Criteria</span>
+                                        <div className="text-xs text-muted">{renderTooltipContent(info.exit)}</div>
+                                    </div>
+                                </div>
+                            }>
+                                <span className="cursor-help text-xs opacity-50 hover:opacity-100 flex items-center justify-center w-4 h-4 rounded-full border border-current">i</span>
+                            </FixedTooltip>
+                        )}
+                    </div>
+                    <div style={{ fontWeight: "bold", fontSize: "14px" }}>{stageOpps.length} Deals</div>
+                </div>
+
+                <div className="flex flex-col gap-2" style={{ padding: "12px", overflowY: "auto", flex: 1 }}>
+                    {stageOpps.map(opp => (
+                        <button
+                            key={opp.id}
+                            type="button"
+                            draggable
+                            onDragStart={(e) => {
+                                e.dataTransfer.setData("text/plain", opp.id);
+                                e.dataTransfer.effectAllowed = "move";
+                            }}
+                            className="card w-full text-left p-3 bg-base-100 hover:bg-base-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none cursor-grab active:cursor-grabbing"
+                            onClick={async () => {
+                                try {
+                                    // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
+                                    // Prevents data loss by ensuring we don't save a summary object over a full record.
+                                    const fullOpp = await opportunityRepository.findById(opp.id);
+                                    if (fullOpp) {
+                                        setEditingOpp(fullOpp);
+                                    } else {
+                                        console.error("Opportunity not found in database.");
+                                        alert("Failed to load opportunity details.");
+                                    }
+                                } catch (e) {
+                                    console.error("Failed to load full opportunity", e);
+                                    alert("Failed to load opportunity details.");
+                                }
+                            }}
+                        >
+                            <div style={{ fontWeight: "600" }}>
+                                {isAnonymized ? `Opportunity ${(opportunitiesIndexMap.get(opp.id) ?? -1) + 1}` : opp.name}
+                            </div>
+                            <div className="flex justify-between items-center" style={{ marginTop: "8px", fontSize: "12px" }}>
+                                <span className="text-muted">
+                                    {opp.valueEstimate
+                                        ? `${opp.currency === "USD" ? "$" : opp.currency === "GBP" ? "£" : "R"}${opp.valueEstimate.toLocaleString()}`
+                                        : "Not sized"}
+                                </span>
+                                <span style={{
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                    backgroundColor: opp.probability && opp.probability > 50 ? "rgba(76, 175, 80, 0.2)" : "rgba(255, 193, 7, 0.2)",
+                                    color: opp.probability && opp.probability > 50 ? "#81c784" : "#ffd54f"
+                                }}>
+                                    {opp.probability}%
+                                </span>
+                            </div>
+                            {opp.nextStepText && (
+                                <div style={{ marginTop: "8px", fontSize: "11px", color: "hsl(var(--color-text-muted))", borderTop: "1px solid hsl(var(--color-border))", paddingTop: "4px" }}>
+                                    Next: {opp.nextStepText}
+                                </div>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    const sellingStages = OpportunityStage.filter(s => s !== "ONGOING_PROJECT");
+    const ongoingStage = "ONGOING_PROJECT";
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex justify-between items-center h-[70px] px-6 border-b border-[hsl(var(--color-border))] bg-base sticky top-0 z-10">
-                <h2 className="text-xl font-semibold m-0 tracking-tight">Pipeline (Opportunities)</h2>
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-semibold m-0 tracking-tight">Pipeline (Opportunities)</h2>
+                    <div className="flex flex-col">
+                        <span className="text-xs text-muted uppercase font-bold tracking-wider">Total Pipeline Value (Risk-Adj)</span>
+                        <span className="text-lg font-bold text-success">
+                            ZAR {totalOppSize.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </span>
+                    </div>
+                </div>
                 <div className="flex items-center gap-3">
                     <label htmlFor="toggle-anonymise-opps" className="flex items-center gap-2 cursor-pointer select-none">
                         <span className="text-sm font-medium text-muted">Anonymise</span>
@@ -216,97 +377,22 @@ export function OpportunityBoard() {
             </div>
 
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto", height: "100%" }}>
-                {OpportunityStage.map(stage => {
-                    const stageOpps = oppsByStage.get(stage) || [];
-                    const info = STAGE_INFO[stage];
+                <div style={{ display: "flex", gap: "16px" }}>
+                    {sellingStages.map(renderStageColumn)}
+                </div>
 
-                    return (
-                        <div key={stage} style={{
-                            minWidth: "280px",
-                            backgroundColor: "hsl(var(--color-bg-surface))",
-                            borderRadius: "12px",
-                            display: "flex",
-                            flexDirection: "column"
-                        }}>
-                            <div style={{ padding: "12px", borderBottom: "1px solid hsl(var(--color-border))" }}>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h4 style={{ margin: 0, fontSize: "12px", color: "hsl(var(--color-text-muted))" }}>{stage.replace(/_/g, " ")}</h4>
-                                    {info && (
-                                        <FixedTooltip content={
-                                            <div className="flex flex-col gap-2">
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase text-primary block mb-0.5">Goal</span>
-                                                    <div className="text-xs text-main">{renderTooltipContent(info.goal)}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase text-info block mb-0.5">You're in this stage when...</span>
-                                                    <div className="text-xs text-muted">{renderTooltipContent(info.inStage)}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase text-success block mb-0.5">Exit Criteria</span>
-                                                    <div className="text-xs text-muted">{renderTooltipContent(info.exit)}</div>
-                                                </div>
-                                            </div>
-                                        }>
-                                            <span className="cursor-help text-xs opacity-50 hover:opacity-100 flex items-center justify-center w-4 h-4 rounded-full border border-current">i</span>
-                                        </FixedTooltip>
-                                    )}
-                                </div>
-                                <div style={{ fontWeight: "bold", fontSize: "14px" }}>{stageOpps.length} Deals</div>
-                            </div>
+                <div 
+                    style={{ 
+                        width: "2px", 
+                        backgroundColor: "hsl(var(--color-border))", 
+                        margin: "0 8px",
+                        flexShrink: 0
+                    }} 
+                />
 
-                            <div className="flex flex-col gap-2" style={{ padding: "12px", overflowY: "auto", flex: 1 }}>
-                                {stageOpps.map(opp => (
-                                    <button
-                                        key={opp.id}
-                                        type="button"
-                                        className="card w-full text-left p-3 bg-base-100 hover:bg-base-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-                                        onClick={async () => {
-                                            try {
-                                                // Optimization: Bolt ⚡ - O(1) fetch for full entity only when editing.
-                                                // Prevents data loss by ensuring we don't save a summary object over a full record.
-                                                const fullOpp = await opportunityRepository.findById(opp.id);
-                                                if (fullOpp) {
-                                                    setEditingOpp(fullOpp);
-                                                } else {
-                                                    console.error("Opportunity not found in database.");
-                                                    alert("Failed to load opportunity details.");
-                                                }
-                                            } catch (e) {
-                                                console.error("Failed to load full opportunity", e);
-                                                alert("Failed to load opportunity details.");
-                                            }
-                                        }}
-                                    >
-                                        <div style={{ fontWeight: "600" }}>
-                                            {isAnonymized ? `Opportunity ${(opportunitiesIndexMap.get(opp.id) ?? -1) + 1}` : opp.name}
-                                        </div>
-                                        <div className="flex justify-between items-center" style={{ marginTop: "8px", fontSize: "12px" }}>
-                                            <span className="text-muted">
-                                                {opp.valueEstimate
-                                                    ? `${opp.currency === "USD" ? "$" : opp.currency === "GBP" ? "£" : "R"}${opp.valueEstimate.toLocaleString()}`
-                                                    : "Not sized"}
-                                            </span>
-                                            <span style={{
-                                                padding: "2px 6px",
-                                                borderRadius: "4px",
-                                                backgroundColor: opp.probability && opp.probability > 50 ? "rgba(76, 175, 80, 0.2)" : "rgba(255, 193, 7, 0.2)",
-                                                color: opp.probability && opp.probability > 50 ? "#81c784" : "#ffd54f"
-                                            }}>
-                                                {opp.probability}%
-                                            </span>
-                                        </div>
-                                        {opp.nextStepText && (
-                                            <div style={{ marginTop: "8px", fontSize: "11px", color: "hsl(var(--color-text-muted))", borderTop: "1px solid hsl(var(--color-border))", paddingTop: "4px" }}>
-                                                Next: {opp.nextStepText}
-                                            </div>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
+                <div style={{ display: "flex", gap: "16px" }}>
+                    {renderStageColumn(ongoingStage)}
+                </div>
             </div>
 
             {editingOpp && (
@@ -390,7 +476,17 @@ export function OpportunityBoard() {
                                     id="opp-stage"
                                     className="input w-full"
                                     value={editingOpp.stage}
-                                    onChange={e => setEditingOpp({ ...editingOpp, stage: e.target.value as any })}
+                                    onChange={e => {
+                                        const newStage = e.target.value as any;
+                                        setEditingOpp(prev => {
+                                            if (!prev) return prev;
+                                            return {
+                                                ...prev,
+                                                stage: newStage,
+                                                probability: newStage === "ONGOING_PROJECT" ? 100 : prev.probability
+                                            };
+                                        });
+                                    }}
                                     style={{
                                         backgroundColor: "hsl(var(--color-bg-base))",
                                         border: "1px solid hsl(var(--color-border))",

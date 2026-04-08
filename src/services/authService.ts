@@ -1,8 +1,14 @@
 import { getClient, Body } from '@tauri-apps/api/http';
 
-// Azure CLI Client ID (Publicly known and widely whitelisted)
-const CLIENT_ID = '14d82eec-204b-4c2f-b7e8-296a70dab67e'; // Microsoft Graph PowerShell
-const TENANT_ID = 'common'; // Supports multi-tenant and personal accounts
+// Use Corporate App Registration if provided in .env, fallback to PowerShell generic client for testing
+const CLIENT_ID = import.meta.env.VITE_MS_GRAPH_CLIENT_ID && import.meta.env.VITE_MS_GRAPH_CLIENT_ID !== 'your_client_id_here' 
+    ? import.meta.env.VITE_MS_GRAPH_CLIENT_ID 
+    : '14d82eec-204b-4c2f-b7e8-296a70dab67e';
+
+const TENANT_ID = import.meta.env.VITE_MS_GRAPH_TENANT_ID && import.meta.env.VITE_MS_GRAPH_TENANT_ID !== 'your_tenant_id_here'
+    ? import.meta.env.VITE_MS_GRAPH_TENANT_ID 
+    : 'common';
+
 const SCOPES = 'User.Read Calendars.ReadWrite offline_access';
 
 const TOKEN_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;

@@ -3,6 +3,7 @@ export const OpportunityStage = [
     "CREATE_CURIOSITY",
     "BUILD_EVERYTHING_TOGETHER",
     "GAIN_APPROVAL",
+    "ONGOING_PROJECT",
     "RETAIN_AND_EXPAND",
 ] as const;
 export type OpportunityStage = (typeof OpportunityStage)[number];
