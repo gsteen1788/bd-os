@@ -48,10 +48,6 @@ export const OutlookConnect = () => {
         setUserName(null);
     };
 
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-    };
-
     if (status === 'connected') {
         return (
             <div className="flex flex-col items-center gap-4 p-6">

@@ -17,15 +17,6 @@ const REDIRECT_URI = 'http://localhost:8400';
 const AUTH_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize`;
 const TOKEN_ENDPOINT = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
 
-interface DeviceCodeResponse {
-    user_code: string;
-    device_code: string;
-    verification_uri: string;
-    expires_in: number;
-    interval: number;
-    message: string;
-}
-
 interface TokenResponse {
     access_token: string;
     refresh_token: string;

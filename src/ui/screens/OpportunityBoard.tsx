@@ -96,6 +96,24 @@ export function OpportunityBoard() {
         localStorage.setItem("bdos_anonymize_enabled", String(value));
     };
 
+    const [exchangeRates, setExchangeRates] = useState<Record<string, number>>(() => ({
+        ZAR: 1.0,
+        GBP: Number(localStorage.getItem('exchange_rate_gbp') || 24.0),
+        USD: Number(localStorage.getItem('exchange_rate_usd') || 19.0),
+    }));
+
+    useEffect(() => {
+        const handleRatesUpdated = () => {
+            setExchangeRates({
+                ZAR: 1.0,
+                GBP: Number(localStorage.getItem('exchange_rate_gbp') || 24.0),
+                USD: Number(localStorage.getItem('exchange_rate_usd') || 19.0),
+            });
+        };
+        window.addEventListener('exchange_rates_updated', handleRatesUpdated);
+        return () => window.removeEventListener('exchange_rates_updated', handleRatesUpdated);
+    }, []);
+
     // Evaluation State
     const [showEvaluationModal, setShowEvaluationModal] = useState(false);
     const [isEvaluating, setIsEvaluating] = useState(false);
@@ -312,10 +330,18 @@ export function OpportunityBoard() {
         });
     };
 
+    // Dynamic exchange rate baseline for aggregate pipeline valuation
+    // Loaded from global settings/localStorage via component state
+
     const totalOppSize = opportunities.reduce((sum, opp) => {
-        const val = opp.valueEstimate || 0;
+        const rawVal = opp.valueEstimate || 0;
         const prob = opp.probability || 0;
-        return sum + (val * (prob / 100));
+        const currency = opp.currency || "ZAR";
+        
+        const rate = exchangeRates[currency] || 1.0;
+        const convertedVal = rawVal * rate;
+
+        return sum + (convertedVal * (prob / 100));
     }, 0);
 
     const handleDropOpportunity = async (oppId: string, newStage: string) => {

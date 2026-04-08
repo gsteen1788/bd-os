@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Modal } from "./Modal";
 import { useTheme, Theme } from "../../application/ThemeContext";
 
@@ -8,6 +9,20 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const { theme, setTheme } = useTheme();
+
+    const [gbpRate, setGbpRate] = useState(() => localStorage.getItem('exchange_rate_gbp') || '24.0');
+    const [usdRate, setUsdRate] = useState(() => localStorage.getItem('exchange_rate_usd') || '19.0');
+
+    const handleRateChange = (currency: string, value: string) => {
+        if (currency === 'GBP') {
+            setGbpRate(value);
+            localStorage.setItem('exchange_rate_gbp', value);
+        } else {
+            setUsdRate(value);
+            localStorage.setItem('exchange_rate_usd', value);
+        }
+        window.dispatchEvent(new Event('exchange_rates_updated'));
+    };
 
     const themes: { id: Theme; label: string; description: string; colors: string[] }[] = [
         {
@@ -63,6 +78,33 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 )}
                             </button>
                         ))}
+                    </div>
+                </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Financial Settings</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs text-muted">GBP Exchange Rate (to ZAR)</span>
+                            <input 
+                                type="number" 
+                                className="input w-full" 
+                                value={gbpRate} 
+                                onChange={(e) => handleRateChange('GBP', e.target.value)} 
+                                step="0.1" 
+                            />
+                        </label>
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs text-muted">USD Exchange Rate (to ZAR)</span>
+                            <input 
+                                type="number" 
+                                className="input w-full" 
+                                value={usdRate} 
+                                onChange={(e) => handleRateChange('USD', e.target.value)} 
+                                step="0.1" 
+                            />
+                        </label>
                     </div>
                 </div>
             </div>

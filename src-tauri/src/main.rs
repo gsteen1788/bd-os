@@ -12,13 +12,14 @@ async fn start_auth_server(port: u16) -> Result<String, String> {
     
     listener.set_nonblocking(false).ok();
     
-    let code = tokio::task::spawn_blocking(move || {
-        listener.set_read_timeout(Some(Duration::from_secs(120))).ok();
-        
+    let (tx, rx) = std::sync::mpsc::channel::<Result<String, String>>();
+    
+    std::thread::spawn(move || {
         for stream in listener.incoming() {
             match stream {
                 Ok(mut stream) => {
-                    let mut buffer = [0; 2048];
+                    stream.set_read_timeout(Some(Duration::from_secs(120))).ok();
+                    let mut buffer = [0u8; 2048];
                     if let Ok(bytes_read) = stream.read(&mut buffer) {
                         let request = String::from_utf8_lossy(&buffer[..bytes_read]);
                         
@@ -36,7 +37,8 @@ async fn start_auth_server(port: u16) -> Result<String, String> {
                                                 let response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><head><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f3f4f6;} .card{background:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1);text-align:center;} h2{color:#10b981;}</style></head><body><div class=\"card\"><h2>Authentication Successful!</h2><p>You can close this window and return to BD OS.</p><script>setTimeout(() => window.close(), 1500);</script></div></body></html>";
                                                 stream.write_all(response.as_bytes()).ok();
                                                 
-                                                return Ok(code);
+                                                let _ = tx.send(Ok(code));
+                                                return;
                                             }
                                         }
                                     }
@@ -49,12 +51,17 @@ async fn start_auth_server(port: u16) -> Result<String, String> {
                     }
                 }
                 Err(_) => {
-                    return Err("Authentication timed out or failed.".to_string());
+                    let _ = tx.send(Err("Authentication timed out or failed.".to_string()));
+                    return;
                 }
             }
         }
-        Err("Listener closed".to_string())
-    }).await.map_err(|e| e.to_string())??;
+        let _ = tx.send(Err("Listener closed".to_string()));
+    });
+
+    let code = rx.recv()
+        .map_err(|e| format!("Channel error: {}", e))?
+        .map_err(|e| e)?;
 
     Ok(code)
 }
