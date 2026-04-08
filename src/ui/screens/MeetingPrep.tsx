@@ -153,10 +153,20 @@ export function MeetingPrep() {
         });
     };
 
+    // Optimization: Bolt ⚡ - Memoize parsed dates for all meetings.
+    // This prevents repeated O(N) string-to-Date parsing and garbage collection
+    // inside `renderMeetingCard` which is called on every render for every meeting.
+    const meetingDates = useMemo(() => {
+        const parsed = new Map<string, Date | null>();
+        meetings.forEach(m => {
+            parsed.set(m.id, m.startAt ? new Date(m.startAt) : null);
+        });
+        return parsed;
+    }, [meetings]);
+
     const renderMeetingCard = (m: Meeting) => {
         const linkName = getLinkName(m);
-        // Optimization: Bolt ⚡ - Pre-parse date to avoid repeated string parsing in format utilities
-        const parsedDate = m.startAt ? new Date(m.startAt) : null;
+        const parsedDate = meetingDates.get(m.id) || null;
         return (
             <button
                 type="button"

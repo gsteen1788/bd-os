@@ -12,12 +12,26 @@ const groupItemsCache = new Map<number, string>();
 
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
+    const dateCache = new Map<string | number, Date>();
 
     items.forEach(item => {
         const dateVal = item[dateKey];
         if (!dateVal) return;
 
-        const date = dateVal instanceof Date ? dateVal : new Date(dateVal as string | number);
+        let date: Date;
+        if (dateVal instanceof Date) {
+            date = dateVal;
+        } else {
+            const key = dateVal as string | number;
+            const cached = dateCache.get(key);
+            if (cached) {
+                date = cached;
+            } else {
+                date = new Date(key);
+                dateCache.set(key, date);
+            }
+        }
+
         const weekStart = getWeekStart(date);
         const time = weekStart.getTime();
 
