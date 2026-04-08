@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { OpportunityStage, Currency } from "../../domain/enums";
-import { opportunityRepository, meetingRepository } from "../../infrastructure/repositories";
-import { Opportunity, Meeting } from "../../domain/entities";
+import { opportunityRepository, meetingRepository, organizationRepository } from "../../infrastructure/repositories";
+import { Opportunity, Meeting, Organization } from "../../domain/entities";
 import { Modal } from "../components/Modal";
 import { MITModal } from "../components/MITModal";
 import { evaluateOpportunityNextStep, EvaluationResult } from "../../infrastructure/ai/geminiService";
@@ -69,6 +69,9 @@ const renderTooltipContent = (text: string) => {
     );
 };
 
+import { open } from "@tauri-apps/api/dialog";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
+
 export function OpportunityBoard() {
     // ... existing state ...
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -77,6 +80,12 @@ export function OpportunityBoard() {
     const [dragOverStage, setDragOverStage] = useState<string | null>(null);
     const isDragging = useRef(false);
     const [linkedMeetings, setLinkedMeetings] = useState<Meeting[]>([]);
+    const [organizations, setOrganizations] = useState<Organization[]>([]);
+    const [showNewOrgInput, setShowNewOrgInput] = useState(false);
+    const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
+    const [newOrgName, setNewOrgName] = useState("");
+    const [newOrgLogo, setNewOrgLogo] = useState("");
+    
     const [isAnonymized, setIsAnonymized] = useState(() => {
         return localStorage.getItem("bdos_anonymize_enabled") === "true";
     });
@@ -133,6 +142,7 @@ export function OpportunityBoard() {
         // Optimization: Bolt ⚡ - Fetch lightweight summaries instead of full entities (O(N) memory reduction).
         // Avoids loading large text fields (e.g. descriptionMd) for all opportunities on the board.
         opportunityRepository.findAllSummaries().then(setOpportunities);
+        organizationRepository.findAllSummaries().then(setOrganizations);
     };
 
     useEffect(() => {
@@ -159,6 +169,105 @@ export function OpportunityBoard() {
         }
         return map;
     }, [opportunities]);
+
+    const handleSaveOrganization = async () => {
+        if (!newOrgName.trim()) {
+            alert("Please enter a company name");
+            return;
+        }
+
+        try {
+            if (editingOrgId) {
+                const existing = organizations.find(o => o.id === editingOrgId);
+                if (!existing) return;
+                const fullOrg = await organizationRepository.findById(editingOrgId) || existing;
+                const updatedOrg: Organization = {
+                    ...fullOrg,
+                    name: newOrgName,
+                    logoUrl: newOrgLogo || null,
+                    updatedAt: new Date().toISOString()
+                };
+                await organizationRepository.save(updatedOrg);
+                setOrganizations(prev => prev.map(o => o.id === editingOrgId ? updatedOrg : o));
+            } else {
+                const newOrgId = crypto.randomUUID();
+                const newOrg: Organization = {
+                    id: newOrgId,
+                    name: newOrgName,
+                    logoUrl: newOrgLogo || null,
+                    notesMd: "",
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                await organizationRepository.save(newOrg);
+                setOrganizations(prev => [newOrg, ...prev]);
+                setEditingOpp(prev => prev ? { ...prev, organizationId: newOrgId } : null);
+            }
+            setNewOrgName("");
+            setNewOrgLogo("");
+            setEditingOrgId(null);
+            setShowNewOrgInput(false);
+        } catch (e) {
+            console.error("Failed to save organization:", e);
+            alert("Failed to save company");
+        }
+    };
+
+    const handleDeleteOrganization = async () => {
+        if (!editingOrgId) return;
+        if (!confirm("Delete this company? This cannot be undone.")) return;
+
+        try {
+            await organizationRepository.delete(editingOrgId);
+            setOrganizations(prev => prev.filter(o => o.id !== editingOrgId));
+            if (editingOpp?.organizationId === editingOrgId) {
+                setEditingOpp({ ...editingOpp, organizationId: null });
+            }
+            setNewOrgName("");
+            setNewOrgLogo("");
+            setEditingOrgId(null);
+            setShowNewOrgInput(false);
+        } catch (e) {
+            console.error("Failed to delete org:", e);
+            alert("Failed to delete company (check console)");
+        }
+    };
+
+    const startEditingOrg = () => {
+        const orgId = editingOpp?.organizationId;
+        if (!orgId) return;
+        const org = organizations.find(o => o.id === orgId);
+        if (!org) return;
+
+        setEditingOrgId(org.id);
+        setNewOrgName(org.name);
+        setNewOrgLogo(org.logoUrl || "");
+        setShowNewOrgInput(true);
+    };
+
+    const handleSelectLogo = async () => {
+        try {
+            const selected = await open({
+                multiple: false,
+                filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'svg', 'webp'] }]
+            });
+            if (selected && typeof selected === 'string') {
+                setNewOrgLogo(selected);
+            }
+        } catch (e) {
+            console.error("File selection failed", e);
+        }
+    };
+
+    const renderLogoSrc = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith('http')) return url;
+        try {
+            return convertFileSrc(url);
+        } catch (e) {
+            return url;
+        }
+    };
 
     const handleSave = async (opp: Opportunity) => {
         try {
@@ -333,6 +442,28 @@ export function OpportunityBoard() {
                                 }
                             }}
                         >
+                            {opp.organizationId && organizations.find(o => o.id === opp.organizationId)?.logoUrl && !isAnonymized && (
+                                <div
+                                    className="mb-8 rounded p-0 overflow-hidden flex items-start justify-start z-10 transition-transform hover:scale-105"
+                                    style={{ width: '128px', height: 'auto', marginBottom: '10px' }}
+                                    title={organizations.find(o => o.id === opp.organizationId)!.name}
+                                >
+                                    <img
+                                        src={renderLogoSrc(organizations.find(o => o.id === opp.organizationId)!.logoUrl!)}
+                                        alt={organizations.find(o => o.id === opp.organizationId)!.name}
+                                        className="object-contain"
+                                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                </div>
+                            )}
+                            <div className="text-xs uppercase tracking-wide opacity-80 mb-1">
+                                {opp.organizationId && organizations.find(o => o.id === opp.organizationId)?.name ? (
+                                    <div className="font-semibold truncate text-muted" title={isAnonymized ? "Anonymized Organization" : organizations.find(o => o.id === opp.organizationId)!.name}>
+                                        {isAnonymized ? `Organization ${(organizations.findIndex(o => o.id === opp.organizationId) ?? -1) + 1}` : organizations.find(o => o.id === opp.organizationId)!.name}
+                                    </div>
+                                ) : null}
+                            </div>
                             <div style={{ fontWeight: "600" }}>
                                 {isAnonymized ? `Opportunity ${(opportunitiesIndexMap.get(opp.id) ?? -1) + 1}` : opp.name}
                             </div>
@@ -429,12 +560,110 @@ export function OpportunityBoard() {
                         <div className="flex flex-col gap-4">
                             {/* MIT Creation Link */}
                             {editingOpp.id && (
-                                <div className="flex justify-end -mt-2">
+                                <div className="flex justify-end -mt-2 mb-2">
                                     <button className="btn btn-xs btn-outline" onClick={() => setShowMITModal(true)}>
                                         + Create MIT for this
                                     </button>
                                 </div>
                             )}
+
+                            {/* Organization Selector */}
+                            <div className="p-4 bg-base-200 rounded-lg border border-[hsl(var(--color-border))] mb-1">
+                                <h4 className="mb-3 font-bold text-base-content text-sm uppercase tracking-wide opacity-70">Company Details</h4>
+                                <div className="flex flex-col gap-3">
+                                    {!showNewOrgInput ? (
+                                        <div className="flex items-end gap-2">
+                                            <label htmlFor="opp-org" className="flex flex-col gap-1 flex-1">
+                                                <span className="text-xs font-medium text-muted">Organization</span>
+                                                <select
+                                                    id="opp-org"
+                                                    className="input"
+                                                    value={editingOpp.organizationId || ""}
+                                                    onChange={e => setEditingOpp({
+                                                        ...editingOpp,
+                                                        organizationId: e.target.value || null
+                                                    })}
+                                                >
+                                                    <option value="">Select Organization...</option>
+                                                    {organizations.map(org => (
+                                                        <option key={org.id} value={org.id}>{org.name}</option>
+                                                    ))}
+                                                </select>
+                                            </label>
+                                            <button
+                                                className="btn btn-square btn-ghost"
+                                                title="Edit Selected Company"
+                                                disabled={!editingOpp.organizationId}
+                                                onClick={startEditingOrg}
+                                            >
+                                                ✎
+                                            </button>
+                                            <button
+                                                className="btn btn-square"
+                                                title="Add New Company"
+                                                onClick={() => {
+                                                    setEditingOrgId(null);
+                                                    setNewOrgName("");
+                                                    setNewOrgLogo("");
+                                                    setShowNewOrgInput(true);
+                                                }}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 bg-base-300 rounded-md border border-white/10 animate-fade-in-up">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <strong className="text-sm">{editingOrgId ? "Edit Company" : "New Company"}</strong>
+                                                <button className="btn btn-xs btn-ghost" onClick={() => {
+                                                    setShowNewOrgInput(false);
+                                                    setEditingOrgId(null);
+                                                }}>Cancel</button>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <input
+                                                    className="input text-sm"
+                                                    placeholder="Company Name"
+                                                    value={newOrgName}
+                                                    onChange={e => setNewOrgName(e.target.value)}
+                                                    autoFocus
+                                                />
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        className="input text-sm flex-1"
+                                                        placeholder="Logo URL or File Path"
+                                                        value={newOrgLogo}
+                                                        onChange={e => setNewOrgLogo(e.target.value)}
+                                                    />
+                                                    <button className="btn btn-sm" onClick={handleSelectLogo}>
+                                                        Select File
+                                                    </button>
+                                                </div>
+                                                {newOrgLogo && (
+                                                    <div className="mt-2 p-2 bg-base rounded border border-white/5 flex items-center justify-center">
+                                                        <img
+                                                            src={renderLogoSrc(newOrgLogo)}
+                                                            alt="Preview"
+                                                            className="h-10 object-contain"
+                                                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between mt-2">
+                                                    {editingOrgId ? (
+                                                        <button className="btn btn-sm btn-ghost text-error" onClick={handleDeleteOrganization}>
+                                                            Delete
+                                                        </button>
+                                                    ) : <div></div>}
+                                                    <button className="btn btn-sm btn-primary" onClick={handleSaveOrganization}>
+                                                        {editingOrgId ? "Save Changes" : "Add Company"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
                             <label htmlFor="opp-deal-name" className="flex flex-col gap-1">
                                 <span className="text-xs text-muted">Deal Name</span>
