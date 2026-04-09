@@ -551,7 +551,7 @@ export function OpportunityBoard() {
             </div>
 
             <div style={{ display: "flex", gap: "16px", padding: "24px", flex: 1, overflowX: "auto", height: "100%" }}>
-                <div style={{ display: "flex", gap: "16px" }}>
+                <div style={{ display: "flex", gap: "16px", flexShrink: 0 }}>
                     {sellingStages.map(renderStageColumn)}
                 </div>
 
@@ -564,7 +564,7 @@ export function OpportunityBoard() {
                     }} 
                 />
 
-                <div style={{ display: "flex", gap: "16px" }}>
+                <div style={{ display: "flex", gap: "16px", flexShrink: 0 }}>
                     {renderStageColumn(ongoingStage)}
                 </div>
             </div>
