@@ -80,7 +80,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         ))}
                     </div>
                 </div>
-                </div>
 
                 <div className="pt-4 border-t border-white/10">
                     <h4 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Financial Settings</h4>

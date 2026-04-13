@@ -41,7 +41,7 @@ const checks = [
 let passed = true;
 console.log("🛡️ Verifying Repository Validation Calls...");
 
-if (!content.includes('import { validateEmail, validateWebUrl, validateInput, validateSafeUri, MAX_TEXT_LENGTH } from "./ai/security";')) {
+if (!content.includes('import { validateEmail, validateWebUrl, validateInput, validateSafeUri, validateDate, MAX_TEXT_LENGTH } from "./ai/security";')) {
     console.error("❌ Missing or incorrect import in repositories.ts");
     // passed = false; // Import string might vary slightly due to spacing, so don't fail hard on exact string match if logic works.
     // But let's check for validateInput usage which implies import.
