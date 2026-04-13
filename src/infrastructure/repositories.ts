@@ -48,6 +48,8 @@ export class SqliteOrganizationRepository extends SqliteRepository<Organization>
         validateInput(entity.industry, "Industry");
         validateInput(entity.notesMd, "Notes", MAX_TEXT_LENGTH);
         validateSafeUri(entity.logoUrl);
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -174,6 +176,8 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         validateInput(entity.primaryBuyInPriority, "Buy-in Priority");
         validateEmail(entity.email);
         validateWebUrl(entity.linkedinUrl);
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         console.log("Saving contact ID:", entity.id);
@@ -289,6 +293,8 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         validateInput(entity.currency, "Currency");
         validateInput(entity.primarySponsor, "Primary Sponsor");
         validateInput(entity.obstacle, "Obstacle", MAX_TEXT_LENGTH);
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -352,6 +358,8 @@ export class SqliteMeetingRepository extends SqliteRepository<Meeting> implement
         validateInput(entity.status, "Status");
         validateDate(entity.startAt, "Start Time");
         validateDate(entity.endAt, "End Time");
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -464,6 +472,8 @@ export class SqliteProtemoiRepository extends SqliteRepository<ProtemoiEntry> im
         validateDate(entity.nextStepDueDate, "Next Step Due Date");
         validateDate(entity.lastTouchDate, "Last Touch Date");
         validateDate(entity.nextTouchDate, "Next Touch Date");
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -594,6 +604,8 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
         validateInput(entity.linkedEntityType, "Linked Entity Type");
         validateInput(entity.tag, "Tag");
         validateDate(entity.dueDate, "Due Date");
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -769,6 +781,7 @@ export class SqliteTrackerGoalRepository extends SqliteRepository<TrackerGoal> i
         // Security validation
         validateId(entity.id, "Entity ID");
         validateInput(entity.metric, "Metric");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
@@ -812,6 +825,8 @@ export class SqliteWeekReviewRepository extends SqliteRepository<WeekReview> imp
         validateInput(entity.reflectionMd, "Reflection", MAX_TEXT_LENGTH);
         validateDate(entity.weekStartDate, "Week Start Date");
         validateDate(entity.weekEndDate, "Week End Date");
+        validateDate(entity.createdAt, "Created At");
+        validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
         await db.execute(
