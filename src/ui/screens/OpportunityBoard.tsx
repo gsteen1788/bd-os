@@ -619,6 +619,7 @@ export function OpportunityBoard() {
                                             <button
                                                 className="btn btn-square btn-ghost"
                                                 title="Edit Selected Company"
+                                                aria-label="Edit Selected Company"
                                                 disabled={!editingOpp.organizationId}
                                                 onClick={startEditingOrg}
                                             >
@@ -627,6 +628,7 @@ export function OpportunityBoard() {
                                             <button
                                                 className="btn btn-square"
                                                 title="Add New Company"
+                                                aria-label="Add New Company"
                                                 onClick={() => {
                                                     setEditingOrgId(null);
                                                     setNewOrgName("");
