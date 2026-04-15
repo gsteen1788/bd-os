@@ -16,3 +16,6 @@
 ## 2026-04-02 - Floating Widget Accessibility
 **Learning:** Floating, non-modal widgets with icon-only trigger and close buttons need explicit ARIA links (`aria-expanded`, `aria-controls`) and focus states (`focus-visible`) to be accessible for screen reader and keyboard users.
 **Action:** When implementing floating interactive widgets, always explicitly define structural ARIA relationships between the trigger button and the popup container, and ensure all interior buttons have `focus-visible` styles.
+## 2024-05-24 - Explicit Form Labeling for Accessibility
+**Learning:** Screen readers and accessibility tools often fail to correctly associate `<input>` elements wrapped implicitly inside `<label>` elements without the `htmlFor` and `id` attributes matching.
+**Action:** Always provide explicit `htmlFor` on `<label>` elements mapped to `id` on `<input>`/`<select>`/`<textarea>` elements (even when nested) to guarantee robust screen reader accessibility. Also, ensure that standalone or conditionally rendered `<select>` elements acting as filters/toggles receive an appropriate `aria-label` attribute.
