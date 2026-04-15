@@ -80,3 +80,8 @@
 **Vulnerability:** Missing input length limits on validation functions (`validateEmail`, `validateWebUrl`, `validateSafeUri`).
 **Learning:** Functions that rely on regex or object instantiation (like `new URL()`) are susceptible to DoS or ReDoS if arbitrarily long strings are provided. Furthermore, control characters (`\x00`) could be injected before URI schemes if `trim()` is used without prior validation.
 **Prevention:** To prevent DoS attacks and bypasses, always call `validateInput` with a maximum length limit (e.g., `MAX_INPUT_LENGTH`) at the beginning of validation helpers before performing any regex tests or URI parsing.
+
+## 2024-05-27 - Missing Validation for link.id in Nested Entity Properties
+**Vulnerability:** The `SqliteTaskRepository.save` method iterated over `entity.links` to insert into `task_links`. While `link.entityType` and `link.entityId` were validated, `link.id` was pushed directly to the parameterized query placeholders without length limits.
+**Learning:** Even when developers remember to validate nested properties like foreign keys, primary keys (`link.id`) of nested objects are often overlooked, especially if they are optional or auto-generated fallbacks (`link.id || crypto.randomUUID()`). This can allow excessively long strings to be passed as IDs via update requests, leading to DoS.
+**Prevention:** When persisting entity relationships (e.g., iterating through `entity.links`), strictly ensure that every single string property of the nested objects, including the ID (`validateId(link.id, "Link ID")`), is validated before executing SQL queries.
