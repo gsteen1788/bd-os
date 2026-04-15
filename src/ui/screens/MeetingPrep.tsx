@@ -760,7 +760,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
                 </div>
 
                 {linkType === "OPPORTUNITY" && (
-                    <select className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
+                    <select aria-label="Select Opportunity" className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
                         <option value="">Select Opportunity...</option>
                         {opportunities.map(o => (
                             <option key={o.id} value={o.id}>{o.name} ({o.stage})</option>
@@ -769,7 +769,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
                 )}
 
                 {linkType === "RELATIONSHIP" && (
-                    <select className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
+                    <select aria-label="Select Relationship" className="input w-full" value={linkId} onChange={e => setLinkId(e.target.value)}>
                         <option value="">Select Relationship...</option>
                         {relationships.map(r => (
                             <option key={r.id} value={r.id}>{getRelName(r.id)} ({r.relationshipStage})</option>

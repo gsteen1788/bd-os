@@ -84,9 +84,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <div className="pt-4 border-t border-white/10">
                     <h4 className="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Financial Settings</h4>
                     <div className="grid grid-cols-2 gap-4">
-                        <label className="flex flex-col gap-1">
+                        <label htmlFor="settings-gbp-rate" className="flex flex-col gap-1">
                             <span className="text-xs text-muted">GBP Exchange Rate (to ZAR)</span>
                             <input 
+                                id="settings-gbp-rate"
                                 type="number" 
                                 className="input w-full" 
                                 value={gbpRate} 
@@ -94,9 +95,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 step="0.1" 
                             />
                         </label>
-                        <label className="flex flex-col gap-1">
+                        <label htmlFor="settings-usd-rate" className="flex flex-col gap-1">
                             <span className="text-xs text-muted">USD Exchange Rate (to ZAR)</span>
                             <input 
+                                id="settings-usd-rate"
                                 type="number" 
                                 className="input w-full" 
                                 value={usdRate} 
