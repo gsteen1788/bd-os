@@ -19,3 +19,6 @@
 ## 2024-05-14 - Anti-pattern: Pre-mature Optimization with High Entropy Values
 **Learning:** Optimizing repeated operations by wrapping them in a generic cache (e.g. `Map` inside `groupItemsByWeek`) backfires when the input values have high entropy (e.g. unique timestamps). In these cases, the cache never hits, leading to memory bloat and performance degradation from `Map` insertions and lookups.
 **Action:** Before introducing a caching mechanism for an operation, assess the variance of the inputs. If the inputs are unique strings or objects, favor optimizing the caller context (like hoisting the operation outside a loop into `useMemo` in a React component) rather than adding a generic, low-hit-rate cache inside the utility function.
+## $(date +%Y-%m-%d) - Pre-parse Date inside loops
+**Learning:** Found that `Intl.DateTimeFormat.format()` combined with `new Date()` inside `.map()` loops causes expensive memory allocations and garbage collections.
+**Action:** Always pre-calculate and memoize `Date` objects inside a `useMemo` block with a `Map` structure to prevent $O(N)$ reinstantiation inside React render loops.

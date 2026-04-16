@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { taskRepository, trackerGoalRepository } from "../../infrastructure/repositories";
 import { getWeekStart } from "../../utils/dateUtils";
 
@@ -184,6 +184,15 @@ export function Tracker() {
     // Optimization: Bolt ⚡ - Calculate current week start once per render
     const currentWeekStartStr = getWeekStart(new Date()).toISOString().split('T')[0];
 
+    // Optimization: Bolt ⚡ - Pre-parse Date objects for week starts to avoid O(N) instantiation in render loop
+    const weekDates = useMemo(() => {
+        const map = new Map<string, Date>();
+        stats.forEach(week => {
+            map.set(week.weekStart, new Date(week.weekStart));
+        });
+        return map;
+    }, [stats]);
+
     return (
         <div className="h-full flex flex-col bg-base-100 overflow-hidden font-sans">
             <div className="p-8 pb-4 flex justify-between items-end">
@@ -310,7 +319,7 @@ export function Tracker() {
                                         className={`transition-colors duration-200 ${rowClass} ${isCurrentWeek ? 'border-l-4 border-l-primary' : ''}`}
                                     >
                                         <td className="py-4 px-6 font-mono text-xs opacity-70 whitespace-nowrap">
-                                            {dateFormatter.format(new Date(week.weekStart))}
+                                            {dateFormatter.format(weekDates.get(week.weekStart) || new Date(week.weekStart))}
                                             {isCurrentWeek && <span className="ml-2 text-[9px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded">NOW</span>}
                                         </td>
                                         <td className="py-4 px-4 text-center font-medium opacity-80">{week.bdTasksCount}</td>
