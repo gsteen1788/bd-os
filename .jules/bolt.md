@@ -19,3 +19,7 @@
 ## 2024-05-14 - Anti-pattern: Pre-mature Optimization with High Entropy Values
 **Learning:** Optimizing repeated operations by wrapping them in a generic cache (e.g. `Map` inside `groupItemsByWeek`) backfires when the input values have high entropy (e.g. unique timestamps). In these cases, the cache never hits, leading to memory bloat and performance degradation from `Map` insertions and lookups.
 **Action:** Before introducing a caching mechanism for an operation, assess the variance of the inputs. If the inputs are unique strings or objects, favor optimizing the caller context (like hoisting the operation outside a loop into `useMemo` in a React component) rather than adding a generic, low-hit-rate cache inside the utility function.
+
+## 2024-05-24 - Avoid O(N) Memoization for Event Handlers
+**Learning:** Extracting an O(N) array search from an asynchronous click handler (e.g., `saveOrg`, `startEditingOrg`) into a `useMemo` Map for O(1) lookups is a performance anti-pattern. It degrades performance by forcing the Map to rebuild on every array update, shifting computation from an infrequent user interaction (cold path) to the main render cycle.
+**Action:** Only use `useMemo` for Map lookups when replacing O(N) or O(N^2) searches that occur *inside the render loop* or mapping functions. For event handlers, leave the `.find()` in place.
