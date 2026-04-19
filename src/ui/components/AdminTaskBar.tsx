@@ -370,6 +370,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
 
                         {/* Tag Selector */}
                         <select
+                            aria-label="Filter by tag"
                             className="select select-xs select-ghost h-7 min-h-0 text-[10px] uppercase font-bold text-muted/80 border border-[hsl(var(--color-border))] rounded px-2"
                             value={selectedTag || ""}
                             onChange={(e) => setSelectedTag(e.target.value ? e.target.value as TaskTag : null)}

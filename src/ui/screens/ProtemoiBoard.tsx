@@ -569,7 +569,9 @@ export function ProtemoiBoard() {
                                         {stage.replace(/_/g, " ")}
                                     </h4>
                                     {info && (
-                                        <FixedTooltip content={
+                                        <FixedTooltip
+                                            ariaLabel="Stage Information"
+                                            content={
                                             <div className="flex flex-col gap-2">
                                                 <div>
                                                     <span className="text-xs font-bold uppercase text-primary block mb-0.5">Goal</span>
