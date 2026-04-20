@@ -177,6 +177,24 @@ export function OpportunityBoard() {
         return map;
     }, [opportunities]);
 
+    // Optimization: Bolt ⚡ - Pre-calculate global index map for organizations
+    // Reduces algorithmic complexity of generating anonymized labels from O(N*M) to O(N+M) during render cycles.
+    const organizationsIndexMap = useMemo(() => {
+        const map = new Map<string, number>();
+        organizations.forEach((org, index) => {
+            map.set(org.id, index);
+        });
+        return map;
+    }, [organizations]);
+
+    const organizationsMap = useMemo(() => {
+        const map = new Map<string, Organization>();
+        organizations.forEach((org) => {
+            map.set(org.id, org);
+        });
+        return map;
+    }, [organizations]);
+
     // Optimization: Bolt ⚡ - Pre-group opportunities by stage to avoid O(S * E) loop filtering
     const oppsByStage = useMemo(() => {
         const map = new Map<string, Opportunity[]>();
@@ -468,15 +486,15 @@ export function OpportunityBoard() {
                                 }
                             }}
                         >
-                            {opp.organizationId && organizations.find(o => o.id === opp.organizationId)?.logoUrl && !isAnonymized && (
+                            {opp.organizationId && organizationsMap.get(opp.organizationId)?.logoUrl && !isAnonymized && (
                                 <div
                                     className="mb-8 rounded p-0 overflow-hidden flex items-start justify-start z-10 transition-transform hover:scale-105"
                                     style={{ width: '128px', height: 'auto', marginBottom: '10px' }}
-                                    title={organizations.find(o => o.id === opp.organizationId)!.name}
+                                    title={organizationsMap.get(opp.organizationId)!.name}
                                 >
                                     <img
-                                        src={renderLogoSrc(organizations.find(o => o.id === opp.organizationId)!.logoUrl!)}
-                                        alt={organizations.find(o => o.id === opp.organizationId)!.name}
+                                        src={renderLogoSrc(organizationsMap.get(opp.organizationId)!.logoUrl!)}
+                                        alt={organizationsMap.get(opp.organizationId)!.name}
                                         className="object-contain"
                                         style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                                         onError={(e) => (e.currentTarget.style.display = 'none')}
@@ -484,9 +502,9 @@ export function OpportunityBoard() {
                                 </div>
                             )}
                             <div className="text-xs uppercase tracking-wide opacity-80 mb-1">
-                                {opp.organizationId && organizations.find(o => o.id === opp.organizationId)?.name ? (
-                                    <div className="font-semibold truncate text-muted" title={isAnonymized ? "Anonymized Organization" : organizations.find(o => o.id === opp.organizationId)!.name}>
-                                        {isAnonymized ? `Organization ${(organizations.findIndex(o => o.id === opp.organizationId) ?? -1) + 1}` : organizations.find(o => o.id === opp.organizationId)!.name}
+                                {opp.organizationId && organizationsMap.get(opp.organizationId)?.name ? (
+                                    <div className="font-semibold truncate text-muted" title={isAnonymized ? "Anonymized Organization" : organizationsMap.get(opp.organizationId)!.name}>
+                                        {isAnonymized ? `Organization ${(organizationsIndexMap.get(opp.organizationId) ?? -1) + 1}` : organizationsMap.get(opp.organizationId)!.name}
                                     </div>
                                 ) : null}
                             </div>
