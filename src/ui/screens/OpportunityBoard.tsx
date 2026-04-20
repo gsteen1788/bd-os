@@ -429,7 +429,9 @@ export function OpportunityBoard() {
                     <div className="flex items-center gap-2 mb-1">
                         <h4 style={{ margin: 0, fontSize: "12px", color: "hsl(var(--color-text-muted))" }}>{stage.replace(/_/g, " ")}</h4>
                         {info && (
-                            <FixedTooltip content={
+                            <FixedTooltip
+                                ariaLabel="Stage Information"
+                                content={
                                 <div className="flex flex-col gap-2">
                                     <div>
                                         <span className="text-xs font-bold uppercase text-primary block mb-0.5">Goal</span>
