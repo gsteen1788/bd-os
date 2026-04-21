@@ -22,3 +22,6 @@
 ## $(date +%Y-%m-%d) - Pre-parse Date inside loops
 **Learning:** Found that `Intl.DateTimeFormat.format()` combined with `new Date()` inside `.map()` loops causes expensive memory allocations and garbage collections.
 **Action:** Always pre-calculate and memoize `Date` objects inside a `useMemo` block with a `Map` structure to prevent $O(N)$ reinstantiation inside React render loops.
+## $(date +%Y-%m-%d) - Pre-mature aggregation in render loop
+**Learning:** Performing array aggregations (e.g. `array.reduce()`) directly inside a React component's render body causes an $O(N)$ calculation on every single frame, even when unrelated states (like drag-and-drop or text inputs) change.
+**Action:** Always wrap array aggregations (like calculating totals or averages from lists) in a `useMemo` block, providing the array and any calculation parameters as dependencies, to prevent redundant execution.
