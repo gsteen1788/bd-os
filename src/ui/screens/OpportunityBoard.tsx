@@ -672,6 +672,7 @@ export function OpportunityBoard() {
                                                 <input
                                                     className="input text-sm"
                                                     placeholder="Company Name"
+                                                    aria-label="Company Name"
                                                     value={newOrgName}
                                                     onChange={e => setNewOrgName(e.target.value)}
                                                     autoFocus
@@ -680,6 +681,7 @@ export function OpportunityBoard() {
                                                     <input
                                                         className="input text-sm flex-1"
                                                         placeholder="Logo URL or File Path"
+                                                        aria-label="Logo URL or File Path"
                                                         value={newOrgLogo}
                                                         onChange={e => setNewOrgLogo(e.target.value)}
                                                     />
