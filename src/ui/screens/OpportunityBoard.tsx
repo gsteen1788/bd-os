@@ -351,16 +351,20 @@ export function OpportunityBoard() {
     // Dynamic exchange rate baseline for aggregate pipeline valuation
     // Loaded from global settings/localStorage via component state
 
-    const totalOppSize = opportunities.reduce((sum, opp) => {
-        const rawVal = opp.valueEstimate || 0;
-        const prob = opp.probability || 0;
-        const currency = opp.currency || "ZAR";
-        
-        const rate = exchangeRates[currency] || 1.0;
-        const convertedVal = rawVal * rate;
+    // Optimization: Bolt ⚡ - Wrap totalOppSize calculation in useMemo to prevent O(N) array reduction
+    // from recalculating on every render cycle (e.g. when typing in unrelated inputs).
+    const totalOppSize = useMemo(() => {
+        return opportunities.reduce((sum, opp) => {
+            const rawVal = opp.valueEstimate || 0;
+            const prob = opp.probability || 0;
+            const currency = opp.currency || "ZAR";
 
-        return sum + (convertedVal * (prob / 100));
-    }, 0);
+            const rate = exchangeRates[currency] || 1.0;
+            const convertedVal = rawVal * rate;
+
+            return sum + (convertedVal * (prob / 100));
+        }, 0);
+    }, [opportunities, exchangeRates]);
 
     const handleDropOpportunity = async (oppId: string, newStage: string) => {
         const opp = opportunities.find(o => o.id === oppId);
