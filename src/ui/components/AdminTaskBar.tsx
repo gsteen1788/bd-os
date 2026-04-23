@@ -342,6 +342,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         <input
                             className="input text-xs h-8 flex-1"
                             placeholder={editingTask ? "Edit task..." : "New Admin Task..."}
+                            aria-label={editingTask ? "Edit task title" : "New Admin Task title"}
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
@@ -364,6 +365,7 @@ export function AdminTaskBar({ tasks, history, opportunities, relationships, opp
                         <input
                             type="date"
                             className="input text-xs h-7 w-28 px-1"
+                            aria-label="Task due date"
                             value={dueDate}
                             onChange={e => setDueDate(e.target.value)}
                         />

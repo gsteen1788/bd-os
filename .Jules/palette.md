@@ -19,3 +19,7 @@
 ## 2024-05-24 - Explicit Form Labeling for Accessibility
 **Learning:** Screen readers and accessibility tools often fail to correctly associate `<input>` elements wrapped implicitly inside `<label>` elements without the `htmlFor` and `id` attributes matching.
 **Action:** Always provide explicit `htmlFor` on `<label>` elements mapped to `id` on `<input>`/`<select>`/`<textarea>` elements (even when nested) to guarantee robust screen reader accessibility. Also, ensure that standalone or conditionally rendered `<select>` elements acting as filters/toggles receive an appropriate `aria-label` attribute.
+
+## 2026-05-18 - Input Fields Without Labels
+**Learning:** Text and date input fields that are not wrapped in `<label>` elements and rely solely on placeholders or surrounding context are inaccessible to screen readers. Furthermore, inputs with dynamic context (e.g., toggling between "Create" and "Edit" modes based on state) need their accessibility labels to update dynamically as well.
+**Action:** Always provide an explicit `aria-label` attribute on `<input>` elements that do not have an associated `<label>`. If the input's placeholder or purpose changes based on component state (e.g., `placeholder={isEditing ? "Edit" : "New"}`), ensure the `aria-label` expression matches this dynamic behavior (e.g., `aria-label={isEditing ? "Edit item" : "New item"}`).
