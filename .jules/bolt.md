@@ -25,3 +25,6 @@
 ## 2026-04-23 - Prevent array reduce recalculations inside render loops
 **Learning:** Found that executing aggregate calculations like `array.reduce()` directly in the body of React components causes an $O(N)$ recalculation to happen on every render. This forces unnecessary array iteration and blocks the main thread, especially when typing in unrelated inputs on the same screen (e.g. searching or editing text fields in OpportunityBoard).
 **Action:** Always wrap aggregate loop calculations (like `reduce`) in a `useMemo` block with their specific dependencies to preserve performance during unrelated state changes.
+## 2026-04-26 - Prevent Intl.DateTimeFormat.format inside render loops
+**Learning:** Found that executing `Intl.DateTimeFormat.format()` combined with map lookups or fallbacks (e.g., `dateFormatter.format(weekDates.get(week.weekStart) || new Date(...))`) inside the main body of a React render loop `.map()` executes on every render. Even if the formatter is instantiated outside the component, formatting the string repeatedly inside the render blocks the main thread.
+**Action:** Always pre-format dates directly to strings using `useMemo` into a `Map` (e.g. `formattedDates.get(id)`), rather than storing just the `Date` object and formatting it during the render cycle.
