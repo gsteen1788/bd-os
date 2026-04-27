@@ -459,6 +459,12 @@ export function OpportunityBoard() {
                 </div>
 
                 <div className="flex flex-col gap-2" style={{ padding: "12px", overflowY: "auto", flex: 1 }}>
+                    {stageOpps.length === 0 && (
+                        <div className="flex flex-col items-center justify-center h-32 p-4 text-center border-2 border-dashed rounded-lg border-base-content/10 bg-base-100/50 mt-2">
+                            <span className="text-sm font-medium text-muted">No deals yet</span>
+                            <span className="text-xs opacity-50 mt-1">Drop a deal here to move it to {stage.replace(/_/g, " ")}</span>
+                        </div>
+                    )}
                     {stageOpps.map(opp => (
                         <button
                             key={opp.id}

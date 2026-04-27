@@ -23,3 +23,6 @@
 ## 2026-05-18 - Input Fields Without Labels
 **Learning:** Text and date input fields that are not wrapped in `<label>` elements and rely solely on placeholders or surrounding context are inaccessible to screen readers. Furthermore, inputs with dynamic context (e.g., toggling between "Create" and "Edit" modes based on state) need their accessibility labels to update dynamically as well.
 **Action:** Always provide an explicit `aria-label` attribute on `<input>` elements that do not have an associated `<label>`. If the input's placeholder or purpose changes based on component state (e.g., `placeholder={isEditing ? "Edit" : "New"}`), ensure the `aria-label` expression matches this dynamic behavior (e.g., `aria-label={isEditing ? "Edit item" : "New item"}`).
+## 2024-06-25 - Opportunity Board Empty States
+**Learning:** Empty columns in drag-and-drop board interfaces (like `OpportunityBoard`) can feel "broken" or confusing without explicit drop zones, especially for users who aren't familiar with Kanban conventions.
+**Action:** When implementing or modifying column-based UI boards, explicitly add styled empty states with helpful guidance (e.g., "Drop a deal here") when lists are empty, ensuring dashed borders and helpful text clearly communicate drop functionality.
