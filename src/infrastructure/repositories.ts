@@ -257,9 +257,11 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
             stage: row.stage,
             status: row.status,
             nextStepText: row.next_step_text,
+            nextStepDueDate: row.next_step_due_date,
             valueEstimate: row.value_estimate,
             currency: row.currency,
             probability: row.probability,
+            expectedCloseDate: row.expected_close_date,
             primarySponsor: row.primary_sponsor,
             obstacle: row.obstacle,
             createdAt: row.created_at,
@@ -276,7 +278,7 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
     async findAllSummaries(): Promise<Opportunity[]> {
         const db = await this.getDb();
         const rows = await db.select<any[]>(
-            "SELECT id, name, organization_id, stage, status, next_step_text, value_estimate, probability, currency, created_at, updated_at FROM opportunities ORDER BY updated_at DESC"
+            "SELECT id, name, organization_id, stage, status, next_step_text, next_step_due_date, value_estimate, probability, expected_close_date, currency, created_at, updated_at FROM opportunities ORDER BY updated_at DESC"
         );
         return rows.map(r => this.mapRow(r));
     }
@@ -288,9 +290,11 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
         validateInput(entity.name, "Opportunity Name");
         validateInput(entity.descriptionMd, "Description", MAX_TEXT_LENGTH);
         validateInput(entity.nextStepText, "Next Step", MAX_TEXT_LENGTH);
+        validateDate(entity.nextStepDueDate, "Next Step Due Date");
         validateInput(entity.stage, "Stage");
         validateInput(entity.status, "Status");
         validateInput(entity.currency, "Currency");
+        validateDate(entity.expectedCloseDate, "Expected Close Date");
         validateInput(entity.primarySponsor, "Primary Sponsor");
         validateInput(entity.obstacle, "Obstacle", MAX_TEXT_LENGTH);
         validateDate(entity.createdAt, "Created At");
@@ -298,8 +302,8 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
 
         const db = await this.getDb();
         await db.execute(
-            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, value_estimate, probability, currency, primary_sponsor, obstacle, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            `INSERT INTO opportunities (id, name, organization_id, description_md, stage, status, next_step_text, next_step_due_date, value_estimate, probability, expected_close_date, currency, primary_sponsor, obstacle, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
              ON CONFLICT(id) DO UPDATE SET 
                 name=excluded.name, 
                 organization_id=excluded.organization_id,
@@ -307,13 +311,15 @@ export class SqliteOpportunityRepository extends SqliteRepository<Opportunity> i
                 stage=excluded.stage, 
                 status=excluded.status, 
                 next_step_text=excluded.next_step_text,
+                next_step_due_date=excluded.next_step_due_date,
                 value_estimate=excluded.value_estimate,
                 probability=excluded.probability,
+                expected_close_date=excluded.expected_close_date,
                 currency=excluded.currency,
                 primary_sponsor=excluded.primary_sponsor,
                 obstacle=excluded.obstacle,
                 updated_at=excluded.updated_at`,
-            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.valueEstimate, entity.probability, entity.currency, entity.primarySponsor, entity.obstacle, entity.createdAt, entity.updatedAt]
+            [entity.id, entity.name, entity.organizationId, entity.descriptionMd, entity.stage, entity.status, entity.nextStepText, entity.nextStepDueDate, entity.valueEstimate, entity.probability, entity.expectedCloseDate, entity.currency, entity.primarySponsor, entity.obstacle, entity.createdAt, entity.updatedAt]
         );
     }
 
