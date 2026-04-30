@@ -595,6 +595,11 @@ export function ProtemoiBoard() {
                             </div>
 
                             <div className="flex flex-col gap-3 p-4 custom-scrollbar" style={{ overflowY: "auto", flex: 1 }}>
+                                {stageEntries.length === 0 && (
+                                    <div className="flex items-center justify-center h-24 border-2 border-dashed border-[hsl(var(--color-border))] rounded-lg text-muted text-sm" style={{ backgroundColor: "rgba(0,0,0,0.02)" }}>
+                                        Drop relationship here
+                                    </div>
+                                )}
                                 {stageEntries.map(entry => (
                                     <button
                                         type="button"
