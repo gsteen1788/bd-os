@@ -90,3 +90,8 @@
 **Vulnerability:** The `SqliteOpportunityRepository.save` method was completely missing the `expectedCloseDate` and `nextStepDueDate` fields in its `mapRow` function and in the `INSERT` and `ON CONFLICT DO UPDATE` SQL queries. Additionally, these fields were not being validated using `validateDate`.
 **Learning:** Forgetting to map entity fields to database queries silently drops data. Not validating these missing date fields also leaves the system open to CPU-exhaustion DoS attacks via malicious, excessively long string parsing.
 **Prevention:** Always verify that every property of a domain entity is mapped in the repository's SQL parameters and `mapRow` function. Additionally, enforce that all date fields use `validateDate` before being saved to the database to prevent ReDoS/CPU exhaustion attacks.
+
+## 2026-06-09 - Stored XSS via Whitespace/Control Character Bypass in URI Validation
+**Vulnerability:** The `validateSafeUri` function tested URIs against dangerous scheme regular expressions (e.g., `/^javascript:/i`) after only performing a basic `trim()`. Attackers could bypass this check by inserting spaces or control characters (like `\t`, `\n`) within the scheme name (e.g., `java\tscript:` or `j a v a s c r i p t:`), which browsers still interpret as valid URI schemes.
+**Learning:** Regular expressions checking for URI schemes are insufficient if the input string is not properly normalized. Browsers are highly permissive and ignore whitespaces and certain non-printable characters when parsing URI schemes.
+**Prevention:** Always normalize URI strings by aggressively stripping all whitespace (`\s`) and non-printable control characters (`\x00-\x1F\x7F`) before applying regular expression checks for dangerous schemes.
