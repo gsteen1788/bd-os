@@ -94,6 +94,11 @@ export const validateSafeUri = (uri?: string | null): void => {
     const trimmed = uri.trim();
     if (trimmed.length === 0) return;
 
+    // Aggressively strip whitespace and non-printable control characters
+    // to prevent bypasses like `java\nscript:`
+    // eslint-disable-next-line no-control-regex
+    const strippedUri = trimmed.replace(/[\s\x00-\x1F\x7F]/g, '');
+
     // Check for dangerous schemes at the start
     // We check for these specifically to block XSS vectors
     const dangerousSchemes = [
@@ -104,12 +109,13 @@ export const validateSafeUri = (uri?: string | null): void => {
     ];
 
     for (const scheme of dangerousSchemes) {
-        if (scheme.test(trimmed)) {
+        if (scheme.test(strippedUri)) {
             throw new Error("Dangerous URI scheme detected");
         }
     }
 
     // If it looks like a web URL, strictly validate it as such
+    // Use the original trimmed URL to preserve valid whitespace if needed
     if (/^https?:\/\//i.test(trimmed)) {
         validateWebUrl(trimmed);
     }
