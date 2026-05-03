@@ -173,6 +173,11 @@ const safeUriTestCases = [
     { input: "vbscript:msgbox('hello')", valid: false },
     { input: "data:text/html,<script>alert(1)</script>", valid: false },
     { input: "file:///etc/passwd", valid: false },
+    { input: "java\tscript:alert(1)", valid: false }, // Control character bypass
+    { input: "javascript :alert(1)", valid: false }, // Space bypass
+    { input: "j a v a s c r i p t:alert(1)", valid: false }, // Dispersed spaces bypass
+    { input: "java\nscript:alert(1)", valid: false }, // Newline bypass
+    { input: "java\rscript:alert(1)", valid: false }, // Carriage return bypass
 ];
 
 safeUriTestCases.forEach(({ input, valid }) => {
