@@ -12,7 +12,6 @@ const groupItemsCache = new Map<number, string>();
 
 export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string, T[]> {
     const groups: Record<string, T[]> = {};
-    const dateCache = new Map<string | number, Date>();
 
     items.forEach(item => {
         const dateVal = item[dateKey];
@@ -22,14 +21,9 @@ export function groupItemsByWeek<T>(items: T[], dateKey: keyof T): Record<string
         if (dateVal instanceof Date) {
             date = dateVal;
         } else {
-            const key = dateVal as string | number;
-            const cached = dateCache.get(key);
-            if (cached) {
-                date = cached;
-            } else {
-                date = new Date(key);
-                dateCache.set(key, date);
-            }
+            // Optimization: Bolt ⚡ - Removed local dateCache map. High-entropy timestamps
+            // result in near 0% cache hits, making Map operations a performance bottleneck.
+            date = new Date(dateVal as string | number);
         }
 
         const weekStart = getWeekStart(date);
