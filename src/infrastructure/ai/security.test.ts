@@ -173,6 +173,10 @@ const safeUriTestCases = [
     { input: "vbscript:msgbox('hello')", valid: false },
     { input: "data:text/html,<script>alert(1)</script>", valid: false },
     { input: "file:///etc/passwd", valid: false },
+    { input: "java\nscript:alert(1)", valid: false },
+    { input: "java\tscript:alert(1)", valid: false },
+    { input: "   javascript:alert(1)", valid: false },
+    { input: "jav\x00ascript:alert(1)", valid: false },
 ];
 
 safeUriTestCases.forEach(({ input, valid }) => {

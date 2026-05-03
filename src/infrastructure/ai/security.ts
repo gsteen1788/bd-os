@@ -94,6 +94,9 @@ export const validateSafeUri = (uri?: string | null): void => {
     const trimmed = uri.trim();
     if (trimmed.length === 0) return;
 
+    // Strip whitespace and control characters to prevent scheme bypasses
+    const sanitizedUri = uri.replace(/[\s\x00-\x1F\x7F]+/g, '');
+
     // Check for dangerous schemes at the start
     // We check for these specifically to block XSS vectors
     const dangerousSchemes = [
@@ -104,7 +107,7 @@ export const validateSafeUri = (uri?: string | null): void => {
     ];
 
     for (const scheme of dangerousSchemes) {
-        if (scheme.test(trimmed)) {
+        if (scheme.test(sanitizedUri)) {
             throw new Error("Dangerous URI scheme detected");
         }
     }
