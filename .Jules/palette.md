@@ -27,3 +27,6 @@
 ## 2026-05-19 - Drag-and-Drop Empty States
 **Learning:** Drag-and-drop boards without visual cues for empty columns fail to communicate that the area is a valid drop target, causing confusion for users.
 **Action:** In drag-and-drop interfaces (like Kanban boards), empty columns must render a styled dropzone empty state (e.g., dashed border with instructional text) to provide a visible drop target.
+## 2026-05-25 - Ghost Button Keyboard Accessibility
+**Learning:** Ghost buttons (e.g., `btn-ghost`) and icon-only buttons often rely on hover background changes (`bg-base-200`) for visual feedback. When focused via keyboard, they lack any default outline or visible focus state, rendering them invisible to keyboard navigation users.
+**Action:** Always explicitly add Tailwind focus ring utilities (e.g., `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) to `btn-ghost` and icon-only buttons to ensure they remain accessible and clearly visible during keyboard navigation.

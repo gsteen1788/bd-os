@@ -721,8 +721,8 @@ export function ProtemoiBoard() {
                         title={editingEntry.contact?.displayName ? "Edit Relationship" : "New Relationship"}
                         footer={
                             <>
-                                <button className="btn btn-ghost text-error" onClick={handleDelete} style={{ marginRight: "auto", color: "hsl(var(--color-text-error, #f87171))" }}>Delete</button>
-                                <button className="btn btn-ghost" onClick={() => setEditingEntry(null)}>Cancel</button>
+                                <button className="btn btn-ghost text-error focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none rounded-md" onClick={handleDelete} style={{ marginRight: "auto", color: "hsl(var(--color-text-error, #f87171))" }}>Delete</button>
+                                <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => setEditingEntry(null)}>Cancel</button>
                                 <button className="btn" onClick={handleSave}>Save</button>
                             </>
                         }

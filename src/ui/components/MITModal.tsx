@@ -277,11 +277,11 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
                 footer={
                     <>
                         {initialTask && (
-                            <button className="btn btn-ghost text-error" onClick={handleDelete} style={{ marginRight: 'auto' }}>
+                            <button className="btn btn-ghost text-error focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none rounded-md" onClick={handleDelete} style={{ marginRight: 'auto' }}>
                                 Delete
                             </button>
                         )}
-                        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+                        <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={onClose}>Cancel</button>
                         <button
                             className="btn"
                             onClick={handleSave}
