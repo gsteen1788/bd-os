@@ -6,6 +6,7 @@ import {
     Organization, Contact, Opportunity, Meeting, UUID, ProtemoiEntry, Task, TrackerGoal, WeekReview
 } from "../domain/entities";
 import { validateEmail, validateWebUrl, validateInput, validateSafeUri, validateDate, MAX_TEXT_LENGTH } from "./ai/security";
+import { logger } from "./logger";
 import Database from "./tauri-sql";
 import { DB_NAME } from "./db";
 
@@ -180,7 +181,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
         validateDate(entity.updatedAt, "Updated At");
 
         const db = await this.getDb();
-        console.log("Saving contact ID:", entity.id);
+        logger.info("Saving contact ID:", entity.id);
         try {
             await db.execute(
                 `INSERT INTO contacts (
@@ -221,7 +222,7 @@ export class SqliteContactRepository extends SqliteRepository<Contact> implement
                 ]
             );
         } catch (e) {
-            console.error(`Critical Error saving Contact (ID: ${entity.id}):`, e);
+            logger.error(`Critical Error saving Contact (ID: ${entity.id}):`, e);
             throw e;
         }
     }
@@ -590,7 +591,7 @@ export class SqliteTaskRepository extends SqliteRepository<Task> implements Task
                 links: linkMap.get(t.id) || []
             }));
         } catch (e) {
-            console.error("Failed to populate links:", e);
+            logger.error("Failed to populate links:", e);
             return tasks;
         }
     }
@@ -856,7 +857,7 @@ import * as mockRepos from "./mock/repositories";
 // Helper to detect Tauri environment
 const isTauri = typeof window !== 'undefined' && '__TAURI_IPC__' in window;
 
-console.log(`[Repository Factory] Environment: ${isTauri ? "Tauri (SQL)" : "Browser (Mock)"}`);
+logger.info(`[Repository Factory] Environment: ${isTauri ? "Tauri (SQL)" : "Browser (Mock)"}`);
 
 export const organizationRepository = isTauri ? new SqliteOrganizationRepository() : mockRepos.organizationRepository;
 export const contactRepository = isTauri ? new SqliteContactRepository() : mockRepos.contactRepository;
