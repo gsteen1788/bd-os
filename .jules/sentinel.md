@@ -95,3 +95,8 @@
 **Vulnerability:** The `validateSafeUri` function tested URIs against dangerous scheme regular expressions (e.g., `/^javascript:/i`) after only performing a basic `trim()`. Attackers could bypass this check by inserting spaces or control characters (like `\t`, `\n`) within the scheme name (e.g., `java\tscript:` or `j a v a s c r i p t:`), which browsers still interpret as valid URI schemes.
 **Learning:** Regular expressions checking for URI schemes are insufficient if the input string is not properly normalized. Browsers are highly permissive and ignore whitespaces and certain non-printable characters when parsing URI schemes.
 **Prevention:** Always normalize URI strings by aggressively stripping all whitespace (`\s`) and non-printable control characters (`\x00-\x1F\x7F`) before applying regular expression checks for dangerous schemes.
+
+## 2026-06-10 - Secure Logger Implementation for PII Leakage
+**Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
+**Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
+**Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
