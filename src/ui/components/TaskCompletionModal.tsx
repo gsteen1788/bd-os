@@ -60,7 +60,7 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
                     <h3 id="modal-title" className="text-lg font-bold">Task Completed!</h3>
                     <button
                         onClick={onClose}
-                        className="btn btn-sm btn-ghost btn-circle text-muted hover:text-main"
+                        className="btn btn-sm btn-ghost btn-circle text-muted hover:text-main focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                         aria-label="Close modal"
                     >
                         ✕
@@ -107,7 +107,7 @@ export function TaskCompletionModal({ isOpen, onClose, onConfirm, task }: TaskCo
                 </div>
 
                 <div className="p-4 bg-base-200/50 flex justify-end gap-2 border-t border-[hsl(var(--color-border))]">
-                    <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={onClose}>Cancel</button>
                     <button className="btn btn-primary" onClick={handleSubmit}>Submit & Complete</button>
                 </div>
             </div>
