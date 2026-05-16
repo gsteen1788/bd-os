@@ -7,6 +7,27 @@ interface SettingsModalProps {
     onClose: () => void;
 }
 
+const themes: { id: Theme; label: string; description: string; colors: string[] }[] = [
+    {
+        id: 'dark',
+        label: 'Cosmic Glass',
+        description: 'The default dark aesthetics. Deep space vibes.',
+        colors: ['#0f172a', '#6366f1']
+    },
+    {
+        id: 'solar',
+        label: 'Solarised Light',
+        description: 'Eye-friendly light theme for day work.',
+        colors: ['#fdf6e3', '#0097a7']
+    },
+    {
+        id: 'kings-quest',
+        label: "King's Quest",
+        description: 'Retro medieval adventure style.',
+        colors: ['#2e201a', '#fbbf24']
+    },
+];
+
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const { theme, setTheme } = useTheme();
 
@@ -23,27 +44,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         }
         window.dispatchEvent(new Event('exchange_rates_updated'));
     };
-
-    const themes: { id: Theme; label: string; description: string; colors: string[] }[] = [
-        {
-            id: 'dark',
-            label: 'Cosmic Glass',
-            description: 'The default dark aesthetics. Deep space vibes.',
-            colors: ['#0f172a', '#6366f1']
-        },
-        {
-            id: 'solar',
-            label: 'Solarised Light',
-            description: 'Eye-friendly light theme for day work.',
-            colors: ['#fdf6e3', '#0097a7']
-        },
-        {
-            id: 'kings-quest',
-            label: "King's Quest",
-            description: 'Retro medieval adventure style.',
-            colors: ['#2e201a', '#fbbf24']
-        },
-    ];
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Settings">
