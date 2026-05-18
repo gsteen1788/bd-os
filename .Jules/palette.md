@@ -30,3 +30,6 @@
 ## 2026-05-25 - Ghost Button Keyboard Accessibility
 **Learning:** Ghost buttons (e.g., `btn-ghost`) and icon-only buttons often rely on hover background changes (`bg-base-200`) for visual feedback. When focused via keyboard, they lack any default outline or visible focus state, rendering them invisible to keyboard navigation users.
 **Action:** Always explicitly add Tailwind focus ring utilities (e.g., `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) to `btn-ghost` and icon-only buttons to ensure they remain accessible and clearly visible during keyboard navigation.
+## 2024-05-18 - Ghost Button Focus Rings and Shape Utilities
+**Learning:** When adding `focus-visible` utility classes to icon-only ghost buttons (e.g., modal close buttons) to improve keyboard accessibility, appending standard `rounded-md` classes can override specific shape utilities like `btn-circle`, causing unintended visual regressions (e.g., turning a circle into a rounded square).
+**Action:** When adding focus states to buttons with specific shapes (`btn-circle`, `btn-square`), omit conflicting border-radius utilities (like `rounded-md`) and rely only on the `focus-visible:ring-*` and `focus-visible:outline-none` classes.
