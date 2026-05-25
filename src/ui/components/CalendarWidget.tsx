@@ -82,7 +82,7 @@ export const CalendarWidget = () => {
                         <button
                             onClick={fetchEvents}
                             disabled={loading}
-                            className="btn btn-ghost btn-xs text-muted hover:text-primary transition-colors"
+                            className="btn btn-ghost btn-xs text-muted hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                             title="Refresh Events"
                             aria-label="Refresh events"
                         >
@@ -94,7 +94,7 @@ export const CalendarWidget = () => {
                     )}
                     <button
                         onClick={() => setShowConnectModal(true)}
-                        className={`btn btn-xs ${isAuthenticated ? 'btn-ghost text-success' : 'btn-ghost text-muted hover:text-primary'}`}
+                        className={`btn btn-xs ${isAuthenticated ? 'btn-ghost text-success' : 'btn-ghost text-muted hover:text-primary'} focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`}
                         title={isAuthenticated ? "Connected" : "Connect Outlook"}
                         aria-label={isAuthenticated ? "Outlook connected" : "Connect Outlook"}
                     >

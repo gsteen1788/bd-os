@@ -271,7 +271,7 @@ export function Dashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        className="btn btn-ghost btn-circle"
+                        className="btn btn-ghost btn-circle focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                         onClick={() => setShowCalendarModal(true)}
                         title="Open Outlook Calendar"
                         aria-label="Open Outlook Calendar"
