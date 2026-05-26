@@ -101,7 +101,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                 <div className="mt-auto">
                     <button
                         onClick={() => setIsSettingsOpen(true)}
-                        className="btn-ghost"
+                        className="btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                         style={{
                             width: "100%",
                             justifyContent: "flex-start",
