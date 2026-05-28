@@ -3,6 +3,7 @@ import { meetingRepository, contactRepository, protemoiRepository, opportunityRe
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
 import { groupItemsByWeek, formatDate, formatTime } from "../../utils/dateUtils";
 import { Modal } from "../components/Modal";
+import { logger } from "../../infrastructure/logger";
 
 type TemplateType = "QUICK" | "DETAILED";
 
@@ -125,7 +126,7 @@ export function MeetingPrep() {
                         myQuestions: Array.isArray(myQuestions) ? myQuestions : [],
                     }));
                 } catch (e) {
-                    console.log("Could not parse notes as prep data", e);
+                    logger.warn("Could not parse notes as prep data", e);
                     resetForm();
                 }
             } else {
