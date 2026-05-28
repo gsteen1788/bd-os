@@ -3,6 +3,7 @@ import { OpportunityStage, Currency } from "../../domain/enums";
 import { opportunityRepository, meetingRepository, organizationRepository } from "../../infrastructure/repositories";
 import { Opportunity, Meeting, Organization } from "../../domain/entities";
 import { Modal } from "../components/Modal";
+import { logger } from "../../infrastructure/logger";
 import { MITModal } from "../components/MITModal";
 import { evaluateOpportunityNextStep, EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { EvaluationModal } from "../components/EvaluationModal";
@@ -307,7 +308,7 @@ export function OpportunityBoard() {
 
     const handleSave = async (opp: Opportunity) => {
         try {
-            console.log("Saving opportunity ID:", opp.id);
+            logger.info("Saving opportunity ID: " + opp.id);
             await opportunityRepository.save(opp);
             setEditingOpp(null);
             load();
