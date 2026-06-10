@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2024-05-19 - Optimizing Component Scope Arrays
+**Learning:** In React components, recreating static configuration arrays (like list of tabs or dropdown options) inside the render body causes unnecessary memory allocation and triggers the garbage collector on every single render cycle.
+**Action:** Move static array and object configurations entirely outside the component function whenever possible, to instantiate them exactly once globally.
