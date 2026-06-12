@@ -3,6 +3,7 @@ import { meetingRepository, contactRepository, protemoiRepository, opportunityRe
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
 import { groupItemsByWeek, formatDate, formatTime } from "../../utils/dateUtils";
 import { Modal } from "../components/Modal";
+import { logger } from '../../infrastructure/logger';
 
 type TemplateType = "QUICK" | "DETAILED";
 
@@ -125,7 +126,7 @@ export function MeetingPrep() {
                         myQuestions: Array.isArray(myQuestions) ? myQuestions : [],
                     }));
                 } catch (e) {
-                    console.log("Could not parse notes as prep data", e);
+                    logger.info("Could not parse notes as prep data", e);
                     resetForm();
                 }
             } else {
@@ -233,7 +234,7 @@ export function MeetingPrep() {
                 if (!isNaN(combined.getTime())) {
                     startAt = combined.toISOString();
                 } else {
-                    console.warn("Invalid date constructed, using now");
+                    logger.warn("Invalid date constructed, using now");
                 }
             }
 
@@ -259,7 +260,7 @@ export function MeetingPrep() {
             setNewMeetingTime("");
             setNewMeetingLocation("");
         } catch (e) {
-            console.error("Failed to create meeting", e);
+            logger.error("Failed to create meeting", e);
             alert("Failed to create meeting: " + String(e));
         }
     };
@@ -350,7 +351,7 @@ export function MeetingPrep() {
                             await opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
                     } catch (err) {
-                        console.error("Failed to sync next step to Opportunity", err);
+                        logger.error("Failed to sync next step to Opportunity", err);
                     }
                 } else if (targetRelId) {
                     try {
@@ -360,7 +361,7 @@ export function MeetingPrep() {
                             await protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
                     } catch (err) {
-                        console.error("Failed to sync next step to Relationship", err);
+                        logger.error("Failed to sync next step to Relationship", err);
                     }
                 }
             }
@@ -395,7 +396,7 @@ export function MeetingPrep() {
             setSelectedMeeting(updated);
             await loadMeetings();
         } catch (e) {
-            console.error("Failed to uncomplete", e);
+            logger.error("Failed to uncomplete", e);
             alert("Failed to revert status.");
         }
     };
@@ -417,7 +418,7 @@ export function MeetingPrep() {
             setSaveStatus("SAVED");
             setTimeout(() => setSaveStatus("IDLE"), 2000);
         } catch (e) {
-            console.error("Save failed:", e);
+            logger.error("Save failed:", e);
             setSaveStatus("ERROR");
             alert("Error saving: " + String(e));
         }
@@ -432,7 +433,7 @@ export function MeetingPrep() {
             setSelectedMeeting(null);
             await loadMeetings();
         } catch (e) {
-            console.error("Delete failed:", e);
+            logger.error("Delete failed:", e);
             alert("Failed to delete meeting: " + String(e));
         }
     };
@@ -450,7 +451,7 @@ export function MeetingPrep() {
                 const section = parts[0] as keyof typeof prev;
                 // Safety check for section existence
                 if (!prev[section]) {
-                    // console.error(`Invalid form path: ${path} (section missing)`);
+                    // logger.error(`Invalid form path: ${path} (section missing)`);
                     return prev;
                 }
                 return {

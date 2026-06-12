@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from "./infrastructure/logger";
 import { initDb } from './infrastructure/db';
 import { Layout } from './ui/Layout';
 import { Dashboard } from './ui/screens/Dashboard';
@@ -13,8 +14,8 @@ function App() {
     const [activeTab, setActiveTab] = useState("dashboard");
 
     useEffect(() => {
-        console.log("App mounted");
-        initDb().catch(console.error);
+        logger.info("App mounted");
+        initDb().catch(logger.error);
     }, []);
 
     const renderContent = () => {

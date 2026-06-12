@@ -4,6 +4,7 @@ import { OutlookConnect } from './OutlookConnect';
 import { authService } from '../../services/authService';
 import { Modal } from './Modal';
 import { formatTime as utilFormatTime, formatShortDate } from '../../utils/dateUtils';
+import { logger } from '../../infrastructure/logger';
 
 export const CalendarWidget = () => {
     const [events, setEvents] = useState<GraphEvent[]>([]);
@@ -35,7 +36,7 @@ export const CalendarWidget = () => {
             const data = await graphService.getCalendarEvents();
             setEvents(data);
         } catch (error) {
-            console.error("Failed to fetch events", error);
+            logger.error("Failed to fetch events", error);
         } finally {
             setLoading(false);
         }
@@ -59,7 +60,7 @@ export const CalendarWidget = () => {
             setNewEventSubject('');
             fetchEvents(); // Refresh list
         } catch (error) {
-            console.error("Failed to create event", error);
+            logger.error("Failed to create event", error);
         } finally {
             setIsCreating(false);
         }

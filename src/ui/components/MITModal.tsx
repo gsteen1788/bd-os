@@ -5,6 +5,7 @@ import { Task, UUID, TaskLink, Opportunity, ProtemoiEntry, Contact } from "../..
 import { evaluateMIT, EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { EvaluationModal } from "./EvaluationModal";
 import { EntityType } from "../../domain/enums";
+import { logger } from '../../infrastructure/logger';
 
 interface MITModalProps {
     isOpen: boolean;
@@ -95,7 +96,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
             setRelationships(rels);
         } catch (e) {
-            console.error("Failed to load link candidates", e);
+            logger.error("Failed to load link candidates", e);
         }
     };
 
@@ -134,7 +135,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             if (onSave) onSave();
             onClose();
         } catch (e) {
-            console.error("Failed to save MIT:", e);
+            logger.error("Failed to save MIT:", e);
             alert("Failed to save MIT");
         }
     };
@@ -181,7 +182,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             }
 
         } catch (error) {
-            console.error("Evaluation failed", error);
+            logger.error("Evaluation failed", error);
             setIsEvaluating(false);
             setShowEvaluationModal(false); // Hide if error, maybe fallback to direct save?
             // Fallback to save if offline/error?
@@ -212,7 +213,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             if (onSave) onSave();
             onClose();
         } catch (e) {
-            console.error("Failed to delete MIT:", e);
+            logger.error("Failed to delete MIT:", e);
             alert("Failed to delete MIT");
         }
     };
