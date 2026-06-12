@@ -6,6 +6,7 @@ import {
     meetingRepository
 } from '../../infrastructure/repositories';
 import { Organization, Contact, Opportunity, Meeting } from '../../domain/entities';
+import { logger } from '../../infrastructure/logger';
 
 export interface GlobalSearchResults {
     organizations: Organization[];
@@ -48,7 +49,7 @@ export function useGlobalSearch() {
                 meetings: meetings
             });
         } catch (error) {
-            console.error("Global search failed:", error);
+            logger.error("Global search failed:", error);
             // Optionally handle error state
         } finally {
             setIsSearching(false);

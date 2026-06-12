@@ -1,6 +1,7 @@
 import { getClient, Body } from '@tauri-apps/api/http';
 import { invoke } from '@tauri-apps/api/tauri';
 import { open } from '@tauri-apps/api/shell';
+import { logger } from '../infrastructure/logger';
 
 // Use Azure CLI Client ID which supports http://localhost:8400 redirect and is highly trusted globally
 const CLIENT_ID = import.meta.env.VITE_MS_GRAPH_CLIENT_ID && import.meta.env.VITE_MS_GRAPH_CLIENT_ID !== 'your_client_id_here' 
@@ -185,7 +186,7 @@ class AuthService {
             this.handleTokenSuccess(data);
             return data.access_token;
         } catch (error) {
-            console.error('Failed to refresh token', error);
+            logger.error('Failed to refresh token', error);
             return null;
         }
     }
