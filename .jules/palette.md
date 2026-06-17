@@ -7,3 +7,6 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+## 2024-05-18 - Missing Base Class in DaisyUI Buttons
+**Learning:** Found multiple instances of `btn-ghost` being used without the required base `btn` class across UI components (`Layout.tsx`, `Modal.tsx`, `MeetingPrep.tsx`). This breaks base button styling and negatively impacts keyboard focus states and accessibility.
+**Action:** When creating or modifying ghost buttons using DaisyUI, always ensure the base `btn` class is included (`className="btn btn-ghost"`).
