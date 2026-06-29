@@ -334,7 +334,8 @@ export function MeetingPrep() {
                 updatedAt: new Date().toISOString()
             };
 
-            await meetingRepository.save(updatedMeeting);
+            // Optimization: Bolt ⚡ - Parallelize independent repository save calls
+            const savePromises: Promise<any>[] = [meetingRepository.save(updatedMeeting)];
 
             // Sync Next Steps to Linked Entity if provided
             if (steps) {
@@ -343,27 +344,31 @@ export function MeetingPrep() {
                 const targetRelId = linkType === "RELATIONSHIP" ? linkId : target.relatedProtemoiId;
 
                 if (targetOppId) {
-                    try {
-                        // Optimization: Bolt ⚡ - O(1) fetch by ID instead of fetching all entities to find one
-                        const opp = await opportunityRepository.findById(targetOppId);
-                        if (opp) {
-                            await opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
-                        }
-                    } catch (err) {
-                        console.error("Failed to sync next step to Opportunity", err);
-                    }
+                    // Optimization: Bolt ⚡ - O(1) fetch by ID followed by async save inside parallel execution
+                    savePromises.push(
+                        opportunityRepository.findById(targetOppId).then(opp => {
+                            if (opp) {
+                                return opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
+                            }
+                        }).catch(err => {
+                            console.error("Failed to sync next step to Opportunity", err);
+                        })
+                    );
                 } else if (targetRelId) {
-                    try {
-                        // Optimization: Bolt ⚡ - O(1) fetch by ID instead of fetching all entities to find one
-                        const rel = await protemoiRepository.findById(targetRelId);
-                        if (rel) {
-                            await protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
-                        }
-                    } catch (err) {
-                        console.error("Failed to sync next step to Relationship", err);
-                    }
+                    // Optimization: Bolt ⚡ - O(1) fetch by ID followed by async save inside parallel execution
+                    savePromises.push(
+                        protemoiRepository.findById(targetRelId).then(rel => {
+                            if (rel) {
+                                return protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
+                            }
+                        }).catch(err => {
+                            console.error("Failed to sync next step to Relationship", err);
+                        })
+                    );
                 }
             }
+
+            await Promise.all(savePromises);
 
             // If this was the selected meeting, update UI state
             if (selectedMeeting && selectedMeeting.id === target.id) {
