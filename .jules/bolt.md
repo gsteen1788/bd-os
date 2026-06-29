@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2025-02-27 - Parallelize Entity Saving using Promise.all
+**Learning:** In MeetingPrep, independent entity saves inside `handleCompleteMeeting` (e.g. updating the Meeting entity, and updating linked Opportunity/Protemoi entities sequentially) block each other and introduce unnecessary latency. Awaiting database transactions in series is slower than launching them concurrently when they have no strict dependency constraints on one another.
+**Action:** When updating a primary entity alongside independently linked entities in screen handlers, group the independent promises (such as an array of `repository.save` calls) and resolve them concurrently using `Promise.all` to optimize network/database IO speed.
