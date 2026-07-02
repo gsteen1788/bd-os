@@ -30,3 +30,6 @@
 ## 2026-05-25 - Ghost Button Keyboard Accessibility
 **Learning:** Ghost buttons (e.g., `btn-ghost`) and icon-only buttons often rely on hover background changes (`bg-base-200`) for visual feedback. When focused via keyboard, they lack any default outline or visible focus state, rendering them invisible to keyboard navigation users.
 **Action:** Always explicitly add Tailwind focus ring utilities (e.g., `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) to `btn-ghost` and icon-only buttons to ensure they remain accessible and clearly visible during keyboard navigation.
+## 2024-05-25 - Ghost Button Keyboard Accessibility
+**Learning:** Ghost buttons (e.g., `btn-ghost`) and icon-only buttons often rely on hover background changes (`bg-base-200`) for visual feedback. When focused via keyboard, they lack any default outline or visible focus state, rendering them invisible to keyboard navigation users.
+**Action:** Always explicitly add Tailwind focus ring utilities (e.g., `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) to `btn-ghost` and icon-only buttons to ensure they remain accessible and clearly visible during keyboard navigation.
