@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2025-03-05 - Optimizing Static Object Instantiation and Iteration
+**Learning:** React components defining static array configurations (e.g., mapping definitions or tab lists) directly inside the component body trigger unnecessary memory allocations and garbage collection overheads on every render cycle. Additionally, executing `.find()` loops during render over these recreated arrays degrades rendering performance.
+**Action:** Extract static configuration arrays and metadata completely out of the React component's rendering logic. Instead of performing $O(N)$ searches using `.find()` inside the render function, compute a static record or `Map` alongside the configuration to allow for zero-allocation $O(1)$ property lookups.

@@ -12,6 +12,18 @@ interface LayoutProps {
     onTabChange: (tab: string) => void;
 }
 
+// Optimization: Bolt ⚡ - Move static tabs array outside component to prevent memory allocation on every render
+const tabs = [
+    { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
+    { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
+    { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
+    { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
+    { id: "tracker", label: "Tracker", Icon: AppIcons.dashboard },
+];
+
+// Optimization: Bolt ⚡ - Pre-compute O(1) lookup map for tab labels
+const tabLabels: Record<string, string> = Object.fromEntries(tabs.map(t => [t.id, t.label]));
+
 export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { theme } = useTheme();
@@ -33,14 +45,6 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
-    const tabs = [
-        { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
-        { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
-        { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
-        { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
-        { id: "tracker", label: "Tracker", Icon: AppIcons.dashboard }, // Reusing dashboard icon or add a new one? Let's assume dashboard or similar.
-    ];
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-base-100 text-main transition-colors duration-300">
@@ -134,7 +138,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     zIndex: 20
                 }}>
                     <h1 style={{ fontSize: "20px", fontWeight: "600", margin: 0, letterSpacing: "-0.01em" }}>
-                        {tabs.find(t => t.id === activeTab)?.label}
+                        {tabLabels[activeTab]}
                     </h1>
                     <div className="flex items-center gap-4" style={{ position: "relative" }} ref={searchRef}>
                         <input
