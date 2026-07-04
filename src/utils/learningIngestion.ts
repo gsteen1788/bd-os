@@ -1,5 +1,6 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -76,9 +77,21 @@ export async function ingestLearnings() {
                 jsonString = jsonString.replace(/^```/, "").replace(/```$/, "");
             }
 
-            const learnings = JSON.parse(jsonString) as string[];
+            const rawLearnings = JSON.parse(jsonString) as string[];
+            const learnings: string[] = [];
 
-            if (Array.isArray(learnings) && learnings.length > 0) {
+            if (Array.isArray(rawLearnings)) {
+                for (const item of rawLearnings) {
+                    try {
+                        validateInput(item, "Learning Content", MAX_TEXT_LENGTH);
+                        learnings.push(item);
+                    } catch (e) {
+                        console.warn(`Skipping invalid learning content from ${fileName}:`, e);
+                    }
+                }
+            }
+
+            if (learnings.length > 0) {
                 // Bulk insert optimization
                 const chunkSize = 50;
                 for (let i = 0; i < learnings.length; i += chunkSize) {
