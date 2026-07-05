@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-07-05 - DoS via AI Hallucination in Learning Ingestion
+**Vulnerability:** The batch ingestion script `src/utils/learningIngestion.ts` directly mapped unvalidated string responses from Gemini into the database without bounding string lengths.
+**Learning:** External AI tools can hallucinate extremely long payloads or invalid formats. Without a `try/catch` wrapper in the array loop, a single invalid AI-generated learning could throw a validation error, crashing the entire batch ingestion.
+**Prevention:** Always bound external AI text responses with `MAX_TEXT_LENGTH` and gracefully skip malformed individual items within loops instead of failing the entire loop.
