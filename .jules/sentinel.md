@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-05-24 - DoS and DB Bloat via Malicious LLM outputs in Ingestion
+
+**Vulnerability:** The AI ingestion script parsed bulk strings returned from the Gemini AI endpoint and directly inserted them into the SQLite database (`learnings` table) without validation or bounds checking.
+**Learning:** This missing validation layer represents a DoS risk via database bloat because a manipulated or hallucinated AI response could return massive string arrays that consume disk space and memory. Additionally, if the AI output contains malformed control characters, it could crash the application on retrieval.
+**Prevention:** Always treat API and LLM responses as untrusted input. Validate all generated strings from the AI endpoint using `validateInput` (with `MAX_TEXT_LENGTH`) to strictly control lengths and filter out malformed or unexpected responses before persistence.
