@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2026-07-10 - Application DoS Prevention in Batch Processing
+**Vulnerability:** External data sourced from LLM integrations (Gemini outputs during learning ingestion) was being directly parsed and inserted into the database without size or content validation. A malicious or erroneously massive response could cause Application Denial of Service (DoS) via database bloat, or crash the entire batch insertion process if a single entry contained illegal characters.
+**Learning:** External inputs in batch jobs often skip granular validation because the loop is optimized for bulk insert speed.
+**Prevention:** Always wrap runtime type checks and size limits (e.g. `validateInput` with `MAX_TEXT_LENGTH`) in a `try/catch` block inside the batch parsing loop. This ensures invalid entries are filtered out and skipped, rather than crashing the batch process or causing DB bloat.
