@@ -65,16 +65,31 @@ class AuthService {
         const codeVerifier = this.generateRandomString(64);
         const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
-        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=12345&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+        // Dynamically generate a secure state parameter to prevent CSRF attacks
+        const stateParam = this.generateRandomString(32);
+
+        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=${encodeURIComponent(stateParam)}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
         // 1. Open the user's default browser to the Microsoft login page
         await open(authUrl);
 
         try {
-            // 2. Block and wait for the localhost server to capture the redirect code
-            const code: string = await invoke('start_auth_server', { port: 8400 });
+            // 2. Block and wait for the localhost server to capture the redirect query string
+            const queryString: string = await invoke('start_auth_server', { port: 8400 });
+
+            if (!queryString) throw new Error("No response received from auth server.");
+
+            // Parse the query string to extract code and state
+            const urlParams = new URLSearchParams(queryString);
+            const code = urlParams.get('code');
+            const returnedState = urlParams.get('state');
 
             if (!code) throw new Error("No authorization code received.");
+
+            // Validate the state parameter to prevent CSRF
+            if (returnedState !== stateParam) {
+                throw new Error("State parameter mismatch. Possible CSRF attack detected.");
+            }
 
             // 3. Exchange the code for the tokens
             await this.exchangeCodeForToken(code, codeVerifier);
