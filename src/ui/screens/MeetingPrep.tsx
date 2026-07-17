@@ -525,8 +525,8 @@ export function MeetingPrep() {
                                 title="New Meeting"
                                 footer={
                                     <div className="flex justify-end gap-2">
-                                        <button className="btn-ghost" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
-                                        <button className="btn" onClick={handleCreateNew}>Create</button>
+                                        <button className="btn btn-ghost" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
+                                        <button className="btn btn-primary" onClick={handleCreateNew}>Create</button>
                                     </div>
                                 }
                             >
@@ -600,7 +600,7 @@ export function MeetingPrep() {
             <div className="flex flex-col gap-6 relative" style={{ maxWidth: "1000px", margin: "0 auto" }}>
                 <div className="flex justify-between items-center sticky top-0 bg-base py-4 z-10 glass px-4 rounded-lg">
                     <div className="flex items-center gap-4">
-                        <button className="btn-ghost" onClick={handleBack}>← Back</button>
+                        <button className="btn btn-ghost" onClick={handleBack}>← Back</button>
                         <div className="min-w-0 flex-1">
                             <button
                                 type="button"
@@ -633,8 +633,8 @@ export function MeetingPrep() {
                                 ↩ Revert to Scheduled
                             </button>
                         )}
-                        <button className="btn-ghost text-error" onClick={handleDelete}>Delete</button>
-                        <button className="btn" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
+                        <button className="btn btn-ghost text-error" onClick={handleDelete}>Delete</button>
+                        <button className="btn btn-primary" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
                             {saveStatus === "SAVING" ? "Saving..." : saveStatus === "SAVED" ? "Saved!" : "Save Prep"}
                         </button>
                     </div>
@@ -669,8 +669,8 @@ export function MeetingPrep() {
                                 <input id="edit-meeting-location" className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
                             </label>
                             <div className="flex justify-end gap-2 mt-4">
-                                <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
-                                <button className="btn" onClick={handleUpdateDetails}>Update</button>
+                                <button className="btn btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={handleUpdateDetails}>Update</button>
                             </div>
                         </div>
                     </Modal>
@@ -779,7 +779,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
             </div>
 
             <div className="flex justify-end gap-2 mt-4">
-                <button className="btn-ghost" onClick={onCancel}>Cancel</button>
+                <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>
                 <button
                     className="btn btn-success"
                     disabled={!nextSteps}
