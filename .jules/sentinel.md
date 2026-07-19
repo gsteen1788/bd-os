@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-06-03 - Added input validation to AI-generated learnings
+**Vulnerability:** Unbounded array elements from an external AI source being inserted into the database via bulk insert, creating a DoS risk if the AI returns unexpectedly long strings.
+**Learning:** AI responses (even when asked to output JSON) should be treated as untrusted external inputs. Without validation, malicious or hallucinated inputs can bloat the database or cause memory issues during ingestion. Using a standard limit like `MAX_TEXT_LENGTH` helps bound this risk.
+**Prevention:** Always validate elements from parsed AI responses (using a length-bounded string validator like `validateInput`) before batching and executing database inserts.
