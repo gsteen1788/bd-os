@@ -1,5 +1,7 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
+import { logger } from "../infrastructure/logger";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -76,9 +78,20 @@ export async function ingestLearnings() {
                 jsonString = jsonString.replace(/^```/, "").replace(/```$/, "");
             }
 
-            const learnings = JSON.parse(jsonString) as string[];
+            const rawLearnings = JSON.parse(jsonString) as string[];
 
-            if (Array.isArray(learnings) && learnings.length > 0) {
+            if (Array.isArray(rawLearnings) && rawLearnings.length > 0) {
+                // Validate AI generated learnings to prevent DoS via excessively large strings
+                const learnings = rawLearnings.filter((learning) => {
+                    try {
+                        validateInput(learning, "Learning Content", MAX_TEXT_LENGTH);
+                        return true;
+                    } catch (e) {
+                        logger.warn(`Skipping invalid learning from ${fileName}`, e);
+                        return false;
+                    }
+                });
+
                 // Bulk insert optimization
                 const chunkSize = 50;
                 for (let i = 0; i < learnings.length; i += chunkSize) {
@@ -96,11 +109,11 @@ export async function ingestLearnings() {
                     await db.execute(query, values);
                     count += chunk.length;
                 }
-                console.log(`Extracted ${learnings.length} learnings from ${fileName}.`);
+                console.log(`Extracted ${learnings.length} valid learnings from ${fileName}.`);
             }
 
         } catch (error) {
-            console.error(`Error processing ${fileName}:`, error);
+            logger.error(`Error processing ${fileName}:`, error);
         }
     }
 
