@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-07-21 - DoS Vulnerability in AI Data Ingestion
+**Vulnerability:** The batch processing script (`src/utils/learningIngestion.ts`) blindly inserted external strings (from AI parsing) into the database without size limitations or validation.
+**Learning:** This lack of input validation could allow a malicious or hallucinated AI response with extremely large payloads to cause a Denial of Service (DoS) via database bloat. Furthermore, failing on a single invalid entry would crash the entire batch process.
+**Prevention:** Always validate external strings (even from AI sources) using `validateInput` with limits like `MAX_TEXT_LENGTH` before persistence. Wrap parsing/validation loops in a `try/catch` to skip invalid items instead of crashing the batch process.
