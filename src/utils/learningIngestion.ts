@@ -1,5 +1,7 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
+import { logger } from "../infrastructure/logger";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -24,7 +26,7 @@ Example format: ["Always follow up within 24 hours.", "Trust is built through co
 `;
 
 export async function ingestLearnings() {
-    console.log("Starting ingestion of learnings...");
+    logger.info("Starting ingestion of learnings...");
     const db = await getDb();
 
     // Get all files from support directory
@@ -40,13 +42,13 @@ export async function ingestLearnings() {
         const fileUrl = mod.default as string;
         const fileName = path.split('/').pop() || "unknown";
 
-        console.log(`Processing ${fileName}...`);
+        logger.info(`Processing ${fileName}...`);
 
         try {
             // Check if already ingested (optional optimization, skip for now to force update or add simple check)
             const existing = await db.select("SELECT id FROM learnings WHERE source_file = $1", [fileName]);
             if ((existing as any[]).length > 0) {
-                console.log(`Skipping ${fileName}, already ingested.`);
+                logger.info(`Skipping ${fileName}, already ingested.`);
                 continue;
             }
 
@@ -79,31 +81,44 @@ export async function ingestLearnings() {
             const learnings = JSON.parse(jsonString) as string[];
 
             if (Array.isArray(learnings) && learnings.length > 0) {
-                // Bulk insert optimization
-                const chunkSize = 50;
-                for (let i = 0; i < learnings.length; i += chunkSize) {
-                    const chunk = learnings.slice(i, i + chunkSize);
-                    const placeholders: string[] = [];
-                    const values: any[] = [];
-
-                    chunk.forEach((learning, index) => {
-                        const offset = index * 2;
-                        placeholders.push(`($${offset + 1}, $${offset + 2})`);
-                        values.push(learning, fileName);
-                    });
-
-                    const query = `INSERT INTO learnings (content, source_file) VALUES ${placeholders.join(", ")}`;
-                    await db.execute(query, values);
-                    count += chunk.length;
+                // Validate inputs to prevent DoS via excessively long strings or malicious characters
+                const validLearnings: string[] = [];
+                for (const learning of learnings) {
+                    try {
+                        validateInput(learning, "Learning Content", MAX_TEXT_LENGTH);
+                        validLearnings.push(learning);
+                    } catch (err) {
+                        logger.error(`Invalid learning generated from ${fileName}, skipping.`, err);
+                    }
                 }
-                console.log(`Extracted ${learnings.length} learnings from ${fileName}.`);
+
+                if (validLearnings.length > 0) {
+                    // Bulk insert optimization
+                    const chunkSize = 50;
+                    for (let i = 0; i < validLearnings.length; i += chunkSize) {
+                        const chunk = validLearnings.slice(i, i + chunkSize);
+                        const placeholders: string[] = [];
+                        const values: any[] = [];
+
+                        chunk.forEach((learning, index) => {
+                            const offset = index * 2;
+                            placeholders.push(`($${offset + 1}, $${offset + 2})`);
+                            values.push(learning, fileName);
+                        });
+
+                        const query = `INSERT INTO learnings (content, source_file) VALUES ${placeholders.join(", ")}`;
+                        await db.execute(query, values);
+                        count += chunk.length;
+                    }
+                    logger.info(`Extracted ${validLearnings.length} valid learnings from ${fileName}.`);
+                }
             }
 
         } catch (error) {
-            console.error(`Error processing ${fileName}:`, error);
+            logger.error(`Error processing ${fileName}:`, error);
         }
     }
 
-    console.log(`Ingestion complete. Total new learnings: ${count}`);
+    logger.info(`Ingestion complete. Total new learnings: ${count}`);
     return count;
 }
