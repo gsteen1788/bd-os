@@ -1,5 +1,7 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
+import { logger } from "../infrastructure/logger";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -76,7 +78,21 @@ export async function ingestLearnings() {
                 jsonString = jsonString.replace(/^```/, "").replace(/```$/, "");
             }
 
-            const learnings = JSON.parse(jsonString) as string[];
+            let learnings = JSON.parse(jsonString) as string[];
+
+            if (Array.isArray(learnings) && learnings.length > 0) {
+                // Validate inputs and filter out malicious/oversized items
+                const validLearnings: string[] = [];
+                for (const learning of learnings) {
+                    try {
+                        validateInput(learning, "Learning content", MAX_TEXT_LENGTH);
+                        validLearnings.push(learning);
+                    } catch (e) {
+                        logger.warn(`Skipping invalid learning in ${fileName}`, e);
+                    }
+                }
+                learnings = validLearnings;
+            }
 
             if (Array.isArray(learnings) && learnings.length > 0) {
                 // Bulk insert optimization
@@ -100,7 +116,7 @@ export async function ingestLearnings() {
             }
 
         } catch (error) {
-            console.error(`Error processing ${fileName}:`, error);
+            logger.error(`Error processing ${fileName}:`, error);
         }
     }
 
