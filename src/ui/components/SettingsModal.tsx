@@ -53,10 +53,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <div className="grid grid-cols-1 gap-4">
                         {themes.map(t => (
                             <button
+                                type="button"
                                 key={t.id}
                                 onClick={() => setTheme(t.id)}
+                                aria-label={`Select theme: ${t.label}`}
                                 className={`
-                                    flex items-center gap-4 p-4 rounded-xl border text-left transition-all
+                                    flex items-center gap-4 p-4 rounded-xl border text-left transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none
                                     ${theme === t.id
                                         ? 'border-primary bg-primary/10 ring-1 ring-primary/50'
                                         : 'border-white/10 hover:border-white/20 hover:bg-white/5'
