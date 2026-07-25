@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-07-25 - [Add Input Validation to AI Generated Output]
+**Vulnerability:** Unvalidated output from Gemini AI was being inserted directly into the database in batch learning ingestion.
+**Learning:** AI generated unstructured data must be treated as untrusted user input to prevent DOS via exceptionally large output or malformed inputs.
+**Prevention:** Always validate all data from AI outputs (e.g. using validateInput with MAX_TEXT_LENGTH) within a try-catch block before storage.
