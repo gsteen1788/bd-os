@@ -7,3 +7,6 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+## 2024-05-25 - Improve keyboard accessibility on dynamically generated elements
+**Learning:** Native `button` elements generated within `map` loops for settings or interactive lists (like theme selections) need to explicitly implement `type="button"` and include `focus-visible` states. Using generic placeholders or relying on `flex` styling without focus states degrades keyboard navigation capabilities. Furthermore, `aria-label` attributes must be specified to provide context to screen readers, especially when the buttons have a visual design that doesn't explicitly read out the action.
+**Action:** Add `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none` and `type="button"` to any dynamically mapped buttons acting as options to ensure proper interactive accessibility.
