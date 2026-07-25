@@ -77,12 +77,15 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
     const loadCandidates = async () => {
         try {
-            const opps = await opportunityRepository.findAllSummaries();
-            setOpportunities(opps);
+            // Optimization: Bolt ⚡ - Group independent promises to batch state updates and reduce React re-renders
+            // Also uses summaries instead of full objects to reduce payload size and memory footprint
+            const [opps, protemoi, contacts] = await Promise.all([
+                opportunityRepository.findAllSummaries(),
+                protemoiRepository.findAllSummaries(),
+                contactRepository.findAllSummaries()
+            ]);
 
-            // Optimization: Bolt ⚡ - Use summaries instead of full objects to reduce payload size and memory footprint
-            const protemoi = await protemoiRepository.findAllSummaries();
-            const contacts = await contactRepository.findAllSummaries();
+            setOpportunities(opps);
 
             // Optimization: Bolt ⚡ - O(1) lookup instead of O(N*M) nested loop
             const contactMap = new Map(contacts.map(c => [c.id, c]));

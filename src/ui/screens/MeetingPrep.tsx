@@ -68,10 +68,16 @@ export function MeetingPrep() {
     }, [viewMode]);
 
     useEffect(() => {
-        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setAllOpps);
-        protemoiRepository.findAllSummaries().then(setAllRels);
-        contactRepository.findAllSummaries().then(setAllContacts);
+        // Optimization: Bolt ⚡ - Group independent promises to batch state updates and reduce React re-renders
+        Promise.all([
+            opportunityRepository.findAllSummaries(),
+            protemoiRepository.findAllSummaries(),
+            contactRepository.findAllSummaries()
+        ]).then(([opps, rels, contacts]) => {
+            setAllOpps(opps);
+            setAllRels(rels);
+            setAllContacts(contacts);
+        }).catch(err => console.error("Failed to load prep data context", err));
     }, []);
 
     // Optimization: Memoize grouped history
@@ -717,10 +723,16 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
 
     useEffect(() => {
         // Load data for linking
-        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setOpportunities);
-        protemoiRepository.findAllSummaries().then(setRelationships);
-        contactRepository.findAllSummaries().then(setContacts);
+        // Optimization: Bolt ⚡ - Group independent promises to batch state updates and reduce React re-renders
+        Promise.all([
+            opportunityRepository.findAllSummaries(),
+            protemoiRepository.findAllSummaries(),
+            contactRepository.findAllSummaries()
+        ]).then(([opps, rels, contacts]) => {
+            setOpportunities(opps);
+            setRelationships(rels);
+            setContacts(contacts);
+        }).catch(err => console.error("Failed to load completion context", err));
     }, []);
 
     // Bolt ⚡: O(1) lookup instead of O(N) array find

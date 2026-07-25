@@ -159,8 +159,14 @@ export function OpportunityBoard() {
     const load = () => {
         // Optimization: Bolt ⚡ - Fetch lightweight summaries instead of full entities (O(N) memory reduction).
         // Avoids loading large text fields (e.g. descriptionMd) for all opportunities on the board.
-        opportunityRepository.findAllSummaries().then(setOpportunities);
-        organizationRepository.findAllSummaries().then(setOrganizations);
+        // Also groups independent promises to batch state updates and reduce React re-renders.
+        Promise.all([
+            opportunityRepository.findAllSummaries(),
+            organizationRepository.findAllSummaries()
+        ]).then(([opps, orgs]) => {
+            setOpportunities(opps);
+            setOrganizations(orgs);
+        }).catch(err => console.error("Failed to load opportunity board context", err));
     };
 
     useEffect(() => {
