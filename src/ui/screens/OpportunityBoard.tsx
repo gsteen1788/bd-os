@@ -8,6 +8,11 @@ import { evaluateOpportunityNextStep, EvaluationResult } from "../../infrastruct
 import { EvaluationModal } from "../components/EvaluationModal";
 import { formatDate } from "../../utils/dateUtils";
 
+// Optimization: Bolt ⚡ - Move static configuration arrays and strings outside of the component
+// to avoid O(N) memory allocation and garbage collection overhead on every render cycle.
+const sellingStages = OpportunityStage.filter(s => s !== "ONGOING_PROJECT");
+const ongoingStage = "ONGOING_PROJECT";
+
 const STAGE_INFO: Record<string, { goal: string; inStage: string; exit: string }> = {
     "LISTEN_AND_LEARN": {
         goal: "Understand their world well enough to name a real problem, stakes, and who cares.",
@@ -548,9 +553,6 @@ export function OpportunityBoard() {
             </div>
         );
     };
-
-    const sellingStages = OpportunityStage.filter(s => s !== "ONGOING_PROJECT");
-    const ongoingStage = "ONGOING_PROJECT";
 
     return (
         <div className="flex flex-col h-full">
