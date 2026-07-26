@@ -12,6 +12,16 @@ interface LayoutProps {
     onTabChange: (tab: string) => void;
 }
 
+// Optimization: Bolt ⚡ - Move static configuration array outside of the component
+// to avoid O(N) memory allocation and garbage collection overhead on every render cycle.
+const tabs = [
+    { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
+    { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
+    { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
+    { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
+    { id: "tracker", label: "Tracker", Icon: AppIcons.dashboard }, // Reusing dashboard icon or add a new one? Let's assume dashboard or similar.
+];
+
 export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { theme } = useTheme();
@@ -33,14 +43,6 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
-    const tabs = [
-        { id: "dashboard", label: "Dashboard", Icon: AppIcons.dashboard },
-        { id: "contacts", label: "Relationships", Icon: AppIcons.contacts },
-        { id: "opportunities", label: "Opportunities", Icon: AppIcons.opportunities },
-        { id: "meetings", label: "Meetings", Icon: AppIcons.meetings },
-        { id: "tracker", label: "Tracker", Icon: AppIcons.dashboard }, // Reusing dashboard icon or add a new one? Let's assume dashboard or similar.
-    ];
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-base-100 text-main transition-colors duration-300">
