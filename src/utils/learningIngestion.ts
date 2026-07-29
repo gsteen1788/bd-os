@@ -1,5 +1,6 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -79,24 +80,37 @@ export async function ingestLearnings() {
             const learnings = JSON.parse(jsonString) as string[];
 
             if (Array.isArray(learnings) && learnings.length > 0) {
-                // Bulk insert optimization
-                const chunkSize = 50;
-                for (let i = 0; i < learnings.length; i += chunkSize) {
-                    const chunk = learnings.slice(i, i + chunkSize);
-                    const placeholders: string[] = [];
-                    const values: any[] = [];
-
-                    chunk.forEach((learning, index) => {
-                        const offset = index * 2;
-                        placeholders.push(`($${offset + 1}, $${offset + 2})`);
-                        values.push(learning, fileName);
-                    });
-
-                    const query = `INSERT INTO learnings (content, source_file) VALUES ${placeholders.join(", ")}`;
-                    await db.execute(query, values);
-                    count += chunk.length;
+                // Filter and validate learnings to prevent DoS or Malformed data
+                const validLearnings: string[] = [];
+                for (const learning of learnings) {
+                    try {
+                        validateInput(learning, "Learning Content", MAX_TEXT_LENGTH);
+                        validLearnings.push(learning);
+                    } catch (err) {
+                        console.warn(`Skipping invalid learning from ${fileName}:`, err);
+                    }
                 }
-                console.log(`Extracted ${learnings.length} learnings from ${fileName}.`);
+
+                if (validLearnings.length > 0) {
+                    // Bulk insert optimization
+                    const chunkSize = 50;
+                    for (let i = 0; i < validLearnings.length; i += chunkSize) {
+                        const chunk = validLearnings.slice(i, i + chunkSize);
+                        const placeholders: string[] = [];
+                        const values: any[] = [];
+
+                        chunk.forEach((learning, index) => {
+                            const offset = index * 2;
+                            placeholders.push(`($${offset + 1}, $${offset + 2})`);
+                            values.push(learning, fileName);
+                        });
+
+                        const query = `INSERT INTO learnings (content, source_file) VALUES ${placeholders.join(", ")}`;
+                        await db.execute(query, values);
+                        count += chunk.length;
+                    }
+                    console.log(`Extracted ${validLearnings.length} learnings from ${fileName}.`);
+                }
             }
 
         } catch (error) {
