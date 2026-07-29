@@ -78,7 +78,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                             <button
                                 key={tab.id}
                                 onClick={() => onTabChange(tab.id)}
-                                className={isActive ? "btn" : "btn-ghost"}
+                                className={isActive ? "btn" : "btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"}
                                 style={{
                                     justifyContent: "flex-start",
                                     textAlign: "left",
@@ -101,7 +101,8 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                 <div className="mt-auto">
                     <button
                         onClick={() => setIsSettingsOpen(true)}
-                        className="btn-ghost"
+                        aria-label="Settings"
+                        className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                         style={{
                             width: "100%",
                             justifyContent: "flex-start",
