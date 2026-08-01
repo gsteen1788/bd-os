@@ -7,3 +7,7 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+
+## $(date +%Y-%m-%d) - Fix DaisyUI btn-ghost missing base class
+**Learning:** Using DaisyUI modifier classes like `btn-ghost` without the base `btn` class causes buttons to lack structural styles like padding, minimum height, and proper typography, leading to visually inconsistent and less accessible touch targets.
+**Action:** Always include the base `btn` class alongside any `btn-*` modifier classes (e.g., `className="btn btn-ghost"`) to ensure complete component styling and accessible hit areas.
