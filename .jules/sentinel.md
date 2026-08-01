@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2024-05-29 - Denial of Service via Unvalidated AI Outputs
+**Vulnerability:** The AI learning ingestion process (`learningIngestion.ts`) parsed JSON directly from the Gemini API and inserted the resulting string array into the database without validation.
+**Learning:** Any data retrieved from an external AI model must be treated as untrusted user input. Without length constraints, an AI hallucination, injection attack via input documents, or large response could lead to extreme string lengths being processed and stored, resulting in CPU/Memory exhaustion and database DoS.
+**Prevention:** Always validate external/AI-generated string outputs using `validateInput` (e.g., with `MAX_TEXT_LENGTH`) immediately after parsing. Wrap array iterations in `try/catch` to filter invalid items securely using a `logger` rather than crashing the batch process.
