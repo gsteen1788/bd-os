@@ -64,17 +64,23 @@ class AuthService {
         // In full production, use crypto APIs to generate high-entropy verifier and challenge.
         const codeVerifier = this.generateRandomString(64);
         const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+        const expectedState = this.generateRandomString(32);
 
-        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=12345&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=${expectedState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
         // 1. Open the user's default browser to the Microsoft login page
         await open(authUrl);
 
         try {
             // 2. Block and wait for the localhost server to capture the redirect code
-            const code: string = await invoke('start_auth_server', { port: 8400 });
+            const queryString: string = await invoke('start_auth_server', { port: 8400 });
+
+            const params = new URLSearchParams(queryString);
+            const code = params.get('code');
+            const returnedState = params.get('state');
 
             if (!code) throw new Error("No authorization code received.");
+            if (returnedState !== expectedState) throw new Error("Invalid state parameter (CSRF attempt)");
 
             // 3. Exchange the code for the tokens
             await this.exchangeCodeForToken(code, codeVerifier);
