@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2025-05-24 - CSRF in OAuth flow
+**Vulnerability:** Hardcoded `state=12345` parameter in Microsoft Graph OAuth login and lack of state validation in the callback.
+**Learning:** The frontend used a static string for `state` and the Tauri backend `start_auth_server` incorrectly stripped away the `state` parameter and only returned `code` to the frontend.
+**Prevention:** Always generate a dynamic, high-entropy `state` parameter in the frontend before initiating the OAuth flow, ensure the redirect handler (Tauri server) preserves the full query string, and validate that the returned state matches the expected state before exchanging the code for a token.
