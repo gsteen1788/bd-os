@@ -1,4 +1,5 @@
 import Database from "./tauri-sql";
+import { logger } from "./logger";
 
 let dbInstance: Database | null = null;
 
@@ -25,7 +26,7 @@ export async function initDb() {
         try {
             await db.execute(sql);
         } catch (e) {
-            console.error("Migration error on statement:", sql, e);
+            logger.error("Migration error on statement:", e);
         }
     }
 
@@ -110,7 +111,7 @@ export async function initDb() {
         `);
         console.log("Migration: task_links table checked/created.");
     } catch (e) {
-        console.error("Migration error for task_links:", e);
+        logger.error("Migration error for task_links:", e);
     }
 
     // Lazy Migration: Create learnings table if not exists
@@ -125,7 +126,7 @@ export async function initDb() {
         `);
         console.log("Migration: learnings table checked/created.");
     } catch (e) {
-        console.error("Migration error for learnings:", e);
+        logger.error("Migration error for learnings:", e);
     }
 
     // Lazy Migration for Task Tags
@@ -143,7 +144,7 @@ export async function initDb() {
         await db.execute("UPDATE tasks SET tag = 'BD_TASK' WHERE tag = 'BUSINESS_DEVELOPMENT';");
         console.log("Migration: Converted BUSINESS_DEVELOPMENT tags to BD_TASK");
     } catch (e) {
-        console.error("Migration error converting tags:", e);
+        logger.error("Migration error converting tags:", e);
     }
 
     // Lazy Migration: Create tracker_goals table if not exists
@@ -158,7 +159,7 @@ export async function initDb() {
         `);
         console.log("Migration: tracker_goals table checked/created.");
     } catch (e) {
-        console.error("Migration error for tracker_goals:", e);
+        logger.error("Migration error for tracker_goals:", e);
     }
 
     console.log("Database initialized and schema applied.");

@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { sanitizeInput, validateInput } from "./security";
+import { logger } from "../logger";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -14,7 +15,7 @@ export const getGeminiClient = () => {
         try {
             genAI = new GoogleGenAI({ apiKey });
         } catch (error) {
-            console.error("Failed to initialize Gemini client:", error);
+            logger.error("Failed to initialize Gemini client:", error);
         }
     }
     return genAI;
@@ -36,7 +37,7 @@ export const generateContent = async (prompt: string | any[], modelName: string 
         // The response structure might be different, let's extract text
         return (response as any).text;
     } catch (error) {
-        console.error("Error generating content:", error);
+        logger.error("Error generating content:", error);
         throw error;
     }
 };
@@ -111,7 +112,7 @@ Rules:
         const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
         return JSON.parse(jsonString) as EvaluationResult;
     } catch (error) {
-        console.error("Evaluation failed:", error);
+        logger.error("Evaluation failed:", error);
         throw error;
     }
 };
@@ -163,7 +164,7 @@ Rules:
         const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
         return JSON.parse(jsonString) as EvaluationResult;
     } catch (error) {
-        console.error("Opportunity Evaluation failed:", error);
+        logger.error("Opportunity Evaluation failed:", error);
         throw error;
     }
 };
@@ -221,7 +222,7 @@ Rules:
             }
         } as EvaluationResult;
     } catch (error) {
-        console.error("MIT Evaluation failed:", error);
+        logger.error("MIT Evaluation failed:", error);
         throw error;
     }
 };
