@@ -789,7 +789,7 @@ export function ProtemoiBoard() {
                                             </label>
                                             {/* Edit Button (only if org selected) */}
                                             <button
-                                                className="btn btn-square btn-ghost"
+                                                className="btn btn-square btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                                                 title="Edit Selected Company"
                                                 aria-label="Edit Selected Company"
                                                 disabled={!editingEntry.organizationId}
@@ -816,7 +816,7 @@ export function ProtemoiBoard() {
                                         <div className="p-3 bg-base-300 rounded-md border border-white/10 animate-fade-in-up">
                                             <div className="flex justify-between items-center mb-2">
                                                 <strong className="text-sm">{editingOrgId ? "Edit Company" : "New Company"}</strong>
-                                                <button className="btn btn-xs btn-ghost" onClick={() => {
+                                                <button className="btn btn-xs btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => {
                                                     setShowNewOrgInput(false);
                                                     setEditingOrgId(null);
                                                 }}>Cancel</button>
