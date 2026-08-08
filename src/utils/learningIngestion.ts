@@ -1,5 +1,7 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
+import { logger } from "../infrastructure/logger";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -76,13 +78,25 @@ export async function ingestLearnings() {
                 jsonString = jsonString.replace(/^```/, "").replace(/```$/, "");
             }
 
-            const learnings = JSON.parse(jsonString) as string[];
+            const rawLearnings = JSON.parse(jsonString) as string[];
 
-            if (Array.isArray(learnings) && learnings.length > 0) {
+            const validLearnings: string[] = [];
+            if (Array.isArray(rawLearnings)) {
+                for (const learning of rawLearnings) {
+                    try {
+                        validateInput(learning, "Learning", MAX_TEXT_LENGTH);
+                        validLearnings.push(learning);
+                    } catch (e) {
+                        logger.warn(`Skipped invalid learning from ${fileName}:`, e);
+                    }
+                }
+            }
+
+            if (validLearnings.length > 0) {
                 // Bulk insert optimization
                 const chunkSize = 50;
-                for (let i = 0; i < learnings.length; i += chunkSize) {
-                    const chunk = learnings.slice(i, i + chunkSize);
+                for (let i = 0; i < validLearnings.length; i += chunkSize) {
+                    const chunk = validLearnings.slice(i, i + chunkSize);
                     const placeholders: string[] = [];
                     const values: any[] = [];
 
@@ -96,11 +110,11 @@ export async function ingestLearnings() {
                     await db.execute(query, values);
                     count += chunk.length;
                 }
-                console.log(`Extracted ${learnings.length} learnings from ${fileName}.`);
+                console.log(`Extracted ${validLearnings.length} learnings from ${fileName}.`);
             }
 
         } catch (error) {
-            console.error(`Error processing ${fileName}:`, error);
+            logger.error(`Error processing ${fileName}:`, error);
         }
     }
 
