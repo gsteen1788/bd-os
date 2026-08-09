@@ -1,3 +1,4 @@
+import { logger } from "./infrastructure/logger";
 import { useState, useEffect } from 'react';
 import { initDb } from './infrastructure/db';
 import { Layout } from './ui/Layout';
@@ -14,7 +15,7 @@ function App() {
 
     useEffect(() => {
         console.log("App mounted");
-        initDb().catch(console.error);
+        initDb().catch(e => logger.error("App error", e));
     }, []);
 
     const renderContent = () => {

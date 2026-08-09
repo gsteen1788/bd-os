@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2026-06-12 - Secure Error Logging Enforcement
+**Vulnerability:** Scattered `console.error` usages were discovered throughout the presentation (`src/ui`) and application (`src/services`) layers.
+**Learning:** Even when a central `logger.ts` exists to sanitize and suppress PII in production, it is ineffective if developers routinely fall back to the native `console.error` directly. PII embedded in error objects or HTTP responses will be logged directly to the browser console.
+**Prevention:** Always enforce the usage of the central secure logger (e.g., `logger.error`) across the entire codebase. Ensure new code strictly imports the local logging utility instead of using native `console` logging. Also, ensure type safety by properly transforming `console.error(e)` to `logger.error("Error context", e)`.
