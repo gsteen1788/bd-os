@@ -1,3 +1,4 @@
+import { logger } from "../infrastructure/logger";
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
 
@@ -100,7 +101,7 @@ export async function ingestLearnings() {
             }
 
         } catch (error) {
-            console.error(`Error processing ${fileName}:`, error);
+            logger.error(`Error processing ${fileName}:`, error);
         }
     }
 
