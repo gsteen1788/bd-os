@@ -195,9 +195,11 @@ export function ProtemoiBoard() {
     const load = async () => {
         try {
             // Optimization: Bolt ⚡ - Fetch summaries to avoid loading potentially large nextStepText
-            const protemoi = await protemoiRepository.findAllSummaries();
-            const contacts = await contactRepository.findAllSummaries();
-            const orgs = await organizationRepository.findAllSummaries();
+            const [protemoi, contacts, orgs] = await Promise.all([
+                protemoiRepository.findAllSummaries(),
+                contactRepository.findAllSummaries(),
+                organizationRepository.findAllSummaries()
+            ]);
             setOrganizations(orgs);
 
             // Optimization: Create Maps for O(1) lookups instead of O(N*M) nested loops
