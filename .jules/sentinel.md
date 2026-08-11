@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2024-06-11 - DoS via AI Generated Content
+**Vulnerability:** External data sourced from AI APIs (like Gemini in `learningIngestion.ts`) was parsed directly from JSON into string arrays and inserted into the SQLite database without any length validation.
+**Learning:** External inputs, even when structured as JSON arrays from a trusted AI provider, can produce unexpectedly large strings either due to hallucination or malicious prompt injection from the source file. Inserting unvalidated large strings can lead to DoS via database bloat or memory exhaustion.
+**Prevention:** Always iterate through externally sourced string arrays and validate each string using `validateInput` against length limits (`MAX_TEXT_LENGTH`) before persisting them. Use a `try/catch` block around the validation to filter out and skip invalid entries without crashing the entire batch process.
