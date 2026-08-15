@@ -30,17 +30,12 @@ async fn start_auth_server(port: u16) -> Result<String, String> {
                                     let path = parts[1];
                                     if let Some(query_idx) = path.find('?') {
                                         let query = &path[query_idx + 1..];
-                                        for param in query.split('&') {
-                                            if param.starts_with("code=") {
-                                                let code = param[5..].to_string();
-                                                
-                                                let response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><head><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f3f4f6;} .card{background:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1);text-align:center;} h2{color:#10b981;}</style></head><body><div class=\"card\"><h2>Authentication Successful!</h2><p>You can close this window and return to BD OS.</p><script>setTimeout(() => window.close(), 1500);</script></div></body></html>";
-                                                stream.write_all(response.as_bytes()).ok();
-                                                
-                                                let _ = tx.send(Ok(code));
-                                                return;
-                                            }
-                                        }
+
+                                        let response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><head><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f3f4f6;} .card{background:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1);text-align:center;} h2{color:#10b981;}</style></head><body><div class=\"card\"><h2>Authentication Successful!</h2><p>You can close this window and return to BD OS.</p><script>setTimeout(() => window.close(), 1500);</script></div></body></html>";
+                                        stream.write_all(response.as_bytes()).ok();
+
+                                        let _ = tx.send(Ok(query.to_string()));
+                                        return;
                                     }
                                 }
                             }
@@ -59,11 +54,11 @@ async fn start_auth_server(port: u16) -> Result<String, String> {
         let _ = tx.send(Err("Listener closed".to_string()));
     });
 
-    let code = rx.recv()
+    let query_str = rx.recv()
         .map_err(|e| format!("Channel error: {}", e))?
         .map_err(|e| e)?;
 
-    Ok(code)
+    Ok(query_str)
 }
 
 fn main() {
