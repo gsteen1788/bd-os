@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2024-05-19 - Batching React State Updates in useEffect
+**Learning:** In React `useEffect` hooks, issuing multiple sequential promise-resolving `.then()` blocks with state setters (like `repository.findAll().then(setData)`) causes staggered resolutions and multiple re-renders, wasting render cycles.
+**Action:** Group multiple independent promise-returning functions into a single `Promise.all` call to synchronize state updates. This acts as a performance optimization by batching state setters, reducing staggered resolutions, and minimizing React re-renders.
