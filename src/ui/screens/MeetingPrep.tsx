@@ -69,9 +69,16 @@ export function MeetingPrep() {
 
     useEffect(() => {
         // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setAllOpps);
-        protemoiRepository.findAllSummaries().then(setAllRels);
-        contactRepository.findAllSummaries().then(setAllContacts);
+        // Batch independent promises to synchronize state updates and minimize re-renders
+        Promise.all([
+            opportunityRepository.findAllSummaries(),
+            protemoiRepository.findAllSummaries(),
+            contactRepository.findAllSummaries()
+        ]).then(([opps, rels, contacts]) => {
+            setAllOpps(opps);
+            setAllRels(rels);
+            setAllContacts(contacts);
+        });
     }, []);
 
     // Optimization: Memoize grouped history
@@ -718,9 +725,16 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
     useEffect(() => {
         // Load data for linking
         // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setOpportunities);
-        protemoiRepository.findAllSummaries().then(setRelationships);
-        contactRepository.findAllSummaries().then(setContacts);
+        // Batch independent promises to synchronize state updates and minimize re-renders
+        Promise.all([
+            opportunityRepository.findAllSummaries(),
+            protemoiRepository.findAllSummaries(),
+            contactRepository.findAllSummaries()
+        ]).then(([opps, rels, contacts]) => {
+            setOpportunities(opps);
+            setRelationships(rels);
+            setContacts(contacts);
+        });
     }, []);
 
     // Bolt ⚡: O(1) lookup instead of O(N) array find
