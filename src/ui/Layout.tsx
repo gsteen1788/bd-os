@@ -102,6 +102,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     <button
                         onClick={() => setIsSettingsOpen(true)}
                         className="btn-ghost"
+                        aria-label="Open global settings"
                         style={{
                             width: "100%",
                             justifyContent: "flex-start",
