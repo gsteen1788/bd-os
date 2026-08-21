@@ -68,10 +68,23 @@ export function MeetingPrep() {
     }, [viewMode]);
 
     useEffect(() => {
-        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setAllOpps);
-        protemoiRepository.findAllSummaries().then(setAllRels);
-        contactRepository.findAllSummaries().then(setAllContacts);
+        const load = async () => {
+            try {
+                // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
+                // Optimization: Bolt ⚡ - Batch independent promises to synchronize state updates.
+                const [opps, rels, contacts] = await Promise.all([
+                    opportunityRepository.findAllSummaries(),
+                    protemoiRepository.findAllSummaries(),
+                    contactRepository.findAllSummaries()
+                ]);
+                setAllOpps(opps);
+                setAllRels(rels);
+                setAllContacts(contacts);
+            } catch (e) {
+                console.error("Failed to load reference data:", e);
+            }
+        };
+        load();
     }, []);
 
     // Optimization: Memoize grouped history
@@ -716,11 +729,24 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
     const [contacts, setContacts] = useState<Contact[]>([]);
 
     useEffect(() => {
-        // Load data for linking
-        // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
-        opportunityRepository.findAllSummaries().then(setOpportunities);
-        protemoiRepository.findAllSummaries().then(setRelationships);
-        contactRepository.findAllSummaries().then(setContacts);
+        const loadRefs = async () => {
+            try {
+                // Load data for linking
+                // Optimization: Bolt ⚡ - Re-applied findAllSummaries since Protemoi summaries now include type & stage
+                // Optimization: Bolt ⚡ - Batch independent promises to synchronize state updates.
+                const [opps, rels, contacts] = await Promise.all([
+                    opportunityRepository.findAllSummaries(),
+                    protemoiRepository.findAllSummaries(),
+                    contactRepository.findAllSummaries()
+                ]);
+                setOpportunities(opps);
+                setRelationships(rels);
+                setContacts(contacts);
+            } catch (e) {
+                console.error("Failed to load reference data for linking:", e);
+            }
+        };
+        loadRefs();
     }, []);
 
     // Bolt ⚡: O(1) lookup instead of O(N) array find
