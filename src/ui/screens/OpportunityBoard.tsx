@@ -156,11 +156,21 @@ export function OpportunityBoard() {
         }
     }, [editingOpp?.id]);
 
-    const load = () => {
+    const load = async () => {
         // Optimization: Bolt ⚡ - Fetch lightweight summaries instead of full entities (O(N) memory reduction).
         // Avoids loading large text fields (e.g. descriptionMd) for all opportunities on the board.
-        opportunityRepository.findAllSummaries().then(setOpportunities);
-        organizationRepository.findAllSummaries().then(setOrganizations);
+        try {
+            // Optimization: Bolt ⚡ - Batch independent promises to synchronize state updates.
+            // Minimizes staggered resolutions and React re-renders.
+            const [opps, orgs] = await Promise.all([
+                opportunityRepository.findAllSummaries(),
+                organizationRepository.findAllSummaries()
+            ]);
+            setOpportunities(opps);
+            setOrganizations(orgs);
+        } catch (e) {
+            console.error("Failed to load board data:", e);
+        }
     };
 
     useEffect(() => {
