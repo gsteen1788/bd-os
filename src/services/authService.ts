@@ -1,3 +1,4 @@
+import { logger } from "../infrastructure/logger";
 import { getClient, Body } from '@tauri-apps/api/http';
 import { invoke } from '@tauri-apps/api/tauri';
 import { open } from '@tauri-apps/api/shell';
@@ -185,7 +186,7 @@ class AuthService {
             this.handleTokenSuccess(data);
             return data.access_token;
         } catch (error) {
-            console.error('Failed to refresh token', error);
+            logger.error('Failed to refresh token', error);
             return null;
         }
     }
