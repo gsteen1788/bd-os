@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { Modal } from "../components/Modal";
 import { open } from "@tauri-apps/api/dialog";
@@ -165,7 +166,7 @@ export function ProtemoiBoard() {
             );
             setEvaluationResult(result);
         } catch (error) {
-            console.error("Evaluation error:", error);
+            logger.error("Evaluation error:", error);
             // Close modal on error or show error state
             alert("Failed to evaluate. See console.");
             setShowEvaluationModal(false);
@@ -179,7 +180,7 @@ export function ProtemoiBoard() {
         if (editingEntry?.id) {
             meetingRepository.findByProtemoiId(editingEntry.id)
                 .then(setLinkedMeetings)
-                .catch(err => console.error("Failed to load linked meetings", err));
+                .catch(err => logger.error("Failed to load linked meetings", err));
         } else {
             setLinkedMeetings([]);
         }
@@ -217,7 +218,7 @@ export function ProtemoiBoard() {
             });
             setEntries(combined);
         } catch (e) {
-            console.error("Load failed:", e);
+            logger.error("Load failed:", e);
         }
     };
 
@@ -269,7 +270,7 @@ export function ProtemoiBoard() {
                 await protemoiRepository.save(updated);
             }
         } catch (e) {
-            console.error("Failed to move relationship", e);
+            logger.error("Failed to move relationship", e);
             alert("Failed to move relationship");
             load(); // Revert on error
         }
@@ -315,7 +316,7 @@ export function ProtemoiBoard() {
             setShowNewOrgInput(false);
             load();
         } catch (e) {
-            console.error(e);
+            logger.error("Error:", e);
             alert("Failed to save: " + e);
         }
     };
@@ -382,7 +383,7 @@ export function ProtemoiBoard() {
             setEditingOrgId(null);
             setShowNewOrgInput(false);
         } catch (e) {
-            console.error("Failed to save organization:", e);
+            logger.error("Failed to save organization:", e);
             alert("Failed to save company");
         }
     };
@@ -408,7 +409,7 @@ export function ProtemoiBoard() {
             setEditingOrgId(null);
             setShowNewOrgInput(false);
         } catch (e) {
-            console.error("Failed to delete org:", e);
+            logger.error("Failed to delete org:", e);
             alert("Failed to delete company (check console)");
         }
     };
@@ -439,7 +440,7 @@ export function ProtemoiBoard() {
                 setNewOrgLogo(selected);
             }
         } catch (e) {
-            console.error("File selection failed", e);
+            logger.error("File selection failed", e);
         }
     };
 
@@ -639,11 +640,11 @@ export function ProtemoiBoard() {
                                                         organization: entry.organization
                                                     });
                                                 } else {
-                                                    console.error("Relationship not found in database.");
+                                                    logger.error("Relationship not found in database.");
                                                     alert("Failed to load relationship details.");
                                                 }
                                             } catch (e) {
-                                                console.error("Failed to load relationship details", e);
+                                                logger.error("Failed to load relationship details", e);
                                                 alert("Failed to load relationship details.");
                                             }
                                         }}
