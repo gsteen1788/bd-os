@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-05-29 - [DoS/Injection via Unvalidated AI Bulk Inserts]
+**Vulnerability:** The AI-generated `learnings` array (parsed from JSON via Gemini outputs) in `src/utils/learningIngestion.ts` was iterated and batch-inserted into the database without first validating that each item was a safe string of reasonable length.
+**Learning:** External or AI-generated structures like JSON arrays cannot be inherently trusted. Processing them blindly into bulk SQL insert queries (`VALUES ($1, $2)`) introduces vulnerabilities to DoS (e.g., massive strings exhausting database memory or transaction limits) and database bloat.
+**Prevention:** Always validate and sanitize items within parsed external JSON arrays using a boundary utility like `validateInput` (with an explicit `MAX_TEXT_LENGTH`) before mapping them to database values. Wrap individual row validations in a `try/catch` to gracefully skip malformed items rather than crashing the batch process.
