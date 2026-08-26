@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2026-06-12 - Information Disclosure via Browser Alerts
+**Vulnerability:** UI components (`Dashboard.tsx`, `MeetingPrep.tsx`, `OpportunityBoard.tsx`, `ProtemoiBoard.tsx`) were catching internal application errors and directly exposing the raw error object (e.g., `alert("Error: " + String(e))`) to end users via browser alerts.
+**Learning:** Concatenating raw error objects in UI notifications leaks internal application state, stack traces, and potentially sensitive file paths or database structure details to the client-side user.
+**Prevention:** To prevent sensitive information leakage to the user interface, avoid concatenating raw error objects (`e` or `String(e)`) inside `alert()` calls or generic UI error boundaries. Always display generic, safe error messages to the user (e.g., `alert("Error saving")`) and rely on centralized secure logging (`logger.error`) to capture the actual error context for developers.

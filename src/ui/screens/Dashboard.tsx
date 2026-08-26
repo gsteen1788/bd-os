@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Task, Opportunity, ProtemoiEntry, Contact } from "../../domain/entities";
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
@@ -63,7 +64,7 @@ export function Dashboard() {
             }).filter(Boolean) as { entry: ProtemoiEntry, contact: Contact }[];
             setRelationships(rels);
         } catch (e) {
-            console.error("Failed to load context data", e);
+            logger.error("Failed to load context data", e);
         }
     };
 
@@ -86,7 +87,7 @@ export function Dashboard() {
             setAdminHistory(history.filter(t => t.type === 'ADMIN'));
 
         } catch (e) {
-            console.error("Failed to load dashboard tasks", e);
+            logger.error("Failed to load dashboard tasks", e);
         }
     }, [viewMode]);
 
@@ -104,7 +105,7 @@ export function Dashboard() {
                 setShowMITModal(true);
             }
         } catch (e) {
-            console.error("Failed to load full task for editing", e);
+            logger.error("Failed to load full task for editing", e);
             alert("Failed to load task details.");
         }
     }, []);
@@ -127,7 +128,7 @@ export function Dashboard() {
             setCompletionTask(undefined);
             loadTasks();
         } catch (e) {
-            console.error("Failed to complete task", e);
+            logger.error("Failed to complete task", e);
             alert("Failed to complete task");
         }
     };
@@ -142,7 +143,7 @@ export function Dashboard() {
             });
             loadTasks();
         } catch (e) {
-            console.error("Failed to uncomplete MIT", e);
+            logger.error("Failed to uncomplete MIT", e);
             alert("Failed to revert MIT");
         }
     }, [loadTasks]);
@@ -171,7 +172,7 @@ export function Dashboard() {
             });
             loadTasks();
         } catch (e) {
-            console.error("Failed to create Admin Task", e);
+            logger.error("Failed to create Admin Task", e);
             alert("Failed to create task");
         }
     };
@@ -189,7 +190,7 @@ export function Dashboard() {
             await taskRepository.save(taskToSave);
             loadTasks();
         } catch (e) {
-            console.error("Failed to update Admin Task", e);
+            logger.error("Failed to update Admin Task", e);
             alert("Failed to update task");
         }
     };
@@ -209,7 +210,7 @@ export function Dashboard() {
             });
             loadTasks();
         } catch (e) {
-            console.error("Failed to delete Admin Task", e);
+            logger.error("Failed to delete Admin Task", e);
             alert("Failed to delete task");
         }
     };
@@ -224,7 +225,7 @@ export function Dashboard() {
             });
             loadTasks();
         } catch (e) {
-            console.error("Failed to revert Admin Task", e);
+            logger.error("Failed to revert Admin Task", e);
             alert("Failed to revert task");
         }
     };
