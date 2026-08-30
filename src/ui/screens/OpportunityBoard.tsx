@@ -810,6 +810,7 @@ export function OpportunityBoard() {
                                     <input
                                         id="opp-primary-sponsor"
                                         className="input w-full"
+                                        aria-label="Primary Buyer or Sponsor"
                                         value={editingOpp.primarySponsor || ""}
                                         onChange={e => setEditingOpp({ ...editingOpp, primarySponsor: e.target.value })}
                                         placeholder="Name of sponsor"
@@ -820,6 +821,7 @@ export function OpportunityBoard() {
                                     <input
                                         id="opp-obstacle"
                                         className="input w-full"
+                                        aria-label="Obstacle or Risk"
                                         value={editingOpp.obstacle || ""}
                                         onChange={e => setEditingOpp({ ...editingOpp, obstacle: e.target.value })}
                                         placeholder="Biggest risk..."
@@ -832,6 +834,7 @@ export function OpportunityBoard() {
                                 <input
                                     id="opp-next-step"
                                     className="input w-full"
+                                    aria-label="Next Step"
                                     value={editingOpp.nextStepText}
                                     onChange={e => setEditingOpp({ ...editingOpp, nextStepText: e.target.value })}
                                     placeholder="Call John on Monday..."
