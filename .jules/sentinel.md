@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-05-29 - Hardcoded OAuth State leading to CSRF
+**Vulnerability:** The OAuth flow in `authService.ts` used a hardcoded `state` parameter (`12345`), and the backend failed to return and validate the state token. This allows Cross-Site Request Forgery (CSRF) attacks where a malicious site could force the user's browser to authenticate using the attacker's authorization code.
+**Learning:** OAuth state parameters must be dynamically generated, cryptographically secure random values unique to each session, and strictly validated upon the callback.
+**Prevention:** Always generate a random string for the `state` parameter before initiating OAuth, and verify that the returned `state` exactly matches the originally generated value.

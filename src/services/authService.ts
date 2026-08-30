@@ -64,17 +64,27 @@ class AuthService {
         // In full production, use crypto APIs to generate high-entropy verifier and challenge.
         const codeVerifier = this.generateRandomString(64);
         const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+        const state = this.generateRandomString(32);
 
-        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=12345&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+        const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_mode=query&scope=${encodeURIComponent(SCOPES)}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
         // 1. Open the user's default browser to the Microsoft login page
         await open(authUrl);
 
         try {
-            // 2. Block and wait for the localhost server to capture the redirect code
-            const code: string = await invoke('start_auth_server', { port: 8400 });
+            // 2. Block and wait for the localhost server to capture the redirect query string
+            const queryString: string = await invoke('start_auth_server', { port: 8400 });
 
+            if (!queryString) throw new Error("No authorization data received.");
+
+            const urlParams = new URLSearchParams(queryString);
+            const code = urlParams.get('code');
+            const returnedState = urlParams.get('state');
+            const error = urlParams.get('error');
+
+            if (error) throw new Error(`Authorization error: ${error}`);
             if (!code) throw new Error("No authorization code received.");
+            if (returnedState !== state) throw new Error("CSRF validation failed: state mismatch.");
 
             // 3. Exchange the code for the tokens
             await this.exchangeCodeForToken(code, codeVerifier);
