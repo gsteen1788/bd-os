@@ -876,6 +876,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-fullname"
                                             className="input"
+                                            aria-label="Full Name"
                                             value={editingEntry.contact?.displayName || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -904,6 +905,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-email"
                                             className="input"
+                                            aria-label="Email Address"
                                             value={editingEntry.contact?.email || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -917,6 +919,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-phone"
                                             className="input"
+                                            aria-label="Phone Number"
                                             value={editingEntry.contact?.phone || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -930,6 +933,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-linkedin"
                                             className="input"
+                                            aria-label="LinkedIn URL"
                                             value={editingEntry.contact?.linkedinUrl || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -943,6 +947,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-title"
                                             className="input"
+                                            aria-label="Job Title"
                                             value={editingEntry.contact?.title || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -965,6 +970,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-location"
                                             className="input"
+                                            aria-label="Location"
                                             value={editingEntry.contact?.location || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -978,6 +984,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-marital-status"
                                             className="input"
+                                            aria-label="Marital Status"
                                             value={editingEntry.contact?.maritalStatus || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
@@ -991,6 +998,7 @@ export function ProtemoiBoard() {
                                         <input
                                             id="rel-children"
                                             className="input"
+                                            aria-label="Children"
                                             value={editingEntry.contact?.children || ""}
                                             onChange={e => setEditingEntry({
                                                 ...editingEntry,
