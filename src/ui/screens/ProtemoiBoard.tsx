@@ -315,8 +315,8 @@ export function ProtemoiBoard() {
             setShowNewOrgInput(false);
             load();
         } catch (e) {
-            console.error(e);
-            alert("Failed to save: " + e);
+            console.error("Failed to save:", e);
+            alert("Failed to save");
         }
     };
 
@@ -329,7 +329,8 @@ export function ProtemoiBoard() {
             setEditingEntry(null);
             load();
         } catch (e) {
-            alert("Error deleting: " + e);
+            console.error("Error deleting:", e);
+            alert("Error deleting");
         }
     }
 

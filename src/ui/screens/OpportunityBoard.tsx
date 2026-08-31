@@ -313,7 +313,7 @@ export function OpportunityBoard() {
             load();
         } catch (e) {
             console.error("Save failed:", e);
-            alert("Error saving: " + e);
+            alert("Error saving");
         }
     };
 
@@ -326,7 +326,8 @@ export function OpportunityBoard() {
             setEditingOpp(null);
             load();
         } catch (e) {
-            alert("Error deleting: " + e);
+            console.error("Error deleting:", e);
+            alert("Error deleting");
         }
     };
 
