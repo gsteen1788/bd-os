@@ -260,7 +260,7 @@ export function MeetingPrep() {
             setNewMeetingLocation("");
         } catch (e) {
             console.error("Failed to create meeting", e);
-            alert("Failed to create meeting: " + String(e));
+            alert("Failed to create meeting");
         }
     };
 
@@ -299,7 +299,8 @@ export function MeetingPrep() {
             await loadMeetings();
             setIsEditOpen(false);
         } catch (e) {
-            alert("Failed to update: " + String(e));
+            console.error("Failed to update:", e);
+            alert("Failed to update");
         }
     };
 
@@ -374,7 +375,8 @@ export function MeetingPrep() {
             await loadMeetings();
             setMeetingToComplete(null);
         } catch (e) {
-            alert("Failed to complete meeting: " + String(e));
+            console.error("Failed to complete meeting:", e);
+            alert("Failed to complete meeting");
         }
     };
 
@@ -419,7 +421,7 @@ export function MeetingPrep() {
         } catch (e) {
             console.error("Save failed:", e);
             setSaveStatus("ERROR");
-            alert("Error saving: " + String(e));
+            alert("Error saving");
         }
     };
 
@@ -433,7 +435,7 @@ export function MeetingPrep() {
             await loadMeetings();
         } catch (e) {
             console.error("Delete failed:", e);
-            alert("Failed to delete meeting: " + String(e));
+            alert("Failed to delete meeting");
         }
     };
 
