@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2024-05-20 - Memoizing static arrays defined outside of React state
+**Learning:** In `src/ui/Layout.tsx`, a static `tabs` array was defined inside the render function. This causes the array to be re-created on every render, which is inefficient. Furthermore, there was an O(N) `.find()` operation executed during render (`tabs.find(t => t.id === activeTab)`). While N is small (5), it's best practice to move static arrays outside the component or wrap them in `useMemo`, and convert array lookups to Map or Object lookups (O(1)) if accessed frequently during render.
+**Action:** Move static data outside of the React component body to prevent unnecessary allocations, or use `useMemo`. Pre-calculate a lookup Map for O(1) access during render.
