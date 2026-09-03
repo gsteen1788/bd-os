@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2024-05-30 - Tauri OAuth State Validation (CSRF)
+**Vulnerability:** The OAuth flow in `src/services/authService.ts` used a hardcoded state parameter (`state=12345`) and the local Tauri auth server (`src-tauri/src/main.rs`) only extracted and returned the authorization `code` parameter, making it impossible for the frontend to validate the `state` and preventing CSRF attacks.
+**Learning:** In desktop environments using local loopback for OAuth redirects, the local server must pass the full query string back to the application to allow validation of critical security parameters like `state` alongside the `code`.
+**Prevention:** Always dynamically generate high-entropy `state` parameters, and ensure the local auth server returns the full query string (e.g., `query.to_string()`) so the frontend can validate `returnedState === expectedState`.
