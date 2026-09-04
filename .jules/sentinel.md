@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-05-29 - Missing length limits when ingesting unstructured AI outputs
+**Vulnerability:** In `src/utils/learningIngestion.ts`, the Gemini response was parsed as a JSON array of strings, and these string "learnings" were directly pushed into a database insert query without any length validation.
+**Learning:** We cannot unconditionally trust the length of AI-generated content. A hallucination or manipulated prompt could cause the AI model to generate extremely large outputs. Direct insertion of this data risks SQLite database bloat, memory exhaustion during query binding, and Application-level DoS when these massive payloads are retrieved.
+**Prevention:** Always enforce a length limit using the centralized security utility (`validateInput(content, "Field", MAX_TEXT_LENGTH)`) on all text fields extracted from third-party APIs or AI models before they reach the persistence boundary.

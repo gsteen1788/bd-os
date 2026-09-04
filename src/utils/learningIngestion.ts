@@ -1,5 +1,6 @@
 import { generateContent } from "../infrastructure/ai/geminiService";
 import { getDb } from "../infrastructure/db";
+import { validateInput, MAX_TEXT_LENGTH } from "../infrastructure/ai/security";
 
 // Helper to convert blob to base64
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -87,6 +88,7 @@ export async function ingestLearnings() {
                     const values: any[] = [];
 
                     chunk.forEach((learning, index) => {
+                        validateInput(learning, "Learning Content", MAX_TEXT_LENGTH);
                         const offset = index * 2;
                         placeholders.push(`($${offset + 1}, $${offset + 2})`);
                         values.push(learning, fileName);
