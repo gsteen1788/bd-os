@@ -774,6 +774,7 @@ export function ProtemoiBoard() {
                                                 <span className="text-xs font-medium text-muted">Organization</span>
                                                 <select
                                                     id="rel-org"
+                                                    aria-label="Select Organization"
                                                     className="input"
                                                     value={editingEntry.organizationId || ""}
                                                     onChange={e => setEditingEntry({
@@ -888,6 +889,7 @@ export function ProtemoiBoard() {
                                         <span className="text-xs font-medium text-muted">Thinking Style</span>
                                         <select
                                             id="rel-thinking-style"
+                                            aria-label="Select Thinking Style"
                                             className="input"
                                             value={editingEntry.contact?.thinkingPreference || ""}
                                             onChange={e => setEditingEntry({
@@ -1093,6 +1095,7 @@ export function ProtemoiBoard() {
                                         <span className="text-xs font-medium text-muted">Stage</span>
                                         <select
                                             id="rel-stage"
+                                            aria-label="Select Stage"
                                             className="input"
                                             value={editingEntry.relationshipStage}
                                             onChange={e => setEditingEntry({ ...editingEntry, relationshipStage: e.target.value as any })}
@@ -1104,6 +1107,7 @@ export function ProtemoiBoard() {
                                         <span className="text-xs font-medium text-muted">Type</span>
                                         <select
                                             id="rel-type"
+                                            aria-label="Select Type"
                                             className="input"
                                             value={editingEntry.protemoiType}
                                             onChange={e => setEditingEntry({ ...editingEntry, protemoiType: e.target.value as any })}

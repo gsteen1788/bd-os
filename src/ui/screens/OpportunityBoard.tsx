@@ -632,6 +632,7 @@ export function OpportunityBoard() {
                                                 <span className="text-xs font-medium text-muted">Organization</span>
                                                 <select
                                                     id="opp-org"
+                                                    aria-label="Select Organization"
                                                     className="input"
                                                     value={editingOpp.organizationId || ""}
                                                     onChange={e => setEditingOpp({
@@ -740,6 +741,7 @@ export function OpportunityBoard() {
                                     <span className="text-xs text-muted">Currency</span>
                                     <select
                                         id="opp-currency"
+                                        aria-label="Select Currency"
                                         className="input w-full"
                                         value={editingOpp.currency || "ZAR"}
                                         onChange={e => setEditingOpp({ ...editingOpp, currency: e.target.value as Currency })}
@@ -779,6 +781,7 @@ export function OpportunityBoard() {
                                 <span className="text-xs text-muted">Stage</span>
                                 <select
                                     id="opp-stage"
+                                    aria-label="Select Stage"
                                     className="input w-full"
                                     value={editingOpp.stage}
                                     onChange={e => {
