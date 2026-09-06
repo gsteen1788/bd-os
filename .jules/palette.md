@@ -7,3 +7,6 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+## 2024-05-26 - Missing Keyboard Accessibility (Focus Rings) on Icon-only Ghost Buttons
+**Learning:** Icon-only or "ghost" buttons (like "Edit", "Add", "Delete" actions) often lack visual affordance for keyboard navigation when focused, making them inaccessible. Additionally, disabling an icon button without explaining why (via a `title` or tooltip) leaves users confused.
+**Action:** When working with interactive `btn-ghost` or `btn-square` elements, explicitly append focus ring utility classes (e.g., `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) to ensure proper keyboard navigation visibility. For buttons disabled by state, always provide a descriptive `title` (e.g., "Select a company first to edit") to explain the constraint.

@@ -646,8 +646,8 @@ export function OpportunityBoard() {
                                                 </select>
                                             </label>
                                             <button
-                                                className="btn btn-square btn-ghost"
-                                                title="Edit Selected Company"
+                                                className="btn btn-square btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
+                                                title={!editingOpp.organizationId ? "Select a company first to edit" : "Edit Selected Company"}
                                                 aria-label="Edit Selected Company"
                                                 disabled={!editingOpp.organizationId}
                                                 onClick={startEditingOrg}
@@ -655,7 +655,7 @@ export function OpportunityBoard() {
                                                 ✎
                                             </button>
                                             <button
-                                                className="btn btn-square"
+                                                className="btn btn-square focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md"
                                                 title="Add New Company"
                                                 aria-label="Add New Company"
                                                 onClick={() => {
@@ -672,7 +672,7 @@ export function OpportunityBoard() {
                                         <div className="p-3 bg-base-300 rounded-md border border-white/10 animate-fade-in-up">
                                             <div className="flex justify-between items-center mb-2">
                                                 <strong className="text-sm">{editingOrgId ? "Edit Company" : "New Company"}</strong>
-                                                <button className="btn btn-xs btn-ghost" onClick={() => {
+                                                <button className="btn btn-xs btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => {
                                                     setShowNewOrgInput(false);
                                                     setEditingOrgId(null);
                                                 }}>Cancel</button>
@@ -710,7 +710,7 @@ export function OpportunityBoard() {
                                                 )}
                                                 <div className="flex justify-between mt-2">
                                                     {editingOrgId ? (
-                                                        <button className="btn btn-sm btn-ghost text-error" onClick={handleDeleteOrganization}>
+                                                        <button className="btn btn-sm btn-ghost text-error focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none rounded-md" onClick={handleDeleteOrganization}>
                                                             Delete
                                                         </button>
                                                     ) : <div></div>}
