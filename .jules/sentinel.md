@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2026-06-11 - CSRF Vulnerability via Static State in OAuth
+**Vulnerability:** The OAuth flow in `src/services/authService.ts` used a hardcoded `state` parameter (`state=12345`), leaving the authentication process vulnerable to Cross-Site Request Forgery (CSRF).
+**Learning:** OAuth integrations sometimes use static `state` parameters during initial development to simplify backend routing, inadvertently skipping CSRF validation entirely.
+**Prevention:** Always generate a dynamic, high-entropy `state` parameter before initiating OAuth login, and rigorously validate the returned state from the callback before exchanging the code for tokens. The backend callback handler must return the entire query string to allow the frontend to extract and validate both the `code` and the `state` parameters.
