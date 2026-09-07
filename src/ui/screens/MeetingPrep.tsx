@@ -525,7 +525,7 @@ export function MeetingPrep() {
                                 title="New Meeting"
                                 footer={
                                     <div className="flex justify-end gap-2">
-                                        <button className="btn-ghost" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
+                                        <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => setIsNewMeetingOpen(false)}>Cancel</button>
                                         <button className="btn" onClick={handleCreateNew}>Create</button>
                                     </div>
                                 }
@@ -600,7 +600,7 @@ export function MeetingPrep() {
             <div className="flex flex-col gap-6 relative" style={{ maxWidth: "1000px", margin: "0 auto" }}>
                 <div className="flex justify-between items-center sticky top-0 bg-base py-4 z-10 glass px-4 rounded-lg">
                     <div className="flex items-center gap-4">
-                        <button className="btn-ghost" onClick={handleBack}>← Back</button>
+                        <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={handleBack}>← Back</button>
                         <div className="min-w-0 flex-1">
                             <button
                                 type="button"
@@ -633,7 +633,7 @@ export function MeetingPrep() {
                                 ↩ Revert to Scheduled
                             </button>
                         )}
-                        <button className="btn-ghost text-error" onClick={handleDelete}>Delete</button>
+                        <button className="btn btn-ghost text-error focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none rounded-md" onClick={handleDelete}>Delete</button>
                         <button className="btn" onClick={handleSave} disabled={saveStatus === "SAVING" || selectedMeeting.status === "COMPLETED"}>
                             {saveStatus === "SAVING" ? "Saving..." : saveStatus === "SAVED" ? "Saved!" : "Save Prep"}
                         </button>
@@ -669,7 +669,7 @@ export function MeetingPrep() {
                                 <input id="edit-meeting-location" className="input" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
                             </label>
                             <div className="flex justify-end gap-2 mt-4">
-                                <button className="btn-ghost" onClick={() => setIsEditOpen(false)}>Cancel</button>
+                                <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => setIsEditOpen(false)}>Cancel</button>
                                 <button className="btn" onClick={handleUpdateDetails}>Update</button>
                             </div>
                         </div>
@@ -779,7 +779,7 @@ function CompleteMeetingForm({ meeting: _meeting, onCancel, onComplete }: { meet
             </div>
 
             <div className="flex justify-end gap-2 mt-4">
-                <button className="btn-ghost" onClick={onCancel}>Cancel</button>
+                <button className="btn btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={onCancel}>Cancel</button>
                 <button
                     className="btn btn-success"
                     disabled={!nextSteps}
@@ -997,7 +997,7 @@ function QuestionManager({ title, questions, onChange }: { title: string, questi
     const remove = (id: string) => onChange(questions.filter(q => q.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
             <ul className="flex flex-col gap-2">
                 {questions.map(q => (
                     <li key={q.id} className="p-2 bg-base-200 rounded flex justify-between items-center group">
@@ -1036,7 +1036,7 @@ function QAManager({ title, qas, onChange }: { title: string, qas: QA[], onChang
     const remove = (id: string) => onChange(qas.filter(x => x.id !== id));
 
     return (
-        <Section title={title} action={<button className="btn btn-xs btn-ghost" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
+        <Section title={title} action={<button className="btn btn-xs btn-ghost focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md" onClick={() => setIsOpen(true)} aria-label={`Add ${title}`} title={`Add ${title}`}>+</button>}>
             <div className="flex flex-col gap-3">
                 {qas.map(item => (
                     <div key={item.id} className="p-3 bg-base-200 rounded relative group">
