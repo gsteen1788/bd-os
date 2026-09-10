@@ -7,3 +7,6 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+## 2024-05-26 - Missing Base Classes on Ghost Buttons
+**Learning:** Some ghost buttons in the repository use the `btn-ghost` class without the accompanying base `btn` class. This causes them to lack standard padding and structural styling intended by the design system, and also lack standard keyboard focus ring outlines making them difficult to use for keyboard navigation.
+**Action:** When working with `btn-ghost` buttons, always ensure the `btn` base class is present. For accessibility, also add explicitly styled focus rings (e.g. `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-md`) so the focus state is obvious and matches the app's aesthetic rather than relying on browser default outlines.
