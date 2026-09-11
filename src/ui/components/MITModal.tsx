@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect, useMemo } from "react";
 import { Modal } from "./Modal";
 import { taskRepository, opportunityRepository, protemoiRepository, contactRepository } from "../../infrastructure/repositories";
@@ -95,7 +96,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
 
             setRelationships(rels);
         } catch (e) {
-            console.error("Failed to load link candidates", e);
+            logger.error("Failed to load link candidates", e);
         }
     };
 
@@ -134,8 +135,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             if (onSave) onSave();
             onClose();
         } catch (e) {
-            console.error("Failed to save MIT:", e);
-            alert("Failed to save MIT");
+            logger.error("Failed to save MIT:", e);
+            alert("Failed to save MIT. Check console.");
         }
     };
 
@@ -181,7 +182,7 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             }
 
         } catch (error) {
-            console.error("Evaluation failed", error);
+            logger.error("Evaluation failed", error);
             setIsEvaluating(false);
             setShowEvaluationModal(false); // Hide if error, maybe fallback to direct save?
             // Fallback to save if offline/error?
@@ -212,8 +213,8 @@ export function MITModal({ isOpen, onClose, onSave, linkedEntityType, linkedEnti
             if (onSave) onSave();
             onClose();
         } catch (e) {
-            console.error("Failed to delete MIT:", e);
-            alert("Failed to delete MIT");
+            logger.error("Failed to delete MIT:", e);
+            alert("Failed to delete MIT. Check console.");
         }
     };
 

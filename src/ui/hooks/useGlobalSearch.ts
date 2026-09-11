@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect, useCallback } from 'react';
 import {
     organizationRepository,
@@ -48,7 +49,7 @@ export function useGlobalSearch() {
                 meetings: meetings
             });
         } catch (error) {
-            console.error("Global search failed:", error);
+            logger.error("Global search failed:", error);
             // Optionally handle error state
         } finally {
             setIsSearching(false);
