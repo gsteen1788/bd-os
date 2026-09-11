@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect, useMemo } from "react";
 import { meetingRepository, contactRepository, protemoiRepository, opportunityRepository } from '../../infrastructure/repositories';
 import { Meeting, MeetingAttendee, ThinkingPreference, Contact, Risk, Question, QA, ProtemoiEntry, Opportunity } from '../../domain/entities';
@@ -125,7 +126,7 @@ export function MeetingPrep() {
                         myQuestions: Array.isArray(myQuestions) ? myQuestions : [],
                     }));
                 } catch (e) {
-                    console.log("Could not parse notes as prep data", e);
+                    logger.info("Could not parse notes as prep data", e);
                     resetForm();
                 }
             } else {
@@ -259,8 +260,8 @@ export function MeetingPrep() {
             setNewMeetingTime("");
             setNewMeetingLocation("");
         } catch (e) {
-            console.error("Failed to create meeting", e);
-            alert("Failed to create meeting: " + String(e));
+            logger.error("Failed to create meeting", e);
+            alert("Failed to create meeting. Check console.");
         }
     };
 
@@ -299,7 +300,7 @@ export function MeetingPrep() {
             await loadMeetings();
             setIsEditOpen(false);
         } catch (e) {
-            alert("Failed to update: " + String(e));
+            alert("Failed to update. Check console.");
         }
     };
 
@@ -350,7 +351,7 @@ export function MeetingPrep() {
                             await opportunityRepository.save({ ...opp, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
                     } catch (err) {
-                        console.error("Failed to sync next step to Opportunity", err);
+                        logger.error("Failed to sync next step to Opportunity", err);
                     }
                 } else if (targetRelId) {
                     try {
@@ -360,7 +361,7 @@ export function MeetingPrep() {
                             await protemoiRepository.save({ ...rel, nextStepText: steps, updatedAt: new Date().toISOString() });
                         }
                     } catch (err) {
-                        console.error("Failed to sync next step to Relationship", err);
+                        logger.error("Failed to sync next step to Relationship", err);
                     }
                 }
             }
@@ -374,7 +375,7 @@ export function MeetingPrep() {
             await loadMeetings();
             setMeetingToComplete(null);
         } catch (e) {
-            alert("Failed to complete meeting: " + String(e));
+            alert("Failed to complete meeting. Check console.");
         }
     };
 
@@ -395,8 +396,8 @@ export function MeetingPrep() {
             setSelectedMeeting(updated);
             await loadMeetings();
         } catch (e) {
-            console.error("Failed to uncomplete", e);
-            alert("Failed to revert status.");
+            logger.error("Failed to uncomplete", e);
+            alert("Failed to revert status. Check console.");
         }
     };
 
@@ -417,9 +418,9 @@ export function MeetingPrep() {
             setSaveStatus("SAVED");
             setTimeout(() => setSaveStatus("IDLE"), 2000);
         } catch (e) {
-            console.error("Save failed:", e);
+            logger.error("Save failed:", e);
             setSaveStatus("ERROR");
-            alert("Error saving: " + String(e));
+            alert("Error saving. Check console.");
         }
     };
 
@@ -432,8 +433,8 @@ export function MeetingPrep() {
             setSelectedMeeting(null);
             await loadMeetings();
         } catch (e) {
-            console.error("Delete failed:", e);
-            alert("Failed to delete meeting: " + String(e));
+            logger.error("Delete failed:", e);
+            alert("Failed to delete meeting. Check console.");
         }
     };
 
@@ -450,7 +451,7 @@ export function MeetingPrep() {
                 const section = parts[0] as keyof typeof prev;
                 // Safety check for section existence
                 if (!prev[section]) {
-                    // console.error(`Invalid form path: ${path} (section missing)`);
+                    // logger.error(`Invalid form path: ${path} (section missing)`);
                     return prev;
                 }
                 return {
