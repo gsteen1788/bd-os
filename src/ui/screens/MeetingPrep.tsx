@@ -82,21 +82,25 @@ export function MeetingPrep() {
     const relsMap = useMemo(() => new Map(allRels.map(r => [r.id, r])), [allRels]);
     const contactsMap = useMemo(() => new Map(allContacts.map(c => [c.id, c])), [allContacts]);
 
-    // Helper to get name
-    const getLinkName = (m: Meeting) => {
-        if (m.relatedOpportunityId) {
-            const op = oppsMap.get(m.relatedOpportunityId);
-            return op ? `Op: ${op.name}` : "Unknown Op";
-        }
-        if (m.relatedProtemoiId) {
-            const rel = relsMap.get(m.relatedProtemoiId);
-            if (rel) {
-                const c = contactsMap.get(rel.contactId);
-                return c ? `Rel: ${c.displayName}` : "Unknown Rel";
+    // Optimization: Bolt ⚡ - Memoize resolved link names to avoid O(N) map lookups during render cycle
+    const meetingLinkNames = useMemo(() => {
+        const names = new Map<string, string | null>();
+        for (const m of meetings) {
+            let name: string | null = null;
+            if (m.relatedOpportunityId) {
+                const op = oppsMap.get(m.relatedOpportunityId);
+                name = op ? `Op: ${op.name}` : "Unknown Op";
+            } else if (m.relatedProtemoiId) {
+                const rel = relsMap.get(m.relatedProtemoiId);
+                if (rel) {
+                    const c = contactsMap.get(rel.contactId);
+                    name = c ? `Rel: ${c.displayName}` : "Unknown Rel";
+                }
             }
+            names.set(m.id, name);
         }
-        return null;
-    };
+        return names;
+    }, [meetings, oppsMap, relsMap, contactsMap]);
 
     // When a meeting is selected, load its prep data
     useEffect(() => {
@@ -165,7 +169,7 @@ export function MeetingPrep() {
     }, [meetings]);
 
     const renderMeetingCard = (m: Meeting) => {
-        const linkName = getLinkName(m);
+        const linkName = meetingLinkNames.get(m.id) || null;
         const parsedDate = meetingDates.get(m.id) || null;
         return (
             <button
