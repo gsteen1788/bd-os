@@ -1,72 +1,81 @@
 import { GoogleGenAI } from "@google/genai";
 import { sanitizeInput, validateInput } from "./security";
+import { logger } from "../logger";
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
 if (!apiKey) {
-    console.warn("VITE_GOOGLE_API_KEY is not set in environment variables.");
+  logger.warn("VITE_GOOGLE_API_KEY is not set in environment variables.");
 }
 
 let genAI: GoogleGenAI | null = null;
 
 export const getGeminiClient = () => {
-    if (!genAI && apiKey) {
-        try {
-            genAI = new GoogleGenAI({ apiKey });
-        } catch (error) {
-            console.error("Failed to initialize Gemini client:", error);
-        }
-    }
-    return genAI;
-};
-
-export const generateContent = async (prompt: string | any[], modelName: string = "gemini-3-flash-preview") => {
-    const client = getGeminiClient();
-    if (!client) {
-        throw new Error("Gemini client not initialized. Check API key.");
-    }
-
+  if (!genAI && apiKey) {
     try {
-        // In the new SDK, we use client.models.generateContent
-        const response = await client.models.generateContent({
-            model: modelName,
-            contents: Array.isArray(prompt) ? prompt : [{ role: 'user', parts: [{ text: prompt }] }]
-        });
-
-        // The response structure might be different, let's extract text
-        return (response as any).text;
+      genAI = new GoogleGenAI({ apiKey });
     } catch (error) {
-        console.error("Error generating content:", error);
-        throw error;
+      logger.error("Failed to initialize Gemini client:", error);
     }
+  }
+  return genAI;
 };
 
+export const generateContent = async (
+  prompt: string | any[],
+  modelName: string = "gemini-3-flash-preview",
+) => {
+  const client = getGeminiClient();
+  if (!client) {
+    throw new Error("Gemini client not initialized. Check API key.");
+  }
 
+  try {
+    // In the new SDK, we use client.models.generateContent
+    const response = await client.models.generateContent({
+      model: modelName,
+      contents: Array.isArray(prompt)
+        ? prompt
+        : [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    // The response structure might be different, let's extract text
+    return (response as any).text;
+  } catch (error) {
+    logger.error("Error generating content:", error);
+    throw error;
+  }
+};
 
 export interface EvaluationResult {
-    verdict: "PASS" | "FAIL";
-    deposit_type?: "credibility" | "reliability" | "intimacy" | "low_self_orientation" | "";
-    // MIT specific fields
-    mit_criteria?: {
-        big_impact: boolean;
-        in_control: boolean;
-        growth_oriented: boolean;
-    };
-    reason: string;
-    improvement_hint: string;
-    rewrite_if_fail?: string; // Captured from mit prompt
+  verdict: "PASS" | "FAIL";
+  deposit_type?:
+    | "credibility"
+    | "reliability"
+    | "intimacy"
+    | "low_self_orientation"
+    | "";
+  // MIT specific fields
+  mit_criteria?: {
+    big_impact: boolean;
+    in_control: boolean;
+    growth_oriented: boolean;
+  };
+  reason: string;
+  improvement_hint: string;
+  rewrite_if_fail?: string; // Captured from mit prompt
 }
 
 export const evaluateNextStep = async (
-    relationshipLevel: string,
-    protemoiType: string,
-    nextStep: string
+  relationshipLevel: string,
+  protemoiType: string,
+  nextStep: string,
 ): Promise<EvaluationResult> => {
-    validateInput(relationshipLevel, "Relationship Level");
-    validateInput(protemoiType, "Protemoi Type");
-    validateInput(nextStep, "Next Step");
+  validateInput(relationshipLevel, "Relationship Level");
+  validateInput(protemoiType, "Protemoi Type");
+  validateInput(nextStep, "Next Step");
 
-    const prompt = `
+  const prompt = `
 You are evaluating a proposed NEXT STEP to advance a professional relationship (Protemoi). Return PASS if it is a meaningful trust deposit; otherwise FAIL.
 
 PASS criteria (must all be true):
@@ -105,27 +114,27 @@ Rules:
 - If the step is generic (“check in”, “catch up sometime”), it must be FAIL.
 `;
 
-    try {
-        const resultText = await generateContent(prompt);
-        // Clean up markdown code blocks if present
-        const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
-        return JSON.parse(jsonString) as EvaluationResult;
-    } catch (error) {
-        console.error("Evaluation failed:", error);
-        throw error;
-    }
+  try {
+    const resultText = await generateContent(prompt);
+    // Clean up markdown code blocks if present
+    const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
+    return JSON.parse(jsonString) as EvaluationResult;
+  } catch (error) {
+    logger.error("Evaluation failed:", error);
+    throw error;
+  }
 };
 
 export const evaluateOpportunityNextStep = async (
-    stage: string,
-    buyer: string,
-    nextStep: string
+  stage: string,
+  buyer: string,
+  nextStep: string,
 ): Promise<EvaluationResult> => {
-    validateInput(stage, "Stage");
-    validateInput(buyer, "Buyer");
-    validateInput(nextStep, "Next Step");
+  validateInput(stage, "Stage");
+  validateInput(buyer, "Buyer");
+  validateInput(nextStep, "Next Step");
 
-    const prompt = `
+  const prompt = `
 You are evaluating a proposed NEXT STEP for a consulting opportunity. Your job is to return PASS if it is sufficient to advance the opportunity, otherwise FAIL.
 
 A next step is PASS only if it is:
@@ -158,22 +167,22 @@ Rules:
 - Keep outputs short.
 `;
 
-    try {
-        const resultText = await generateContent(prompt);
-        const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
-        return JSON.parse(jsonString) as EvaluationResult;
-    } catch (error) {
-        console.error("Opportunity Evaluation failed:", error);
-        throw error;
-    }
+  try {
+    const resultText = await generateContent(prompt);
+    const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
+    return JSON.parse(jsonString) as EvaluationResult;
+  } catch (error) {
+    logger.error("Opportunity Evaluation failed:", error);
+    throw error;
+  }
 };
 
 export const evaluateMIT = async (
-    mitText: string,
+  mitText: string,
 ): Promise<EvaluationResult> => {
-    validateInput(mitText, "MIT Text");
+  validateInput(mitText, "MIT Text");
 
-    const prompt = `
+  const prompt = `
 You are evaluating whether a proposed task qualifies as a GrowBIG Most Important Thing (MIT).
 
 An MIT must meet ALL 3 criteria that spell BIG:
@@ -205,23 +214,23 @@ Rules:
 - Keep output short and do not invent context.
 `;
 
-    try {
-        const resultText = await generateContent(prompt);
-        const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
-        const rawResult = JSON.parse(jsonString);
+  try {
+    const resultText = await generateContent(prompt);
+    const jsonString = resultText.replace(/```json\n?|\n?```/g, "").trim();
+    const rawResult = JSON.parse(jsonString);
 
-        return {
-            verdict: rawResult.verdict,
-            reason: rawResult.reason,
-            improvement_hint: rawResult.rewrite_if_fail,
-            mit_criteria: {
-                big_impact: rawResult.big_impact,
-                in_control: rawResult.in_your_control,
-                growth_oriented: rawResult.growth_oriented
-            }
-        } as EvaluationResult;
-    } catch (error) {
-        console.error("MIT Evaluation failed:", error);
-        throw error;
-    }
+    return {
+      verdict: rawResult.verdict,
+      reason: rawResult.reason,
+      improvement_hint: rawResult.rewrite_if_fail,
+      mit_criteria: {
+        big_impact: rawResult.big_impact,
+        in_control: rawResult.in_your_control,
+        growth_oriented: rawResult.growth_oriented,
+      },
+    } as EvaluationResult;
+  } catch (error) {
+    logger.error("MIT Evaluation failed:", error);
+    throw error;
+  }
 };
