@@ -7,3 +7,6 @@
 ## 2024-05-24 - Semantic Buttons for Complex Interactive Toggles
 **Learning:** Using `div` with `role="button"` and manual `onKeyDown` handlers for complex interactive toggles (like the B.I.G. criteria accordion buttons) is an anti-pattern. Natively, screen readers and keyboard navigation correctly trigger standard `<button>` elements with `Space` and `Enter` implicitly without extra event listeners.
 **Action:** Always refactor generic container elements mimicking buttons to `<button type="button">` and apply `w-full text-left block` for layout preservation.
+## 2024-05-26 - Missing base .btn class on ghost buttons
+**Learning:** Ghost buttons that use only the `.btn-ghost` modifier without the base `.btn` class (e.g., `className="btn-ghost"`) lack the proper structural padding, sizing, and basic interactive properties of standard buttons in our custom CSS system. This leads to inconsistent and poor UX because they lack hit-target size.
+**Action:** When using modifier button classes like `btn-ghost`, always ensure the base `btn` class is applied first (e.g., `className="btn btn-ghost"`).
