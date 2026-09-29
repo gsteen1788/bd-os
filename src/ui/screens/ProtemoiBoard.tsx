@@ -316,7 +316,7 @@ export function ProtemoiBoard() {
             load();
         } catch (e) {
             console.error(e);
-            alert("Failed to save: " + e);
+            alert("Failed to save.");
         }
     };
 
@@ -329,7 +329,7 @@ export function ProtemoiBoard() {
             setEditingEntry(null);
             load();
         } catch (e) {
-            alert("Error deleting: " + e);
+            alert("Error deleting.");
         }
     }
 
