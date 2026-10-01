@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2024-05-24 - Database Index Optimization
+**Learning:** Initializing the SQLite database relies entirely on executing the raw `SCHEMA_SQL` template string defined in `src/infrastructure/schema_definitions.ts`. Any tables or indexes created directly via SQLite CLI or missing from this string will not exist in the production application runtime.
+**Action:** When adding missing SQLite database indexes (e.g., `updated_at`), ensure they are properly injected into `SCHEMA_SQL` using `CREATE INDEX IF NOT EXISTS`. Avoid using backticks inside template literal comments as it will break the JavaScript syntax.
