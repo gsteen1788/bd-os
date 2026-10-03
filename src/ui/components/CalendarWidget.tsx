@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect } from 'react';
 import { graphService, GraphEvent } from '../../services/graphService';
 import { OutlookConnect } from './OutlookConnect';
@@ -35,7 +36,7 @@ export const CalendarWidget = () => {
             const data = await graphService.getCalendarEvents();
             setEvents(data);
         } catch (error) {
-            console.error("Failed to fetch events", error);
+            logger.error("Failed to fetch events", error);
         } finally {
             setLoading(false);
         }
@@ -59,7 +60,7 @@ export const CalendarWidget = () => {
             setNewEventSubject('');
             fetchEvents(); // Refresh list
         } catch (error) {
-            console.error("Failed to create event", error);
+            logger.error("Failed to create event", error);
         } finally {
             setIsCreating(false);
         }
