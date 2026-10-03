@@ -1,4 +1,5 @@
 
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect } from "react";
 import { EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { useTheme } from "../../application/ThemeContext";
@@ -37,7 +38,7 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                 setCustomIcon(selected);
             }
         } catch (e) {
-            console.error("Failed to select icon:", e);
+            logger.error("Failed to select icon:", e);
         }
     };
 
