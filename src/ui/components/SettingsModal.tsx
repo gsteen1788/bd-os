@@ -55,8 +55,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <button
                                 key={t.id}
                                 onClick={() => setTheme(t.id)}
+                                aria-pressed={theme === t.id}
                                 className={`
-                                    flex items-center gap-4 p-4 rounded-xl border text-left transition-all
+                                    flex items-center gap-4 p-4 rounded-xl border text-left transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none
                                     ${theme === t.id
                                         ? 'border-primary bg-primary/10 ring-1 ring-primary/50'
                                         : 'border-white/10 hover:border-white/20 hover:bg-white/5'
