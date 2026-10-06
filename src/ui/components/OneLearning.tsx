@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import React, { useState, useEffect } from 'react';
 import { getDb } from '../../infrastructure/db';
 import { ingestLearnings } from '../../utils/learningIngestion';
@@ -31,7 +32,7 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
                 setLearning({ id: 0, content: "No learnings found. Click 'Refresh' to ingest.", source_file: "System" });
             }
         } catch (error) {
-            console.error("Failed to fetch learning:", error);
+            logger.error("Failed to fetch learning:", error);
         } finally {
             setLoading(false);
         }
@@ -56,8 +57,8 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
             await ingestLearnings();
             await fetchRandomLearning();
         } catch (error) {
-            console.error("Ingestion failed:", error);
-            alert("Failed to ingest learnings. Check console.");
+            logger.error("Ingestion failed:", error);
+            alert("Failed to ingest learnings.");
         } finally {
             setIngesting(false);
         }
