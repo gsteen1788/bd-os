@@ -1,3 +1,4 @@
+import { logger } from "../../infrastructure/logger";
 import { useState, useEffect } from 'react';
 import { authService } from '../../services/authService';
 import { graphService } from '../../services/graphService';
@@ -19,7 +20,7 @@ export const OutlookConnect = () => {
                 setUserName(user.displayName);
                 setStatus('connected');
             } catch (error) {
-                console.error('Failed to get user details', error);
+                logger.error('Failed to get user details', error);
                 authService.logout();
                 setStatus('idle');
             }
@@ -36,7 +37,7 @@ export const OutlookConnect = () => {
             setStatus('loading');
             await checkConnection();
         } catch (error: any) {
-            console.error('Connection failed', error);
+            logger.error('Connection failed', error);
             setErrorMessage(error.message || 'An unknown error occurred.');
             setStatus('error');
         }
