@@ -573,6 +573,7 @@ export function OpportunityBoard() {
                             className="toggle toggle-primary toggle-sm"
                             checked={isAnonymized}
                             onChange={(e) => toggleAnonymized(e.target.checked)}
+                            aria-label="Toggle anonymize opportunities"
                         />
                     </label>
                     <button className="btn btn-primary" onClick={createNew}>New Opportunity</button>

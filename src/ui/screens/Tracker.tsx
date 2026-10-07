@@ -215,6 +215,7 @@ export function Tracker() {
                             className="input input-xs bg-transparent border-none text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
+                            aria-label="Start Date"
                         />
                     </div>
                     <div className="w-px h-8 bg-white/10"></div>
@@ -226,6 +227,7 @@ export function Tracker() {
                             className="input input-xs bg-transparent border-none text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)} // Logic handles reload
+                            aria-label="End Date"
                         />
                     </div>
                 </div>
