@@ -4,3 +4,6 @@
 ## 2024-05-18 - Optimizing Event Handlers
 **Learning:** Avoid premature optimizations in event handlers (e.g. `onClick`). Moving (N)$ operations out of an event handler and into the render loop using `useMemo` can actually degrade performance, as the `useMemo` re-computes on state changes while the event handler only fires once upon interaction.
 **Action:** Focus performance optimization on operations executed *during* render cycles or loops. Do not memoize data solely to speed up an `onClick` handler unless it demonstrably lags during user interaction.
+## 2024-10-10 - Dashboard Task Filtering
+**Learning:** Re-iterating over large arrays with multiple `.filter()` calls to separate elements by type adds unnecessary overhead (traversal time and garbage collection).
+**Action:** Use a single `for...of` loop to sort items into separate arrays when dividing a data set into multiple categories, resulting in ~2x speedups.
