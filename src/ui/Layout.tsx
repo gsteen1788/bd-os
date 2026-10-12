@@ -79,6 +79,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                                 key={tab.id}
                                 onClick={() => onTabChange(tab.id)}
                                 className={isActive ? "btn" : "btn-ghost"}
+                                aria-label={tab.label}
                                 style={{
                                     justifyContent: "flex-start",
                                     textAlign: "left",
@@ -102,6 +103,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                     <button
                         onClick={() => setIsSettingsOpen(true)}
                         className="btn-ghost"
+                        aria-label="Settings"
                         style={{
                             width: "100%",
                             justifyContent: "flex-start",
