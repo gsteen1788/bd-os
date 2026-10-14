@@ -100,3 +100,7 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+## 2024-05-29 - Missing Length Limits for AI Generated Content
+**Vulnerability:** AI-generated content (like document extractions) was inserted directly into the database without passing through `validateInput` to enforce length constraints (e.g. `MAX_TEXT_LENGTH`).
+**Learning:** External or AI-generated strings, even if theoretically bounded by a prompt, can sometimes produce unbounded or extremely large outputs (e.g., repeating loops). If ingested directly, this causes database bloat and potential DoS vectors.
+**Prevention:** Always treat AI-generated output as untrusted input. Validate it with `validateInput` (with an appropriate `MAX_TEXT_LENGTH`) before persisting it into the database to enforce strict schema limits.
