@@ -1,0 +1,4 @@
+💡 What: Added the missing base `.btn` class to DaisyUI `btn-ghost` modifier classes across `Layout.tsx`, `Modal.tsx`, and `MeetingPrep.tsx`.
+🎯 Why: DaisyUI modifier classes require the base component class for proper structural styling (padding, min-height, hit targets). Missing the base class results in hard-to-click, visually misaligned buttons that degrade the user experience and accessibility.
+📸 Before/After: Buttons that were previously unstyled text now have correct padding, alignment, and hover/focus target areas. (See attached verification screenshot).
+♿ Accessibility: Increased the click and touch target size for these interactive elements, making them easier to activate for all users, and ensuring focus rings apply to the correct boundary box.
