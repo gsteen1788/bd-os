@@ -108,6 +108,9 @@ export async function initDb() {
               FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
             );
         `);
+        // Optimization: Bolt ⚡ - Add index on task_id to prevent O(N) full table scans
+        // during populateLinks() which is called on almost all task queries.
+        await db.execute("CREATE INDEX IF NOT EXISTS idx_task_links_task_id ON task_links(task_id);");
         console.log("Migration: task_links table checked/created.");
     } catch (e) {
         console.error("Migration error for task_links:", e);
