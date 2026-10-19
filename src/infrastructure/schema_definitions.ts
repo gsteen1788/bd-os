@@ -138,6 +138,8 @@ CREATE TABLE IF NOT EXISTS task_links (
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_task_links_task_id ON task_links(task_id);
+
 CREATE TABLE IF NOT EXISTS tracker_goals (
   id TEXT PRIMARY KEY,
   metric TEXT NOT NULL UNIQUE,
