@@ -4,6 +4,7 @@ import { EvaluationResult } from "../../infrastructure/ai/geminiService";
 import { useTheme } from "../../application/ThemeContext";
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { logger } from '../../infrastructure/logger';
 
 interface EvaluationModalProps {
     isOpen: boolean;
@@ -37,7 +38,7 @@ export function EvaluationModal({ isOpen, onClose, result, isLoading, onUseAnywa
                 setCustomIcon(selected);
             }
         } catch (e) {
-            console.error("Failed to select icon:", e);
+            logger.error("Failed to select icon:", e);
         }
     };
 

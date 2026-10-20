@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { taskRepository, trackerGoalRepository } from "../../infrastructure/repositories";
 import { getWeekStart } from "../../utils/dateUtils";
+import { logger } from '../../infrastructure/logger';
 
 // Optimization: Bolt ⚡ - Cache formatter to avoid re-instantiation in render loop
 const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
@@ -137,7 +138,7 @@ export function Tracker() {
             setStats(weeks);
 
         } catch (e) {
-            console.error("Failed to load tracker data", e);
+            logger.error("Failed to load tracker data", e);
         }
     };
 
@@ -154,7 +155,7 @@ export function Tracker() {
             });
             setGoals(prev => ({ ...prev, [metric]: num }));
         } catch (e) {
-            console.error("Failed to save goal", e);
+            logger.error("Failed to save goal", e);
         }
     };
 

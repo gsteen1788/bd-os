@@ -71,6 +71,7 @@ const renderTooltipContent = (text: string) => {
 
 import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { logger } from '../../infrastructure/logger';
 
 export function OpportunityBoard() {
     // ... existing state ...
@@ -137,7 +138,7 @@ export function OpportunityBoard() {
             );
             setEvaluationResult(result);
         } catch (error) {
-            console.error("Evaluation error:", error);
+            logger.error("Evaluation error:", error);
             // Close modal on error or show error state
             alert("Failed to evaluate. See console.");
             setShowEvaluationModal(false);
@@ -150,7 +151,7 @@ export function OpportunityBoard() {
         if (editingOpp?.id) {
             meetingRepository.findByOpportunityId(editingOpp.id)
                 .then(setLinkedMeetings)
-                .catch(err => console.error("Failed to load linked meetings", err));
+                .catch(err => logger.error("Failed to load linked meetings", err));
         } else {
             setLinkedMeetings([]);
         }
@@ -244,7 +245,7 @@ export function OpportunityBoard() {
             setEditingOrgId(null);
             setShowNewOrgInput(false);
         } catch (e) {
-            console.error("Failed to save organization:", e);
+            logger.error("Failed to save organization:", e);
             alert("Failed to save company");
         }
     };
@@ -264,7 +265,7 @@ export function OpportunityBoard() {
             setEditingOrgId(null);
             setShowNewOrgInput(false);
         } catch (e) {
-            console.error("Failed to delete org:", e);
+            logger.error("Failed to delete org:", e);
             alert("Failed to delete company (check console)");
         }
     };
@@ -291,7 +292,7 @@ export function OpportunityBoard() {
                 setNewOrgLogo(selected);
             }
         } catch (e) {
-            console.error("File selection failed", e);
+            logger.error("File selection failed", e);
         }
     };
 
@@ -312,8 +313,8 @@ export function OpportunityBoard() {
             setEditingOpp(null);
             load();
         } catch (e) {
-            console.error("Save failed:", e);
-            alert("Error saving: " + e);
+            logger.error("Save failed:", e);
+            alert("An error occurred. Check logs for details.");
         }
     };
 
@@ -326,7 +327,7 @@ export function OpportunityBoard() {
             setEditingOpp(null);
             load();
         } catch (e) {
-            alert("Error deleting: " + e);
+            alert("An error occurred. Check logs for details.");
         }
     };
 
@@ -390,7 +391,7 @@ export function OpportunityBoard() {
                 load(); // Reload to refresh summaries fully
             }
         } catch (e) {
-            console.error("Failed to move opportunity", e);
+            logger.error("Failed to move opportunity", e);
             alert("Failed to move opportunity");
             load(); // Revert on error
         }
@@ -488,7 +489,7 @@ export function OpportunityBoard() {
                                     if (fullOpp) {
                                         setEditingOpp(fullOpp);
                                     } else {
-                                        console.error("Opportunity not found in database.");
+                                        logger.error("Opportunity not found in database.");
                                         alert("Failed to load opportunity details.");
                                     }
                                 } catch (e) {

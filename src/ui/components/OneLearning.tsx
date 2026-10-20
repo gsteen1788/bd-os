@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getDb } from '../../infrastructure/db';
 import { ingestLearnings } from '../../utils/learningIngestion';
 import { useTheme } from '../../application/ThemeContext';
+import { logger } from '../../infrastructure/logger';
 
 interface Learning {
     id: number;
@@ -31,7 +32,7 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
                 setLearning({ id: 0, content: "No learnings found. Click 'Refresh' to ingest.", source_file: "System" });
             }
         } catch (error) {
-            console.error("Failed to fetch learning:", error);
+            logger.error("Failed to fetch learning:", error);
         } finally {
             setLoading(false);
         }
@@ -56,7 +57,7 @@ export const OneLearning: React.FC<OneLearningProps> = ({ activeTab = 'dashboard
             await ingestLearnings();
             await fetchRandomLearning();
         } catch (error) {
-            console.error("Ingestion failed:", error);
+            logger.error("Ingestion failed:", error);
             alert("Failed to ingest learnings. Check console.");
         } finally {
             setIngesting(false);
