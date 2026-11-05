@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { graphService, GraphEvent } from '../../services/graphService';
 import { OutlookConnect } from './OutlookConnect';
 import { authService } from '../../services/authService';
@@ -8,6 +8,16 @@ import { formatTime as utilFormatTime, formatShortDate } from '../../utils/dateU
 export const CalendarWidget = () => {
     const [events, setEvents] = useState<GraphEvent[]>([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    // ⚡ Bolt Optimization: Pre-parse event dates to avoid O(N) instantiation in render loop
+    // Prevents redundant parsing during frequent re-renders caused by the controlled input.
+    const parsedEventDates = useMemo(() => {
+        const map = new Map<string, Date>();
+        events.forEach(event => {
+            map.set(event.id, new Date(event.start.dateTime));
+        });
+        return map;
+    }, [events]);
     const [loading, setLoading] = useState(false);
     const [newEventSubject, setNewEventSubject] = useState('');
     const [isCreating, setIsCreating] = useState(false);
@@ -147,9 +157,7 @@ export const CalendarWidget = () => {
                                 ) : (
                                     <div className="space-y-2">
                                         {events.map((event) => {
-                                            // ⚡ Bolt Optimization: Instantiate Date once per event
-                                            // Prevents 3 separate ISO-string parses per mapped item
-                                            const eventDate = new Date(event.start.dateTime);
+                                            const eventDate = parsedEventDates.get(event.id)!;
                                             return (
                                             <div key={event.id} className="group p-3 rounded-lg border border-[hsl(var(--color-border))] hover:border-primary/50 bg-base-100 transition-all flex gap-3 items-start">
                                                 <div className="flex flex-col items-center min-w-[3rem] p-1 bg-base-200 rounded border border-[hsl(var(--color-border))]">
