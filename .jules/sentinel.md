@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2026-06-11 - PII Leakage in ProtemoiBoard
+**Vulnerability:** The UI component `src/ui/screens/ProtemoiBoard.tsx` was using native `console.error` to log unhandled exceptions. Given that this component handles heavily sensitive PII (Contacts, Organizations, and Relationship States), any unhandled error could accidentally serialize and dump these full entities into the user's browser console or production logs.
+**Learning:** Even if a component catches an error, logging the raw `error` object or unknown context via `console.error` bypasses the secure logger's PII stripping mechanisms. Frontend UI components handling sensitive domains are just as critical as repositories.
+**Prevention:** Strictly enforce the use of `import { logger } from "../../infrastructure/logger"` and `logger.error` across all UI components, especially those rendering domain entities.
