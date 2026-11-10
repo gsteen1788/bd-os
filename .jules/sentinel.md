@@ -100,3 +100,8 @@
 **Vulnerability:** Repositories were using raw `console.log` and `console.error` which risked dumping full entity objects containing PII into production logs.
 **Learning:** PII leakage often happens via generic error logging (e.g., `catch(e) { console.error("Error", e) }`) where the full error object or context entity is logged.
 **Prevention:** Use a centralized secure `logger.ts` utility that suppresses non-error logs in production (`import.meta.env.MODE`) and actively strips complex error objects (falling back to `error.message` or `String(error)`) to prevent unintended exposure of raw entity data.
+
+## 2024-05-29 - PII Leakage in Database Migrations
+**Vulnerability:** The `initDb()` function in `src/infrastructure/db.ts` was using raw `console.log` and `console.error` calls during database migrations. If an error occurred, the full error object and SQL statement context could be dumped to the standard output, potentially leaking sensitive schema information or PII.
+**Learning:** Native console logging methods do not strip complex objects or filter sensitive data. Using them for error handling, especially during database operations, risks exposing internal application state or PII in production logs.
+**Prevention:** Always use a centralized, secure `logger` utility (e.g., `logger.error`, `logger.info`) for operational logging that suppresses non-error logs in production and actively strips complex error objects to prevent unintended data exposure.
